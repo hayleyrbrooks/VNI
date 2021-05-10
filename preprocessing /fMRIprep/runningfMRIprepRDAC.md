@@ -11,17 +11,28 @@
 
 ## 3) Updated the sbatch_fmriprep_ICA.sh job submission script to specify which participants to run
 		vim sbatch_fmriprep.sh
-	where it says 
+
+specify participants 
+		
 		SBATCH --array (specify row numbers corresponding to subject ID numbers in ids.tx). 
-	for example, for the first three participants
+for example, for the first three participants
+		
 		SBATCH --array=1-3 
 
 
 
 ## If singularity image for fMRIprep needs to be updates: 
-Loading the singularity module:
-	a) cd /data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/ (this is the directory where the singularity module is stored)
-	b) module load singularity/3.4.1 (load singularity, version may change over time)
-	c)export SINGULARITY_TMPDIR="/data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/SINGULARITY_TMPDIR"
-	d) export SINGULARITY_CACHEDIR="/data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/SINGULARITY_CACHEDIR"
-	e) singularity pull --name fmriprep.simg docker://poldrack/fmriprep:latest (loads the latest fmriprep module. rename fmriprep.simg to include the latest version. do not change versions during analysis of a single study)
+Change directory to where image lives
+	
+	cd /data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/ 
+Load singularity, version may change over time
+	
+	module load singularity/3.4.1 
+
+Do some stuff following instructions on fMRIprep website and load the latest fmriprep module and rename fmriprep.simg to include latest version (don't update version during a single study)
+
+	export SINGULARITY_TMPDIR="/data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/SINGULARITY_TMPDIR"
+	export SINGULARITY_CACHEDIR="/data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/SINGULARITY_CACHEDIR"
+	singularity pull --name fmriprep.simg docker://poldrack/fmriprep:latest 
+	
+	
