@@ -5,8 +5,9 @@ University of Denver
 
 1) log into rdac: ssh -Y first.last@rdac.du.edu
 2) enter password
-3) type: 
--`cd /data/psychology/sokol-hessnerlab/VNI
+3) change directory:
+-		cd /data/psychology/sokol-hessnerlab/VNI
+VNI directory contents used for MRIQC (RDAC)
 -	vniBIDS: VNI data in bids format
 -	sourceData:  raw VNI data with COINS' M803 numbers for participants
 -	MRIQCoutput: output of MRIQC
