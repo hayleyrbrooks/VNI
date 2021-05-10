@@ -30,8 +30,9 @@ Now all raw files in anat, fmap, func directories are in NIFTI + BIDS compliant 
 
 
 ## STEP 4: quality check (notes made in vniQCnotes.xlsx)
+(this part has not been updated for RDAC where loading FSL will be a little different)
 1.	First, make sure that the dcm2niix process occurred with no errors. 
-•	Open a new terminal window, load FSL, then change the directory to the functional folder of the participant you are checking: cd /data1/Sokol-HesserLab/VNI/vniBIDS/sub-###/func. 
+•	Open a new terminal window, load FSL, then change the directory to the functional folder of the participant you are checking: cd /data/psychology/sokol-hessnerlab/VNI/vniBIDS/sub-###/func. 
 •	Type ‘fslinfo sub-###_task-run#_bold.nii.gz’ (change the sub ID and the run number)
 •	There should be the number ‘1608’ next to the dim4 output (implying there are 1608 volumes). If there is a number other than 1608, then go back to the raw dicom file to check that there are 1608 files in each of the raw data folders for each run. If there are 1608 dicom files then its probably an issue with dcm2niix. Try running it again. 
 2.	Second, load the structural (T1) scan into the FSL eyes and click around to examine the structural image and make note of any artifacts.
