@@ -9,8 +9,8 @@
 -	sourceData:  raw VNI data with COINS' M803 numbers for participants
 -	MRIQCoutput: output of MRIQC
 -	MRIQCsing: where the singularity image is stored 
--	work: created by MRIQC/fMRIprep to store workflow shit that I don't understand
--	mriqc_#####.log - any logs that are produced from running mriqc (usually deleted afterward)
+-	work: created by MRIQC/fMRIprep to store workflow stuff
+-	mriqc_#####.log: any logs that are produced from running mriqc (usually deleted afterward)
 -	sbatch_mriqc.sh: SLURM job submission script for a single participant
 -	sbatch_mriqc_group.sh: SLURM job submission script for group MRIQC
 	
