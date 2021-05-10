@@ -8,6 +8,14 @@
 ## 2) change directory
 		cd /data/psychology/sokol-hessnerlab/VNI/
 
+### VNI directory contents used for fMRIprep (RDAC)
+-	vniBIDS: VNI data in bids format
+-	sourceData:  raw VNI data with COINS' M803 numbers for participants
+-	fmriPrepOutput_ica: output of fMRIprep output using ICA-AROMA
+-	FMRIPREPsing: where the singularity image is stored 
+-	work: created by MRIQC/fMRIprep to store workflow stuff
+-	fmriprep_ica#####_##.log: logs that are produced from running fmriprep (usually deleted afterward or moved to fmripreplogs)
+-	sbatch_fmriprep_ICA.sh: SLURM job submission script
 
 ## 3) Updated the sbatch_fmriprep_ICA.sh job submission script to specify which participants to run
 		vim sbatch_fmriprep.sh
