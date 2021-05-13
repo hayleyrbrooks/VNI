@@ -17,7 +17,7 @@ default:
     clean: "mriBehaviorClean"
     quality_analysis_output: "mriBehaviorQAoutput"
   group_files:
-  	group_clean_csv: "group_mriBehavior_clean.csv"
+    group_clean_csv: "group_mriBehavior_clean.csv"
 
 
 
