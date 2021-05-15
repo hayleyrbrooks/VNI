@@ -67,7 +67,7 @@ dev.off();
 # After accounting for trial-level effects (gain, safe, EV), there are 4 participants showing significant effects of past outcome (3 with positive betas, 1 with negative beta). There are 4 additional participants with trending effects of past outcome (3 with positive betas, 1 with negative beta). I also ran a trial-level model with just gain and safe (because ground EV was causing some weird patterns for some participants in those individual-level trial-level glms) and the results are similar but now there are 4 participants showing significant effects of past outcome (3 positive, 1 negative) and 6 participants with trending effect of past outcome (4 positive, 2 negative).
 
 
-# LEFT OFF HERE 5/13
+
 # GROUP-LEVEL ANALYSES
 
 # trial-level model, pull out the residuals:

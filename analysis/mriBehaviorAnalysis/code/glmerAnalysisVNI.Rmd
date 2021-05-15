@@ -17,23 +17,23 @@ Output
   5) taskEarnings.pdf - earnings for each participant over the task
 
 
-# Config
+# Set up the environment/path
 ```{r}
+rm(list=ls());  # clear environment
+
+
 library(config)
-config::get()
+config <- config::get()
+
+load("/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata"); # mriBehClean data frame
 ```
+
+
 
 Load packages
 ```{r}
 library(lme4);
 library(lmerTest);
-```
-
-
-Set up the environment
-```{r}
-rm(list=ls());  # clear environment
-load("/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata"); # mriBehClean data frame
 ```
 
 
@@ -92,7 +92,119 @@ abline(a=0,b=0, col="grey")
 
 ```
 
+GROUP LEVEL ANALYSIS (LME4)
 
+Trial-level variables (model is identical to VIC):
+Summary: Participants more likely to choose an option as its amount increases (no effect of ground expected value)
+
+```{r}
+model1_trialLevel = glmer(choice~ 0 + gainSC + altSC + grndEVscaled + (0+ gainSC + altSC|subjectIndex), data = mriBehClean, family = "binomial");
+
+summary(model1_trialLevel);
+
+```
+
+
+Pull out "predicted" values from trial-level model and save as variable "pred" in mriBehClean dataframe
+```{r}
+
+mriBehClean$pred= predict(model1_trialLevel,type="link"); 
+par(mfrow=c(1,1))
+plot(mriBehClean$pred, ylab="predicted values");
+
+```
+
+
+Does temporal context influence risk taking?
+
+Each timescale of temporal context in models alone
+
+Past outcome
+```{r}
+model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_amt);  # ns
+
+model2_potc_type = glmer(choice ~ 0 + poc1type + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_type); # ns
+
+```
+
+Shift:
+```{r}
+
+model3_signed_shifts = glmer(choice~0 + shiftDiffsc + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shifts); # significant
+
+model3_pos_neg_shifts = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shifts); # only positive significant
+
+model3_abs_shift = glmer(choice ~ 0 + shiftDiffscABs + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_abs_shift); #ns
+
+
+# Similar to VIC, we see an effect of positive shift only with risk-taking increasing. H
+# How far back does it go?
+
+# create new positive shift variable (n-1)
+
+# shift so that this variable captures the past outcome
+newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2);
+newMat[,1] <- mriBehClean$shiftDiffscPOS; #take data from columns
+newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
+newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
+newMat[,2]<-c(0,diff(mriBehClean$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
+newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
+mriBehClean$shiftDiffscPOS1 = newMat[,1];# add new vector to mriBehClean
+
+model3_pos_shift_howfarback = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscPOS1 + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_pos_shift_howfarback); #shoft lasting, only trial directly after a shift
+
+
+# Does run size preceeding positive shift matter?
+model3_posShift_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizeShift + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_posShift_runSize); #ns
+
+
+model3_shift_pos_neg_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS + shiftDiffscNEG*runSizeNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shift_pos_neg_runSize); #ns
+
+
+model3_shift_pos_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS +(1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shift_pos_runSize); #ns
+
+# unclear if runSizeShift is too similar a variable to positive/negative shift? when it is in a model with shift (signed) there is a main effect of run size but no interaction
+
+
+# Does positive shift interact with past outcome?
+model3_posShift_potc_intxn = glmer(choice ~ 0 + shiftDiffscPOS*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_posShift_potc_intxn); #ns
+
+```
+
+
+Earnings (and trial)
+```{r}
+model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
+
+
+model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_trial_intxn); # interaction trending, AIC = 7655.5
+
+# Earnings interact with past outcome in previous datasets, does that happen here?
+model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_potc_intxn); # past outcome, and interaction between outcomes and earnings are significant. Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). Interaction betwee outcome and trial is trending p =.07
+# model fails to converge though
+
+```
+
+
+Each timescale in a single model:
+```{r}
+model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled + shiftDiffscPOS + earningsNormalized*poc1scaled + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+
+summary(model5_potc_posshift_earn_trial); # everything significant
+```
 
 
 
