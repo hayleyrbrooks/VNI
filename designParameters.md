@@ -1,6 +1,6 @@
 # Design parameters for VNI study
 
-Goal:
+#### Goals:
   1. Capture a variety of possible risk-taking behavior (very risk averse to very risk-seeking).
   2. Create context, keep it the same for a bit, then change it (with the least moving parts ~confounds~ possible).
 
@@ -21,17 +21,18 @@ Goal:
     2. safe option is >= risky gain amount (participants should reject the gamble)
 
 
-### Figure 1. (Left) Five levels of context defined by a mean expected value. Grey dotted lines are rho values and each point is a trial. (Right) Example choice set with mean expected values (context) across the task.
+#### Figure 1. (Left) Five levels of context defined by a mean expected value. Grey dotted lines are rho values and each point is a trial. (Right) Example choice set with mean expected values (context) across the task.
 ![vniChoiceSetContext](https://user-images.githubusercontent.com/19710394/118424079-b1822700-b683-11eb-927a-6667186a04d7.png)
 
 
-### Figure 2. Example choice set with safe options (y-axis) across the task (x-axis; 219 trials).
+#### Figure 2. Example choice set with safe options (y-axis) across the task (x-axis; 219 trials).
 ![vniChoiceSetovertime](https://user-images.githubusercontent.com/19710394/118424102-bd6de900-b683-11eb-93b2-43e50dfc2ab3.png)
 
 
 
 ## Task structure and timing
 
+#### Figure 3. Structure and timing of a single trial
 ![trialStructure](https://user-images.githubusercontent.com/19710394/118421794-096a5f00-b67f-11eb-98bc-6728b0a90ad3.png)
 
 Average trial time is 8.5s (triple check this - we may have changed is slightly because of CINC's time constraint)
