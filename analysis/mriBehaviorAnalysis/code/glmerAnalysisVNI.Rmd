@@ -115,19 +115,39 @@ plot(mriBehClean$pred, ylab="predicted values");
 ```
 
 
-Does temporal context influence risk taking?
+###### Does temporal context influence risk taking? #######
 
 Each timescale of temporal context in models alone
 
-Past outcome
+Past outcome:
 ```{r}
 model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model2_potc_amt);  # ns
+summary(model2_potc_amt);  # ns; AIC = 7592.9 
 
 model2_potc_type = glmer(choice ~ 0 + poc1type + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model2_potc_type); # ns
+summary(model2_potc_type); # ns; AIC =7592.1 
+
+model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_amt_type_intxn); # negative interaction between outcome type and amount; AIC = 7588.0
 
 ```
+
+LEFT OFFHERE _ best way to show this because risky loss amount is always 0
+Plot the interaction between past outcome amount and type:
+Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)
+```{r}
+poc = seq(from=min(mriBehClean$poc1scaled, na.rm=T), to=max(mriBehClean$poc1scaled, na.rm = T), length.out = 3);
+poctype = c(0,1,-1)
+
+m2coef = fixef(model2_potc_amt_type_intxn)
+
+m2_pgam = 1/(1+exp(-1*(m2coef[1]*poctype + m2coef[2]*poc + m2coef[3]*poctype*poc)))  # from the model where past outcome is alone 
+
+
+
+```
+
+
 
 Shift:
 ```{r}
