@@ -2,7 +2,7 @@
 
 #### Goals:
   1. Capture a variety of possible risk-taking behavior (very risk averse to very risk-seeking).
-  2. Create context, keep it the same for a bit, then change it (with the least moving parts ~confounds~ possible).
+  2. Create context, keep it the same for a bit, then change it (with the least moving parts (confounds) possible).
 
 ## Choice set features
 - Possible risky gain values $0 - $60
