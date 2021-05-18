@@ -119,7 +119,7 @@ plot(mriBehClean$pred, ylab="predicted values");
 
 Each timescale of temporal context in models alone
 
-Past outcome:
+Timescale 1: Past outcome
 ```{r}
 model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt);  # ns; AIC = 7592.9 
@@ -132,77 +132,138 @@ summary(model2_potc_amt_type_intxn); # negative interaction between outcome type
 
 ```
 
-LEFT OFFHERE _ best way to show this because risky loss amount is always 0
 Plot the interaction between past outcome amount and type:
 Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)
 ```{r}
-poc = seq(from=min(mriBehClean$poc1scaled, na.rm=T), to=max(mriBehClean$poc1scaled, na.rm = T), length.out = 3);
-poctype = c(0,1,-1)
 
-m2coef = fixef(model2_potc_amt_type_intxn)
+m2coef = fixef(model2_potc_amt_type_intxn); # store all beta estimates
 
-m2_pgam = 1/(1+exp(-1*(m2coef[1]*poctype + m2coef[2]*poc + m2coef[3]*poctype*poc)))  # from the model where past outcome is alone 
+typeCoef = m2coef[1]; # past outcome type coefficient
+amtCoef = m2coef[2]; # past outcome amount coefficient
+intxnCoef = m2coef[3]; # past outcome type and amount interaction coefficient
+
+## SAFE OUTCOMES
+# Largest outcome when a participant rejected gamble = 30.49, scaled = .499918
+# smallest outcome when a participant rejected gamble  = .78, scaled = .01278898
+PgamPOCsafeSmall = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*.499918) + (intxnCoef*0*.499918) ))); 
+# probability of gambling following a small, safe past outcome  = 0.5275424, 2.7% increase
+
+PgamPOCsafeLarge = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*.01278898) + (intxnCoef*0*.01278898) ))); 
+# probability of gambling following a large, safe past outcome  = 0.5007053 
+
+## GAINS
+# largest outcome when a participant accepted gamble and won = $60.99, scaled = 1
+# smallest outcome when a participant accepted gamble and won = $5.31, scaled = 0.08706345
+  # technically, the minimum it could be 0 if participants missed an attn check
+# medium outcome = $30.5, scaled = .5
+# outcome when a participant accepted gamble and lost = $0
+
+PgamPOCwinLarge = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*1) + (intxnCoef*1*1) ))); 
+# probability of gambling following a large, risky win = 0.4511035, 5% decrease 
+PgamPOCwinSmall = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*0.08706345) + (intxnCoef*1*0.08706345) ))); 
+# probability of gambling following a small, risky win = 0.5237715, a 2% increase
+PgamPOCwinMedium = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*.5) + (intxnCoef*1*.5) ))); 
+# probability of gambling following a medium, risky win = 0.4908425, a slight (<1%) decrease
+
+
+## LOSSES (and MISSED GAINS)
+PgamPOClossZero = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*0) + (intxnCoef*-1*0) ))); 
+# probability of gambling following a loss = 0.4693025, a 4.5% decrease
+
+PgamPOClossSmallGain = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*0.08706345) + (intxnCoef*-1*0.08706345) )));
+# probability of gambling following a small missed gain = 0.4858174, a 1.4% decrease
+
+PgamPOClossLargeGain = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*1) + (intxnCoef*-1*1) ))); 
+# probability of gambling following a large missed gain = 0.6541677, a 15.4% increase
+
+PgamPOClossMediumGain = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*.5) + (intxnCoef*-1*.5) ))); 
+# probability of gambling following a medium missed gain = 0.5639559, a 6.3% increase
+
+
+plot(c(PgamPOCwinSmall, PgamPOCwinMedium, PgamPOCwinLarge), type="l", col="green", lwd=3, ylim=c(0,1), main="Risk-taking changes as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
+legend("topleft", legend=c("gain", "missed gain", "safe"), text.col = c("green", "red", "blue"), bty="n")
+axis(2)
+axis(1, labels=c("small", "medium", "large"), at=c(1,2,3))
+lines(c(PgamPOCsafeSmall,PgamPOCsafeLarge), col="blue", lwd=3)
+lines(c(PgamPOClossSmallGain,PgamPOClossMediumGain,PgamPOClossLargeGain), pch=16, col="red", lwd= 3)
+
 
 
 
 ```
 
 
-
-Shift:
+Timescale 2: Shifts
 ```{r}
-
 model3_signed_shifts = glmer(choice~0 + shiftDiffsc + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_shifts); # significant
-
-model3_pos_neg_shifts = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_shifts); # only positive significant
+summary(model3_signed_shifts); # signed shift difference, significant
 
 model3_abs_shift = glmer(choice ~ 0 + shiftDiffscABs + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_abs_shift); #ns
+summary(model3_abs_shift); # absolute shift difference, ns
+
+model3_pos_neg_shifts = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_pos_neg_shifts); # both positive and negative shift difference, only positive significant
+m3_coef_posShift = fixef(model3_pos_neg_shifts)[1];
+
+## Plot the effect of positive shift
+# scaled shift amounts = 0 to .33 (or 0 to 20 nonscaled)
+PgamPosShiftZero = 1/(1+exp(-1*( (m3_coef_posShift*0) ))); # should be .5
+PgamPosShiftLarge = 1/(1+exp(-1*( (m3_coef_posShift*.33) )));
+# probability of gambling following large positive shift = 0.6518448, a %15.2 increase
+PgamPosShiftMedium = 1/(1+exp(-1*( (m3_coef_posShift*.16) )));
+# probability of gambling following medium positive shift = 0.5754388, a %7.5 increase
 
 
-# Similar to VIC, we see an effect of positive shift only with risk-taking increasing. H
-# How far back does it go?
+plot(c(PgamPosShiftZero, PgamPosShiftMedium,PgamPosShiftLarge), type="l", lwd=3, col="blue", axes=F, ylab="p(gamble)", xlab="positive shift", main="risk taking as a function of positive shift")
+axis(1, labels=c("no shift", "medium", "large"), at=c(1,2,3))
+axis(2)
 
+
+
+```
+
+How far back does shift effect go?
+```{r}
 # create new positive shift variable (n-1)
-
-# shift so that this variable captures the past outcome
 newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2);
 newMat[,1] <- mriBehClean$shiftDiffscPOS; #take data from columns
 newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
 newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
-newMat[,2]<-c(0,diff(mriBehClean$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
+newMat[,2]<-c(0,diff(mriBehClean$subjectIndex)); #put differences between subjectIndex into newvector, 1s show up when subject changes
 newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
 mriBehClean$shiftDiffscPOS1 = newMat[,1];# add new vector to mriBehClean
 
+# do the regressions
 model3_pos_shift_howfarback = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscPOS1 + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_pos_shift_howfarback); #shoft lasting, only trial directly after a shift
-
-
-# Does run size preceeding positive shift matter?
-model3_posShift_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizeShift + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_posShift_runSize); #ns
-
-
-model3_shift_pos_neg_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS + shiftDiffscNEG*runSizeNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_shift_pos_neg_runSize); #ns
-
-
-model3_shift_pos_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS +(1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_shift_pos_runSize); #ns
-
-# unclear if runSizeShift is too similar a variable to positive/negative shift? when it is in a model with shift (signed) there is a main effect of run size but no interaction
-
-
-# Does positive shift interact with past outcome?
-model3_posShift_potc_intxn = glmer(choice ~ 0 + shiftDiffscPOS*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model3_posShift_potc_intxn); #ns
+summary(model3_pos_shift_howfarback); #short lasting, only trial directly after a shift
 
 ```
 
 
-Earnings (and trial)
+Does positive shift interact with previous run size or past outcome?
+```{r}
+
+# positive shift amount and run size before positive shift
+model3_shift_pos_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS +(1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shift_pos_runSize); # all betas ns
+
+
+# both positive and negative shift and run size before positive and negative shift
+model3_shift_pos_neg_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS + shiftDiffscNEG*runSizeNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shift_pos_neg_runSize); #all betas ns
+
+
+
+# Does positive shift interact with past outcome?
+model3_posShift_potc_intxn = glmer(choice ~ 0 + shiftDiffscPOS*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_posShift_potc_intxn); #all betas ns
+
+
+```
+
+
+
+Timescale 3: Earnings (and trial) - LEFT OFF HERE 5/17
 ```{r}
 model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
