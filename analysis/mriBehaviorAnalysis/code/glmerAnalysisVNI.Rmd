@@ -263,21 +263,72 @@ summary(model3_posShift_potc_intxn); #all betas ns
 
 
 
-Timescale 3: Earnings (and trial) - LEFT OFF HERE 5/17
+Timescale 3: Earnings (and trial) 
 ```{r}
 model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
 
+# pull and store coefficients
+m4_coef_trial_Earn = fixef(model4_earnings_trial);
+earnCoef = m4_coef_trial_Earn[1];
+triCoef = m4_coef_trial_Earn[2];
 
-model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_earnings_trial_intxn); # interaction trending, AIC = 7655.5
+# plot a couple of subs' earnings and pgamble over the task as a function of earnings and trial
+sub1 = mriBehClean[mriBehClean$subjectIndex==7,];
+PgamSub1EarnTrial =1/(1+exp(-1*( (triCoef*sub1$trialSC) + (earnCoef*sub1$earningsNormalized) )));
 
+sub2 = mriBehClean[mriBehClean$subjectIndex==35,];
+PgamSub2EarnTrial =1/(1+exp(-1*( (triCoef*sub2$trialSC) + (earnCoef*sub2$earningsNormalized) )))
+
+
+plot(PgamSub1EarnTrial, type="l", col="green", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings")
+lines(PgamSub2EarnTrial, col="darkgreen", lwd=3)
+legend("topleft", legend=c("sub 7", "sub 35"), lty = 1, lwd=3, bty="n", col=c("green", "darkgreen"))
+
+plot(sub1$earningsNormalized,type="l", col="green", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task")
+lines(sub2$earningsNormalized, col="darkgreen", lwd=3)
+legend("topleft", legend=c("sub 7", "sub 35"), lty = 1, lwd=3, bty="n", col=c("green", "darkgreen"))
+
+
+
+# Model and plot with interaction term between earnings and trials
+    # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
+# model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+# summary(model4_earnings_trial_intxn); # interaction trending, AIC = 7655.5
+# 
+# m4_coef_trialEarn_intxn = fixef(model4_earnings_trial_intxn);
+# earnCoef = m4_coef_trialEarn_intxn[1];
+# triCoef = m4_coef_trialEarn_intxn[2];
+# m4intxnCoef = m4_coef_trialEarn_intxn[3];
+
+# Plot
+# earnings= rep(c(0,.5,1), times =3)
+# trials = rep(c(.005, .5, 1), each =3)
+# 
+# PgamEarnings = 1/(1+exp(-1*(earnCoef*earnings) ));
+# PgamTrial = 1/(1+exp(-1*(triCoef*trials) ));
+# PgamEarnTrialIntxn = 1/(1+exp(-1*(earnCoef*earnings) + (triCoef*trials) + m4intxnCoef*earnings*trials ))
+
+# plot(PgamEarnTrialIntxn[1:3], type="l", lwd=3, ylim = c(.5,1), ylab="p(gamble)",xlab="earnings", axes=F, col="orange")
+# lines(PgamEarnTrialIntxn[4:6], lwd = 3, col="darkorange2")
+# lines(PgamEarnTrialIntxn[7:9], lwd = 3, col="darkorange4")
+# axis(2)
+# axis(1, at=c(1,2,3), labels=c("small", "medium", "large"))
+# legend("bottomright", legend=c("t=1", "t=109", "t=219"), text.col = c("orange", "darkorange2", "darkorange4"), bty="n")
+# 
+
+```
+
+
+Do earnings interact with outcome? -LEFT OFF HERE 5/18
+```{r}
 # Earnings interact with past outcome in previous datasets, does that happen here?
 model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_potc_intxn); # past outcome, and interaction between outcomes and earnings are significant. Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). Interaction betwee outcome and trial is trending p =.07
 # model fails to converge though
-
 ```
+
+
 
 
 Each timescale in a single model:
