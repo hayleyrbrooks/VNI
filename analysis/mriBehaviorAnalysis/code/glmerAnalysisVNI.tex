@@ -1,0 +1,1163 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdftitle={VNI Analysis of RDM behavior},
+            pdfauthor={Hayley Brooks},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+
+\title{VNI Analysis of RDM behavior}
+\author{Hayley Brooks}
+\date{}
+
+\begin{document}
+\maketitle
+
+Tips/Tricks from template: 1) Try executing this chunk by clicking the
+\emph{Run} button within the chunk or by placing your cursor inside it
+and pressing \emph{Cmd+Shift+Enter}. 2) Add a new chunk by clicking the
+\emph{Insert Chunk} button on the toolbar or by pressing
+\emph{Cmd+Option+I}. 3) When you save the notebook, an HTML file
+containing the code and output will be saved alongside it (click the
+\emph{Preview} button or press \emph{Cmd+Shift+K} to preview the HTML
+file). 4) The preview shows you a rendered HTML copy of the contents of
+the editor. Consequently, unlike \emph{Knit}, \emph{Preview} does not
+run any R code chunks. Instead, the output of the chunk when it was last
+run in the editor is displayed.
+
+Output 1) indivPOCestimates.pdf - plots each sub's past outcome betas 2)
+runSizeShiftFigs.pdf- plots change in risk taking following negative
+shift as a function of shift and run size 3) ocEarnIntxOnly.pdf - risk
+taking as a fucntion of outcomes x earnings plotting only interaction 4)
+ocEarnIntx.pdf - risk taking as a function of outcomes x earnings
+interaction plotting all variables in the model 5) taskEarnings.pdf -
+earnings for each participant over the task
+
+\hypertarget{set-up-the-environmentpath}{%
+\section{Set up the environment/path}\label{set-up-the-environmentpath}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{rm}\NormalTok{(}\DataTypeTok{list=}\KeywordTok{ls}\NormalTok{());  }\CommentTok{# clear environment}
+
+
+\KeywordTok{library}\NormalTok{(config)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: package 'config' was built under R version 4.0.2
+\end{verbatim}
+
+\begin{verbatim}
+## 
+## Attaching package: 'config'
+\end{verbatim}
+
+\begin{verbatim}
+## The following objects are masked from 'package:base':
+## 
+##     get, merge
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{config <-}\StringTok{ }\NormalTok{config}\OperatorTok{::}\KeywordTok{get}\NormalTok{()}
+
+\KeywordTok{load}\NormalTok{(}\StringTok{"/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata"}\NormalTok{); }\CommentTok{# mriBehClean data frame}
+\end{Highlighting}
+\end{Shaded}
+
+Load packages
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(lme4);}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Loading required package: Matrix
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(lmerTest);}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Attaching package: 'lmerTest'
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:lme4':
+## 
+##     lmer
+\end{verbatim}
+
+\begin{verbatim}
+## The following object is masked from 'package:stats':
+## 
+##     step
+\end{verbatim}
+
+Subject information
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subIDs =}\StringTok{ }\KeywordTok{unique}\NormalTok{(mriBehClean}\OperatorTok{$}\NormalTok{subjectIndex);}
+\NormalTok{nSub =}\StringTok{ }\KeywordTok{length}\NormalTok{(subIDs);}
+\KeywordTok{print}\NormalTok{(nSub)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 48
+\end{verbatim}
+
+FOR THIS ANALYSIS, WE WANT TO KNOW IF RISK TAKING (RESIDUALS) CHANGES AS
+A FUNCTION OF TEMPORAL CONTEXT AT THREE LEVELS: 1) PAST OUTCOME
+(IMMEDIATE) 2) SHIFTS (NEIGHBORHOOD) 3) CUMULATIVE EARNINGS (GLOBAL)
+
+INDIVIDUAL-LEVEL ANALYSES DOES RISK-TAKING CHANGE ON THE IMMEDIATE LEVEL
+OF TEMPORAL CONTEXT? Iindividual-level past outcome glms
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{subsTriLevMods =}\StringTok{ }\KeywordTok{list}\NormalTok{();}
+\NormalTok{subsPocMods =}\StringTok{ }\KeywordTok{list}\NormalTok{();}
+\NormalTok{trialLevelResults =}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\DataTypeTok{data =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{nrow =}\NormalTok{ nSub, }\DataTypeTok{ncol=}\DecValTok{3}\NormalTok{, }\DataTypeTok{dimnames=}\KeywordTok{list}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\OtherTok{NULL}\NormalTok{), }\KeywordTok{c}\NormalTok{(}\StringTok{"subID"}\NormalTok{,}\StringTok{"beta"}\NormalTok{,}\StringTok{"pval"}\NormalTok{))))}
+\NormalTok{pocResults =}\StringTok{ }\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{matrix}\NormalTok{(}\DataTypeTok{data =} \OtherTok{NA}\NormalTok{, }\DataTypeTok{nrow =}\NormalTok{ nSub, }\DataTypeTok{ncol=}\DecValTok{3}\NormalTok{, }\DataTypeTok{dimnames=}\KeywordTok{list}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\OtherTok{NULL}\NormalTok{), }\KeywordTok{c}\NormalTok{(}\StringTok{"subID"}\NormalTok{,}\StringTok{"beta"}\NormalTok{,}\StringTok{"pval"}\NormalTok{))))}
+
+\ControlFlowTok{for}\NormalTok{ (s }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{nSub) \{}
+\NormalTok{  sub =}\StringTok{ }\NormalTok{mriBehClean[mriBehClean}\OperatorTok{$}\NormalTok{subjectIndex}\OperatorTok{==}\NormalTok{subIDs[s],]; }\CommentTok{# pull out a single subject}
+  
+\NormalTok{  subsTriLevMods[[s]] =}\StringTok{ }\KeywordTok{glm}\NormalTok{(choice}\OperatorTok{~}\NormalTok{gainSC }\OperatorTok{+}\StringTok{ }\NormalTok{altSC }\OperatorTok{+}\StringTok{ }\NormalTok{grndEVscaled, }\DataTypeTok{data=}\NormalTok{sub, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{); }\CommentTok{# run the trial levelm odel}
+
+\NormalTok{  sub}\OperatorTok{$}\NormalTok{pred =}\StringTok{ }\KeywordTok{predict}\NormalTok{(subsTriLevMods[[s]],}\DataTypeTok{type=}\StringTok{'link'}\NormalTok{); }\CommentTok{# get predicted values}
+  
+\NormalTok{  subsPocMods[[s]] =}\StringTok{ }\KeywordTok{glm}\NormalTok{(choice}\OperatorTok{~}\NormalTok{poc1scaled, }\DataTypeTok{data=}\NormalTok{sub, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred); }\CommentTok{# past outcome model with predicted values}
+  
+\NormalTok{  tmp =}\KeywordTok{summary}\NormalTok{(subsPocMods[[s]]); }\CommentTok{#store coefficients from poc model}
+\NormalTok{  pocResults}\OperatorTok{$}\NormalTok{subID[s] =}\StringTok{ }\NormalTok{subIDs[s]; }\CommentTok{# fill in sub ID}
+\NormalTok{  pocResults}\OperatorTok{$}\NormalTok{beta[s] =}\StringTok{ }\NormalTok{tmp}\OperatorTok{$}\NormalTok{coefficients[[}\DecValTok{2}\NormalTok{]]; }\CommentTok{# store beta}
+\NormalTok{  pocResults}\OperatorTok{$}\NormalTok{pval[s] =}\StringTok{ }\NormalTok{tmp}\OperatorTok{$}\NormalTok{coefficients[[}\DecValTok{8}\NormalTok{]]; }\CommentTok{# store pvalue}
+\NormalTok{\}; }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+
+## Warning: glm.fit: fitted probabilities numerically 0 or 1 occurred
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{print}\NormalTok{(pocResults)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    subID         beta         pval
+## 1      1 -1.693390832 0.1968871429
+## 2      2  0.161193726 0.8471161677
+## 3      3  2.577286605 0.0137382061
+## 4      4 -0.016855337 0.9823901112
+## 5      5  0.838088131 0.6117457376
+## 6      6 -0.384923218 0.6492531879
+## 7      7 -1.067954869 0.2332696081
+## 8      8 -0.300178187 0.6900989334
+## 9      9  1.626263189 0.0704141854
+## 10    10  0.387301653 0.6083048491
+## 11    11  0.003436553 0.9971335710
+## 12    12 -0.007504092 0.9948011314
+## 13    14  0.366073795 0.7079189389
+## 14    15  0.873583933 0.4009790992
+## 15    17  0.073472845 0.9382073833
+## 16    18 -1.459419843 0.1419530287
+## 17    19  2.194158956 0.0182181607
+## 18    20 -0.262887379 0.8041718833
+## 19    21  0.522482930 0.4492239697
+## 20    22  4.607052767 0.0766683813
+## 21    23  1.169814676 0.0615779711
+## 22    24  0.157363894 0.8509853382
+## 23    25 -0.273565792 0.7820270969
+## 24    26 -0.189017572 0.7881023602
+## 25    27 -1.656542697 0.4152367574
+## 26    28 -0.816210295 0.3727186659
+## 27    29 -0.600267266 0.7258035091
+## 28    30 -0.385670811 0.6967610565
+## 29    31 -0.907575653 0.2529049234
+## 30    32  1.232758345 0.2182155484
+## 31    33  1.462611805 0.1302047368
+## 32    34  0.287316976 0.7752309247
+## 33    35  0.271780936 0.7809087063
+## 34    36  2.018731546 0.0246434822
+## 35    37 -0.540051734 0.6209987601
+## 36    38  0.325316511 0.7684073037
+## 37    39 -1.690003128 0.0150096286
+## 38    40  1.565282525 0.0891477411
+## 39    41 -1.736106900 0.0739334363
+## 40    44 -0.518620514 0.6011658479
+## 41    45  0.248899612 0.7263870795
+## 42    46 -0.257975324 0.7045608308
+## 43    47 -1.263379760 0.0302458897
+## 44    48 -2.777455637 0.0004258324
+## 45    49  0.925742596 0.3404638180
+## 46    50  0.791553212 0.3371674047
+## 47    51 -0.238452104 0.8184722550
+## 48    52  0.112557136 0.8874297750
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sprintf}\NormalTok{(}\StringTok{" %d participants had a negative, significant past outcome beta and %d participants had a positive, significant outcome beta"}\NormalTok{, }\KeywordTok{sum}\NormalTok{(pocResults}\OperatorTok{$}\NormalTok{pval}\OperatorTok{<}\NormalTok{.}\DecValTok{05} \OperatorTok{&}\StringTok{ }\NormalTok{pocResults}\OperatorTok{$}\NormalTok{beta }\OperatorTok{<}\DecValTok{0}\NormalTok{), }\KeywordTok{sum}\NormalTok{(pocResults}\OperatorTok{$}\NormalTok{pval}\OperatorTok{<}\NormalTok{.}\DecValTok{05} \OperatorTok{&}\StringTok{ }\NormalTok{pocResults}\OperatorTok{$}\NormalTok{beta }\OperatorTok{>}\DecValTok{0}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] " 3 participants had a negative, significant past outcome beta and 3 participants had a positive, significant outcome beta"
+\end{verbatim}
+
+Plot the individual past outcome results Blue is trending, green is
+significant, black is not significant or trending
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(pocResults}\OperatorTok{$}\NormalTok{beta, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\KeywordTok{min}\NormalTok{(pocResults}\OperatorTok{$}\NormalTok{beta),}\KeywordTok{max}\NormalTok{(pocResults}\OperatorTok{$}\NormalTok{beta)), }\DataTypeTok{pch=}\DecValTok{16}\NormalTok{, }\DataTypeTok{main=}\KeywordTok{sprintf}\NormalTok{(}\StringTok{"Individual past outcome estimates (n=%s)"}\NormalTok{, nSub), }\DataTypeTok{xlab=}\StringTok{"participant"}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{"estimate"}\NormalTok{, }\DataTypeTok{col=} \KeywordTok{ifelse}\NormalTok{(pocResults[,}\DecValTok{3}\NormalTok{]}\OperatorTok{<}\NormalTok{.}\DecValTok{05}\NormalTok{, }\StringTok{"green"}\NormalTok{, }\KeywordTok{ifelse}\NormalTok{(pocResults[,}\DecValTok{3}\NormalTok{]}\OperatorTok{<}\NormalTok{.}\DecValTok{1} \OperatorTok{&}\StringTok{ }\NormalTok{pocResults}\OperatorTok{$}\NormalTok{pval}\OperatorTok{>}\NormalTok{.}\DecValTok{05}\NormalTok{,}\StringTok{"blue"}\NormalTok{, }\StringTok{"black"}\NormalTok{)), }\DataTypeTok{cex=}\FloatTok{1.75}\NormalTok{); }\CommentTok{# blue is trending, green is significant, black is neither}
+\KeywordTok{abline}\NormalTok{(}\DataTypeTok{a=}\DecValTok{0}\NormalTok{,}\DataTypeTok{b=}\DecValTok{0}\NormalTok{, }\DataTypeTok{col=}\StringTok{"grey"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-5-1.pdf}
+
+GROUP LEVEL ANALYSIS (LME4)
+
+Trial-level variables (model is identical to VIC): Summary: Participants
+more likely to choose an option as its amount increases (no effect of
+ground expected value)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model1_trialLevel =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice}\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{gainSC }\OperatorTok{+}\StringTok{ }\NormalTok{altSC }\OperatorTok{+}\StringTok{ }\NormalTok{grndEVscaled }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{0}\OperatorTok{+}\StringTok{ }\NormalTok{gainSC }\OperatorTok{+}\StringTok{ }\NormalTok{altSC}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data =}\NormalTok{ mriBehClean, }\DataTypeTok{family =} \StringTok{"binomial"}\NormalTok{);}
+
+\KeywordTok{summary}\NormalTok{(model1_trialLevel);}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + gainSC + altSC + grndEVscaled + (0 + gainSC + altSC |  
+##     subjectIndex)
+##    Data: mriBehClean
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   8058.9   8102.4  -4023.4   8046.9    10422 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.149  -0.444  -0.061   0.399 112.462 
+## 
+## Random effects:
+##  Groups       Name   Variance Std.Dev. Corr 
+##  subjectIndex gainSC  82.97    9.109        
+##               altSC  326.92   18.081   -0.97
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##              Estimate Std. Error z value Pr(>|z|)    
+## gainSC         16.118      1.885   8.551   <2e-16 ***
+## altSC         -41.078      3.605 -11.394   <2e-16 ***
+## grndEVscaled    6.990      5.085   1.374    0.169    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             gainSC altSC 
+## altSC       -0.068       
+## grndEVscald -0.693 -0.661
+\end{verbatim}
+
+Pull out ``predicted'' values from trial-level model and save as
+variable ``pred'' in mriBehClean dataframe
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{mriBehClean}\OperatorTok{$}\NormalTok{pred=}\StringTok{ }\KeywordTok{predict}\NormalTok{(model1_trialLevel,}\DataTypeTok{type=}\StringTok{"link"}\NormalTok{); }
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{))}
+\KeywordTok{plot}\NormalTok{(mriBehClean}\OperatorTok{$}\NormalTok{pred, }\DataTypeTok{ylab=}\StringTok{"predicted values"}\NormalTok{);}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-7-1.pdf}
+
+Does temporal context influence risk taking?
+
+Each timescale of temporal context in models alone
+
+Timescale 1: Past outcome
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model2_potc_amt =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{poc1scaled }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model2_potc_amt);  }\CommentTok{# ns; AIC = 7592.9 }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + poc1scaled + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7592.9   7607.4  -3794.4   7588.9    10381 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.185  -0.443  -0.062   0.399 112.431 
+## 
+## Random effects:
+##  Groups       Name        Variance  Std.Dev.
+##  subjectIndex (Intercept) 0.0009057 0.0301  
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)
+## poc1scaled 0.0004236  0.0835266   0.005    0.996
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model2_potc_type =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{poc1type }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model2_potc_type); }\CommentTok{# ns; AIC =7592.1 }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + poc1type + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7592.1   7606.5  -3794.0   7588.1    10381 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.856  -0.443  -0.062   0.399 110.323 
+## 
+## Random effects:
+##  Groups       Name        Variance  Std.Dev.
+##  subjectIndex (Intercept) 0.0009635 0.03104 
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##          Estimate Std. Error z value Pr(>|z|)
+## poc1type  0.03812    0.04217   0.904    0.366
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model2_potc_amt_type_intxn =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{poc1type}\OperatorTok{*}\NormalTok{poc1scaled }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model2_potc_amt_type_intxn); }\CommentTok{# negative interaction between outcome type and amount; AIC = 7588.0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + poc1type * poc1scaled + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7588.0   7616.9  -3790.0   7580.0    10379 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -32.490  -0.441  -0.062   0.401 114.810 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.003258 0.05708 
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                     Estimate Std. Error z value Pr(>|z|)   
+## poc1type             0.12294    0.05584   2.202  0.02768 * 
+## poc1scaled           0.22060    0.14008   1.575  0.11530   
+## poc1type:poc1scaled -0.53976    0.19379  -2.785  0.00535 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             pc1typ pc1scl
+## poc1scaled  -0.016       
+## pc1typ:pc1s -0.453 -0.704
+\end{verbatim}
+
+Plot the interaction between past outcome amount and type: Outcome type
+is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always \$0)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m2coef =}\StringTok{ }\KeywordTok{fixef}\NormalTok{(model2_potc_amt_type_intxn); }\CommentTok{# store all beta estimates}
+
+\NormalTok{typeCoef =}\StringTok{ }\NormalTok{m2coef[}\DecValTok{1}\NormalTok{]; }\CommentTok{# past outcome type coefficient}
+\NormalTok{amtCoef =}\StringTok{ }\NormalTok{m2coef[}\DecValTok{2}\NormalTok{]; }\CommentTok{# past outcome amount coefficient}
+\NormalTok{intxnCoef =}\StringTok{ }\NormalTok{m2coef[}\DecValTok{3}\NormalTok{]; }\CommentTok{# past outcome type and amount interaction coefficient}
+
+\CommentTok{## SAFE OUTCOMES}
+\CommentTok{# Largest outcome when a participant rejected gamble = 30.49, scaled = .499918}
+\CommentTok{# smallest outcome when a participant rejected gamble  = .78, scaled = .01278898}
+\NormalTok{PgamPOCsafeSmall =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*}\DecValTok{0}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\NormalTok{.}\DecValTok{499918}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*}\DecValTok{0}\OperatorTok{*}\NormalTok{.}\DecValTok{499918}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a small, safe past outcome  = 0.5275424, 2.7% increase}
+
+\NormalTok{PgamPOCsafeLarge =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*}\DecValTok{0}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\NormalTok{.}\DecValTok{01278898}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*}\DecValTok{0}\OperatorTok{*}\NormalTok{.}\DecValTok{01278898}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a large, safe past outcome  = 0.5007053 }
+
+\CommentTok{## GAINS}
+\CommentTok{# largest outcome when a participant accepted gamble and won = $60.99, scaled = 1}
+\CommentTok{# smallest outcome when a participant accepted gamble and won = $5.31, scaled = 0.08706345}
+  \CommentTok{# technically, the minimum it could be 0 if participants missed an attn check}
+\CommentTok{# medium outcome = $30.5, scaled = .5}
+\CommentTok{# outcome when a participant accepted gamble and lost = $0}
+
+\NormalTok{PgamPOCwinLarge =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*}\DecValTok{1}\OperatorTok{*}\DecValTok{1}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a large, risky win = 0.4511035, 5% decrease }
+\NormalTok{PgamPOCwinSmall =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\FloatTok{0.08706345}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*}\DecValTok{1}\OperatorTok{*}\FloatTok{0.08706345}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a small, risky win = 0.5237715, a 2% increase}
+\NormalTok{PgamPOCwinMedium =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\NormalTok{.}\DecValTok{5}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*}\DecValTok{1}\OperatorTok{*}\NormalTok{.}\DecValTok{5}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a medium, risky win = 0.4908425, a slight (<1%) decrease}
+
+
+\CommentTok{## LOSSES (and MISSED GAINS)}
+\NormalTok{PgamPOClossZero =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*-}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\DecValTok{0}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*-}\DecValTok{1}\OperatorTok{*}\DecValTok{0}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a loss = 0.4693025, a 4.5% decrease}
+
+\NormalTok{PgamPOClossSmallGain =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*-}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\FloatTok{0.08706345}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*-}\DecValTok{1}\OperatorTok{*}\FloatTok{0.08706345}\NormalTok{) )));}
+\CommentTok{# probability of gambling following a small missed gain = 0.4858174, a 1.4% decrease}
+
+\NormalTok{PgamPOClossLargeGain =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*-}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*-}\DecValTok{1}\OperatorTok{*}\DecValTok{1}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a large missed gain = 0.6541677, a 15.4% increase}
+
+\NormalTok{PgamPOClossMediumGain =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (typeCoef}\OperatorTok{*-}\DecValTok{1}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(amtCoef}\OperatorTok{*}\NormalTok{.}\DecValTok{5}\NormalTok{) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef}\OperatorTok{*-}\DecValTok{1}\OperatorTok{*}\NormalTok{.}\DecValTok{5}\NormalTok{) ))); }
+\CommentTok{# probability of gambling following a medium missed gain = 0.5639559, a 6.3% increase}
+
+
+\KeywordTok{plot}\NormalTok{(}\KeywordTok{c}\NormalTok{(PgamPOCwinSmall, PgamPOCwinMedium, PgamPOCwinLarge), }\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col=}\StringTok{"green"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{1}\NormalTok{), }\DataTypeTok{main=}\StringTok{"Risk-taking changes as a function of past outcome type and amount"}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{"p(gamble)"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{"past outcome"}\NormalTok{, }\DataTypeTok{axes=}\NormalTok{F)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"gain"}\NormalTok{, }\StringTok{"missed gain"}\NormalTok{, }\StringTok{"safe"}\NormalTok{), }\DataTypeTok{text.col =} \KeywordTok{c}\NormalTok{(}\StringTok{"green"}\NormalTok{, }\StringTok{"red"}\NormalTok{, }\StringTok{"blue"}\NormalTok{), }\DataTypeTok{bty=}\StringTok{"n"}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DataTypeTok{labels=}\KeywordTok{c}\NormalTok{(}\StringTok{"small"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"large"}\NormalTok{), }\DataTypeTok{at=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{))}
+\KeywordTok{lines}\NormalTok{(}\KeywordTok{c}\NormalTok{(PgamPOCsafeSmall,PgamPOCsafeLarge), }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(}\KeywordTok{c}\NormalTok{(PgamPOClossSmallGain,PgamPOClossMediumGain,PgamPOClossLargeGain), }\DataTypeTok{pch=}\DecValTok{16}\NormalTok{, }\DataTypeTok{col=}\StringTok{"red"}\NormalTok{, }\DataTypeTok{lwd=} \DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-9-1.pdf}
+
+Timescale 2: Shifts
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model3_signed_shifts =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice}\OperatorTok{~}\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffsc }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## boundary (singular) fit: see ?isSingular
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(model3_signed_shifts); }\CommentTok{# signed shift difference, significant}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + shiftDiffsc + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7660.7   7675.2  -3828.3   7656.7    10426 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.149  -0.445  -0.062   0.400 112.462 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0        0       
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##             Estimate Std. Error z value Pr(>|z|)  
+## shiftDiffsc   1.0576     0.5027   2.104   0.0354 *
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## convergence code: 0
+## boundary (singular) fit: see ?isSingular
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model3_abs_shift =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscABs }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model3_abs_shift); }\CommentTok{# absolute shift difference, ns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + shiftDiffscABs + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7663.1   7677.6  -3829.6   7659.1    10426 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.165  -0.448  -0.062   0.398 112.457 
+## 
+## Random effects:
+##  Groups       Name        Variance  Std.Dev.
+##  subjectIndex (Intercept) 0.0003501 0.01871 
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                Estimate Std. Error z value Pr(>|z|)
+## shiftDiffscABs   0.7096     0.5026   1.412    0.158
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model3_pos_neg_shifts =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS }\OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscNEG }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model3_pos_neg_shifts); }\CommentTok{# both positive and negative shift difference, only positive significant}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + shiftDiffscPOS + shiftDiffscNEG + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7660.2   7682.0  -3827.1   7654.2    10425 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.167  -0.447  -0.062   0.399 112.459 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.000396 0.0199  
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                Estimate Std. Error z value Pr(>|z|)   
+## shiftDiffscPOS   1.9005     0.7314   2.598  0.00937 **
+## shiftDiffscNEG   0.3184     0.6848   0.465  0.64200   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             shDPOS
+## shftDffsNEG -0.005
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{m3_coef_posShift =}\StringTok{ }\KeywordTok{fixef}\NormalTok{(model3_pos_neg_shifts)[}\DecValTok{1}\NormalTok{];}
+
+\CommentTok{## Plot the effect of positive shift}
+\CommentTok{# scaled shift amounts = 0 to .33 (or 0 to 20 nonscaled)}
+\NormalTok{PgamPosShiftZero =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (m3_coef_posShift}\OperatorTok{*}\DecValTok{0}\NormalTok{) ))); }\CommentTok{# should be .5}
+\NormalTok{PgamPosShiftLarge =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (m3_coef_posShift}\OperatorTok{*}\NormalTok{.}\DecValTok{33}\NormalTok{) )));}
+\CommentTok{# probability of gambling following large positive shift = 0.6518448, a %15.2 increase}
+\NormalTok{PgamPosShiftMedium =}\StringTok{ }\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (m3_coef_posShift}\OperatorTok{*}\NormalTok{.}\DecValTok{16}\NormalTok{) )));}
+\CommentTok{# probability of gambling following medium positive shift = 0.5754388, a %7.5 increase}
+
+
+\KeywordTok{plot}\NormalTok{(}\KeywordTok{c}\NormalTok{(PgamPosShiftZero, PgamPosShiftMedium,PgamPosShiftLarge), }\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{, }\DataTypeTok{axes=}\NormalTok{F, }\DataTypeTok{ylab=}\StringTok{"p(gamble)"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{"positive shift"}\NormalTok{, }\DataTypeTok{main=}\StringTok{"risk taking as a function of positive shift"}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DataTypeTok{labels=}\KeywordTok{c}\NormalTok{(}\StringTok{"no shift"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"large"}\NormalTok{), }\DataTypeTok{at=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{))}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-10-1.pdf}
+
+How far back does shift effect go?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# create new positive shift variable (n-1)}
+\NormalTok{newMat =}\StringTok{ }\KeywordTok{matrix}\NormalTok{(}\DataTypeTok{data=}\OtherTok{NA}\NormalTok{,}\DataTypeTok{nrow=}\KeywordTok{nrow}\NormalTok{(mriBehClean), }\DataTypeTok{ncol=}\DecValTok{2}\NormalTok{);}
+\NormalTok{newMat[,}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{mriBehClean}\OperatorTok{$}\NormalTok{shiftDiffscPOS; }\CommentTok{#take data from columns}
+\NormalTok{newMat[}\DecValTok{2}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(newMat),}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\NormalTok{newMat[}\DecValTok{1}\OperatorTok{:}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(newMat)}\OperatorTok{-}\DecValTok{1}\NormalTok{),}\DecValTok{1}\NormalTok{]; }\CommentTok{# removes first row, shifts everything up}
+\NormalTok{newMat[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{] <-}\StringTok{ }\OtherTok{NaN} \CommentTok{#put Nan in for first row (first trial for subject 1, bc there is no past trial)}
+\NormalTok{newMat[,}\DecValTok{2}\NormalTok{]<-}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,}\KeywordTok{diff}\NormalTok{(mriBehClean}\OperatorTok{$}\NormalTok{subjectIndex)); }\CommentTok{#put differences between subjectIndex into newvector, 1s show up when subject changes}
+\NormalTok{newMat[newMat[,}\DecValTok{2}\NormalTok{]}\OperatorTok{==}\DecValTok{1}\NormalTok{,]=}\OtherTok{NaN}\NormalTok{; }\CommentTok{#in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan}
+\NormalTok{mriBehClean}\OperatorTok{$}\NormalTok{shiftDiffscPOS1 =}\StringTok{ }\NormalTok{newMat[,}\DecValTok{1}\NormalTok{];}\CommentTok{# add new vector to mriBehClean}
+
+\CommentTok{# do the regressions}
+\NormalTok{model3_pos_shift_howfarback =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS }\OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS1 }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model3_pos_shift_howfarback); }\CommentTok{#short lasting, only trial directly after a shift}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + shiftDiffscPOS + shiftDiffscPOS1 + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7587.4   7609.2  -3790.7   7581.4    10380 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.207  -0.448  -0.063   0.398 112.457 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.002169 0.04657 
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                 Estimate Std. Error z value Pr(>|z|)   
+## shiftDiffscPOS    1.9151     0.7324   2.615  0.00892 **
+## shiftDiffscPOS1   0.6272     0.7546   0.831  0.40586   
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             shDPOS
+## shftDffPOS1 0.006
+\end{verbatim}
+
+Does positive shift interact with previous run size or past outcome?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# positive shift amount and run size before positive shift}
+\NormalTok{model3_shift_pos_runSize =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS}\OperatorTok{*}\NormalTok{runSizePOS }\OperatorTok{+}\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model3_shift_pos_runSize); }\CommentTok{# all betas ns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + shiftDiffscPOS * runSizePOS + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7661.6   7690.6  -3826.8   7653.6    10424 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.184  -0.449  -0.062   0.398 112.456 
+## 
+## Random effects:
+##  Groups       Name        Variance  Std.Dev.
+##  subjectIndex (Intercept) 0.0007681 0.02772 
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                           Estimate Std. Error z value Pr(>|z|)
+## shiftDiffscPOS             1.05014    2.54785   0.412    0.680
+## runSizePOS                 0.02344    0.02711   0.864    0.387
+## shiftDiffscPOS:runSizePOS -0.03565    0.24555  -0.145    0.885
+## 
+## Correlation of Fixed Effects:
+##             shDPOS rnSPOS
+## runSizePOS  -0.087       
+## shDPOS:SPOS -0.813 -0.449
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# both positive and negative shift and run size before positive and negative shift}
+\NormalTok{model3_shift_pos_neg_runSize =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS}\OperatorTok{*}\NormalTok{runSizePOS }\OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscNEG}\OperatorTok{*}\NormalTok{runSizeNEG }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model3_shift_pos_neg_runSize); }\CommentTok{#all betas ns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: 
+## choice ~ 0 + shiftDiffscPOS * runSizePOS + shiftDiffscNEG * runSizeNEG +  
+##     (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7664.0   7714.8  -3825.0   7650.0    10421 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.186  -0.449  -0.063   0.397 112.457 
+## 
+## Random effects:
+##  Groups       Name        Variance  Std.Dev.
+##  subjectIndex (Intercept) 0.0008075 0.02842 
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                           Estimate Std. Error z value Pr(>|z|)
+## shiftDiffscPOS             1.05042    2.52116   0.417    0.677
+## runSizePOS                 0.02345    0.02711   0.865    0.387
+## shiftDiffscNEG             2.95593    2.32178   1.273    0.203
+## runSizeNEG                 0.03491    0.02651   1.317    0.188
+## shiftDiffscPOS:runSizePOS -0.03569    0.24385  -0.146    0.884
+## shiftDiffscNEG:runSizeNEG -0.08937    0.25573  -0.349    0.727
+## 
+## Correlation of Fixed Effects:
+##             shDPOS rnSPOS shDNEG rnSNEG sDPOS:
+## runSizePOS  -0.086                            
+## shftDffsNEG  0.004 -0.002                     
+## runSizeNEG   0.000  0.002 -0.055              
+## shDPOS:SPOS -0.810 -0.454 -0.004  0.000       
+## shDNEG:SNEG -0.004  0.001 -0.829  0.545  0.003
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Does positive shift interact with past outcome?}
+\NormalTok{model3_posShift_potc_intxn =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS}\OperatorTok{*}\NormalTok{poc1scaled }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model3_posShift_potc_intxn); }\CommentTok{#all betas ns}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + shiftDiffscPOS * poc1scaled + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7589.2   7618.2  -3790.6   7581.2    10379 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -34.795  -0.445  -0.062   0.399 113.189 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.001434 0.03787 
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                           Estimate Std. Error z value Pr(>|z|)
+## shiftDiffscPOS             1.15538    1.09368   1.056    0.291
+## poc1scaled                -0.02527    0.08514  -0.297    0.767
+## shiftDiffscPOS:poc1scaled  5.30092    5.59480   0.947    0.343
+## 
+## Correlation of Fixed Effects:
+##             shDPOS pc1scl
+## poc1scaled   0.031       
+## shftDfPOS:1 -0.741 -0.111
+\end{verbatim}
+
+Timescale 3: Earnings (and trial)
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model4_earnings_trial =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice}\OperatorTok{~}\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{earningsNormalized }\OperatorTok{+}\StringTok{ }\NormalTok{trialSC }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\KeywordTok{summary}\NormalTok{(model4_earnings_trial); }\CommentTok{# both significant, betas similar size but opposite valence, AIC = 7657.1 }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + earningsNormalized + trialSC + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7657.1   7678.9  -3825.6   7651.1    10425 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -35.826  -0.446  -0.062   0.392 108.219 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.003929 0.06268 
+## Number of obs: 10428, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                    Estimate Std. Error z value Pr(>|z|)   
+## earningsNormalized   2.3615     0.8072   2.925  0.00344 **
+## trialSC             -2.2802     0.7964  -2.863  0.00420 **
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##         ernngN
+## trialSC -0.998
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# pull and store coefficients}
+\NormalTok{m4_coef_trial_Earn =}\StringTok{ }\KeywordTok{fixef}\NormalTok{(model4_earnings_trial);}
+\NormalTok{earnCoef =}\StringTok{ }\NormalTok{m4_coef_trial_Earn[}\DecValTok{1}\NormalTok{];}
+\NormalTok{triCoef =}\StringTok{ }\NormalTok{m4_coef_trial_Earn[}\DecValTok{2}\NormalTok{];}
+
+\CommentTok{# plot a couple of subs' earnings and pgamble over the task as a function of earnings and trial}
+\NormalTok{sub1 =}\StringTok{ }\NormalTok{mriBehClean[mriBehClean}\OperatorTok{$}\NormalTok{subjectIndex}\OperatorTok{==}\DecValTok{7}\NormalTok{,];}
+\NormalTok{PgamSub1EarnTrial =}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (triCoef}\OperatorTok{*}\NormalTok{sub1}\OperatorTok{$}\NormalTok{trialSC) }\OperatorTok{+}\StringTok{ }\NormalTok{(earnCoef}\OperatorTok{*}\NormalTok{sub1}\OperatorTok{$}\NormalTok{earningsNormalized) )));}
+
+\NormalTok{sub2 =}\StringTok{ }\NormalTok{mriBehClean[mriBehClean}\OperatorTok{$}\NormalTok{subjectIndex}\OperatorTok{==}\DecValTok{35}\NormalTok{,];}
+\NormalTok{PgamSub2EarnTrial =}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (triCoef}\OperatorTok{*}\NormalTok{sub2}\OperatorTok{$}\NormalTok{trialSC) }\OperatorTok{+}\StringTok{ }\NormalTok{(earnCoef}\OperatorTok{*}\NormalTok{sub2}\OperatorTok{$}\NormalTok{earningsNormalized) )))}
+
+
+\KeywordTok{plot}\NormalTok{(PgamSub1EarnTrial, }\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col=}\StringTok{"green"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{ylim=}\KeywordTok{c}\NormalTok{(.}\DecValTok{4}\NormalTok{,.}\DecValTok{6}\NormalTok{), }\DataTypeTok{ylab=}\StringTok{"p(gamble)"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{"trial"}\NormalTok{, }\DataTypeTok{main=}\StringTok{"risk taking as a function}\CharTok{\textbackslash{}n}\StringTok{ of trial and earnings"}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(PgamSub2EarnTrial, }\DataTypeTok{col=}\StringTok{"darkgreen"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"sub 7"}\NormalTok{, }\StringTok{"sub 35"}\NormalTok{), }\DataTypeTok{lty =} \DecValTok{1}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{bty=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"green"}\NormalTok{, }\StringTok{"darkgreen"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-13-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{plot}\NormalTok{(sub1}\OperatorTok{$}\NormalTok{earningsNormalized,}\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{col=}\StringTok{"green"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{"trial"}\NormalTok{, }\DataTypeTok{ylab=}\StringTok{"earnings (normalized)"}\NormalTok{, }\DataTypeTok{main=}\StringTok{"earnings across the task"}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(sub2}\OperatorTok{$}\NormalTok{earningsNormalized, }\DataTypeTok{col=}\StringTok{"darkgreen"}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{)}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"topleft"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"sub 7"}\NormalTok{, }\StringTok{"sub 35"}\NormalTok{), }\DataTypeTok{lty =} \DecValTok{1}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{bty=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"green"}\NormalTok{, }\StringTok{"darkgreen"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-13-2.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Model and plot with interaction term between earnings and trials}
+    \CommentTok{# Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.}
+\CommentTok{# model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);}
+\CommentTok{# summary(model4_earnings_trial_intxn); # interaction trending, AIC = 7655.5}
+\CommentTok{# }
+\CommentTok{# m4_coef_trialEarn_intxn = fixef(model4_earnings_trial_intxn);}
+\CommentTok{# earnCoef = m4_coef_trialEarn_intxn[1];}
+\CommentTok{# triCoef = m4_coef_trialEarn_intxn[2];}
+\CommentTok{# m4intxnCoef = m4_coef_trialEarn_intxn[3];}
+
+\CommentTok{# Plot}
+\CommentTok{# earnings= rep(c(0,.5,1), times =3)}
+\CommentTok{# trials = rep(c(.005, .5, 1), each =3)}
+\CommentTok{# }
+\CommentTok{# PgamEarnings = 1/(1+exp(-1*(earnCoef*earnings) ));}
+\CommentTok{# PgamTrial = 1/(1+exp(-1*(triCoef*trials) ));}
+\CommentTok{# PgamEarnTrialIntxn = 1/(1+exp(-1*(earnCoef*earnings) + (triCoef*trials) + m4intxnCoef*earnings*trials ))}
+
+\CommentTok{# plot(PgamEarnTrialIntxn[1:3], type="l", lwd=3, ylim = c(.5,1), ylab="p(gamble)",xlab="earnings", axes=F, col="orange")}
+\CommentTok{# lines(PgamEarnTrialIntxn[4:6], lwd = 3, col="darkorange2")}
+\CommentTok{# lines(PgamEarnTrialIntxn[7:9], lwd = 3, col="darkorange4")}
+\CommentTok{# axis(2)}
+\CommentTok{# axis(1, at=c(1,2,3), labels=c("small", "medium", "large"))}
+\CommentTok{# legend("bottomright", legend=c("t=1", "t=109", "t=219"), text.col = c("orange", "darkorange2", "darkorange4"), bty="n")}
+\CommentTok{# }
+\end{Highlighting}
+\end{Shaded}
+
+Do earnings interact with outcome?
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# Earnings interact with past outcome in previous datasets, does that happen here?}
+\NormalTok{model4_earnings_potc_intxn =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice}\OperatorTok{~}\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{earningsNormalized}\OperatorTok{*}\NormalTok{poc1scaled }\OperatorTok{+}\StringTok{ }\NormalTok{trialSC}\OperatorTok{*}\NormalTok{poc1scaled }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred);}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning in checkConv(attr(opt, "derivs"), opt$par, ctrl = control$checkConv, :
+## Model failed to converge with max|grad| = 0.00450351 (tol = 0.002, component 1)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{summary}\NormalTok{(model4_earnings_potc_intxn); }\CommentTok{# past outcome, and interaction between outcomes and earnings are significant. Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). Interaction between outcome and trial is trending p =.07}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + earningsNormalized * poc1scaled + trialSC * poc1scaled +  
+##     (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7560.0   7603.5  -3774.0   7548.0    10377 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -26.572  -0.435  -0.060   0.396 123.158 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.002251 0.04744 
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                               Estimate Std. Error z value Pr(>|z|)    
+## earningsNormalized              0.3019     1.1613   0.260   0.7949    
+## poc1scaled                     -0.7639     0.1685  -4.533 5.83e-06 ***
+## trialSC                        -0.3938     1.1497  -0.343   0.7319    
+## earningsNormalized:poc1scaled   7.8843     3.3671   2.342   0.0192 *  
+## poc1scaled:trialSC             -6.1340     3.3301  -1.842   0.0655 .  
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             ernngN pc1scl trilSC ernN:1
+## poc1scaled   0.065                     
+## trialSC     -0.998 -0.065              
+## ernngsNrm:1 -0.729 -0.090  0.728       
+## pc1scld:tSC  0.724  0.016 -0.727 -0.995
+## convergence code: 0
+## Model failed to converge with max|grad| = 0.00450351 (tol = 0.002, component 1)
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# model fails to converge though}
+
+\CommentTok{# store model results}
+\NormalTok{m4_earnPOCintxn_coefs =}\StringTok{ }\KeywordTok{fixef}\NormalTok{(model4_earnings_potc_intxn)}
+\NormalTok{earnCoef_}\DecValTok{2}\NormalTok{ =}\StringTok{ }\NormalTok{m4_earnPOCintxn_coefs[}\DecValTok{1}\NormalTok{] }
+\NormalTok{pocCoef =}\StringTok{ }\NormalTok{m4_earnPOCintxn_coefs[}\DecValTok{2}\NormalTok{];}
+\NormalTok{intxnCoef_}\DecValTok{2}\NormalTok{ =}\StringTok{ }\NormalTok{m4_earnPOCintxn_coefs[}\DecValTok{4}\NormalTok{]}
+
+\CommentTok{# Plot interaction between outcome and earnings}
+
+\NormalTok{poc=}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\KeywordTok{c}\NormalTok{(}\DecValTok{0}\NormalTok{,.}\DecValTok{5}\NormalTok{,}\DecValTok{1}\NormalTok{), }\DataTypeTok{times =}\DecValTok{3}\NormalTok{)}
+\NormalTok{earnings =}\StringTok{ }\KeywordTok{rep}\NormalTok{(}\KeywordTok{c}\NormalTok{(.}\DecValTok{0}\NormalTok{, }\FloatTok{.5}\NormalTok{, }\DecValTok{1}\NormalTok{), }\DataTypeTok{each =}\DecValTok{3}\NormalTok{)}
+
+
+\NormalTok{PgamPOCearningsIntxn =}\DecValTok{1}\OperatorTok{/}\NormalTok{(}\DecValTok{1}\OperatorTok{+}\KeywordTok{exp}\NormalTok{(}\OperatorTok{-}\DecValTok{1}\OperatorTok{*}\NormalTok{( (earnCoef_}\DecValTok{2}\OperatorTok{*}\NormalTok{earnings) }\OperatorTok{+}\StringTok{ }\NormalTok{(pocCoef}\OperatorTok{*}\NormalTok{poc) }\OperatorTok{+}\StringTok{ }\NormalTok{(intxnCoef_}\DecValTok{2}\OperatorTok{*}\NormalTok{poc}\OperatorTok{*}\NormalTok{earnings) )));}
+
+\KeywordTok{plot}\NormalTok{(PgamPOCearningsIntxn[}\DecValTok{1}\OperatorTok{:}\DecValTok{3}\NormalTok{], }\DataTypeTok{type=}\StringTok{"l"}\NormalTok{, }\DataTypeTok{lwd =} \DecValTok{3}\NormalTok{, }\DataTypeTok{col =} \StringTok{"pink"}\NormalTok{, }\DataTypeTok{ylab=} \StringTok{"p(gamble)"}\NormalTok{, }\DataTypeTok{xlab=}\StringTok{"past outcome"}\NormalTok{, }\DataTypeTok{axes=}\NormalTok{F, }\DataTypeTok{ylim=} \KeywordTok{c}\NormalTok{(}\KeywordTok{min}\NormalTok{(PgamPOCearningsIntxn), }\KeywordTok{max}\NormalTok{(PgamPOCearningsIntxn)), }\DataTypeTok{main=}\StringTok{"risk taking as a function of }\CharTok{\textbackslash{}n}\StringTok{ earnings and past outcome"}\NormalTok{);}
+\KeywordTok{lines}\NormalTok{(PgamPOCearningsIntxn[}\DecValTok{4}\OperatorTok{:}\DecValTok{6}\NormalTok{], }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{col=}\StringTok{"pink2"}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(PgamPOCearningsIntxn[}\DecValTok{7}\OperatorTok{:}\DecValTok{9}\NormalTok{], }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{col=}\StringTok{"pink4"}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\KeywordTok{axis}\NormalTok{(}\DecValTok{1}\NormalTok{, }\DataTypeTok{at=}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\DecValTok{3}\NormalTok{), }\DataTypeTok{labels =} \KeywordTok{c}\NormalTok{(}\StringTok{"small"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"large"}\NormalTok{))}
+\KeywordTok{legend}\NormalTok{(}\StringTok{"right"}\NormalTok{, }\DataTypeTok{legend=}\KeywordTok{c}\NormalTok{(}\StringTok{"zero"}\NormalTok{, }\StringTok{"medium"}\NormalTok{, }\StringTok{"large"}\NormalTok{), }\DataTypeTok{bty=}\StringTok{"n"}\NormalTok{, }\DataTypeTok{lty=}\DecValTok{1}\NormalTok{, }\DataTypeTok{lwd=}\DecValTok{3}\NormalTok{, }\DataTypeTok{col=}\KeywordTok{c}\NormalTok{(}\StringTok{"pink"}\NormalTok{,}\StringTok{"pink2"}\NormalTok{, }\StringTok{"pink4"}\NormalTok{), }\DataTypeTok{title=}\StringTok{"earnings:"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{glmerAnalysisVNI_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+Each timescale in a single model:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{model5_potc_posshift_earn_trial =}\StringTok{ }\KeywordTok{glmer}\NormalTok{(choice }\OperatorTok{~}\StringTok{ }\DecValTok{0} \OperatorTok{+}\StringTok{ }\NormalTok{poc1scaled}\OperatorTok{*}\NormalTok{earningsNormalized }\OperatorTok{+}\StringTok{ }\NormalTok{shiftDiffscPOS }\OperatorTok{+}\StringTok{ }\NormalTok{trialSC }\OperatorTok{+}\StringTok{ }\NormalTok{(}\DecValTok{1}\OperatorTok{|}\NormalTok{subjectIndex), }\DataTypeTok{data=}\NormalTok{mriBehClean, }\DataTypeTok{family=}\StringTok{"binomial"}\NormalTok{, }\DataTypeTok{offset=}\NormalTok{pred)}
+
+\KeywordTok{summary}\NormalTok{(model5_potc_posshift_earn_trial); }\CommentTok{# everything significant}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Generalized linear mixed model fit by maximum likelihood (Laplace
+##   Approximation) [glmerMod]
+##  Family: binomial  ( logit )
+## Formula: choice ~ 0 + poc1scaled * earningsNormalized + shiftDiffscPOS +  
+##     trialSC + (1 | subjectIndex)
+##    Data: mriBehClean
+##  Offset: pred
+## 
+##      AIC      BIC   logLik deviance df.resid 
+##   7553.0   7596.4  -3770.5   7541.0    10377 
+## 
+## Scaled residuals: 
+##     Min      1Q  Median      3Q     Max 
+## -25.759  -0.436  -0.061   0.399 126.474 
+## 
+## Random effects:
+##  Groups       Name        Variance Std.Dev.
+##  subjectIndex (Intercept) 0.002773 0.05266 
+## Number of obs: 10383, groups:  subjectIndex, 48
+## 
+## Fixed effects:
+##                               Estimate Std. Error z value Pr(>|z|)    
+## poc1scaled                     -0.7851     0.1691  -4.644 3.41e-06 ***
+## earningsNormalized              2.0780     0.8113   2.561  0.01043 *  
+## shiftDiffscPOS                  2.4082     0.7484   3.218  0.00129 ** 
+## trialSC                        -2.1952     0.8009  -2.741  0.00613 ** 
+## poc1scaled:earningsNormalized   1.7987     0.3324   5.411 6.27e-08 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Correlation of Fixed Effects:
+##             pc1scl ernngN shDPOS trilSC
+## ernngsNrmlz  0.075                     
+## shftDffsPOS -0.050  0.092              
+## trialSC     -0.074 -0.995 -0.107       
+## pc1scld:rnN -0.760 -0.118  0.083  0.070
+\end{verbatim}
+
+\end{document}
