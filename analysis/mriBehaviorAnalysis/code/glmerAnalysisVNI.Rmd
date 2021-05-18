@@ -1,6 +1,7 @@
 ---
 title: "VNI Analysis of RDM behavior"
 author: "Hayley Brooks"
+output: html_notebook
 ---
 
 Tips/Tricks from template:
@@ -320,12 +321,34 @@ legend("topleft", legend=c("sub 7", "sub 35"), lty = 1, lwd=3, bty="n", col=c("g
 ```
 
 
-Do earnings interact with outcome? -LEFT OFF HERE 5/18
+Do earnings interact with outcome? 
 ```{r}
 # Earnings interact with past outcome in previous datasets, does that happen here?
 model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_earnings_potc_intxn); # past outcome, and interaction between outcomes and earnings are significant. Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). Interaction betwee outcome and trial is trending p =.07
+summary(model4_earnings_potc_intxn); # past outcome, and interaction between outcomes and earnings are significant. Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). Interaction between outcome and trial is trending p =.07
 # model fails to converge though
+
+# store model results
+m4_earnPOCintxn_coefs = fixef(model4_earnings_potc_intxn)
+earnCoef_2 = m4_earnPOCintxn_coefs[1] 
+pocCoef = m4_earnPOCintxn_coefs[2];
+intxnCoef_2 = m4_earnPOCintxn_coefs[4]
+
+# Plot interaction between outcome and earnings
+
+poc= rep(c(0,.5,1), times =3)
+earnings = rep(c(.0, .5, 1), each =3)
+
+
+PgamPOCearningsIntxn =1/(1+exp(-1*( (earnCoef_2*earnings) + (pocCoef*poc) + (intxnCoef_2*poc*earnings) )));
+
+plot(PgamPOCearningsIntxn[1:3], type="l", lwd = 3, col = "pink", ylab= "p(gamble)", xlab="past outcome", axes=F, ylim= c(min(PgamPOCearningsIntxn), max(PgamPOCearningsIntxn)), main="risk taking as a function of \n earnings and past outcome");
+lines(PgamPOCearningsIntxn[4:6], lwd=3, col="pink2")
+lines(PgamPOCearningsIntxn[7:9], lwd=3, col="pink4")
+axis(2)
+axis(1, at=c(1:3), labels = c("small", "medium", "large"))
+legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=c("pink","pink2", "pink4"), title="earnings:")
+
 ```
 
 
@@ -333,7 +356,7 @@ summary(model4_earnings_potc_intxn); # past outcome, and interaction between out
 
 Each timescale in a single model:
 ```{r}
-model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled + shiftDiffscPOS + earningsNormalized*poc1scaled + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsNormalized + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 
 summary(model5_potc_posshift_earn_trial); # everything significant
 ```
