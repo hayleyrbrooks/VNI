@@ -1,126 +1,74 @@
 ---
 title: "VNI Analysis of RDM behavior"
 author: "Hayley Brooks"
-output: html_notebook
+output:
+  html_notebook: default
+  pdf_notebook: default
 ---
 
-Tips/Tricks from template:
+***
+##### Tips from template:
 1) Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
 2) Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
 3) When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
 4) The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
 
-Output
-  1) indivPOCestimates.pdf - plots each sub's past outcome betas
-  2) runSizeShiftFigs.pdf- plots change in risk taking following negative shift as a function of shift and run size
-  3) ocEarnIntxOnly.pdf - risk taking as a fucntion of outcomes x earnings plotting only interaction
-  4) ocEarnIntx.pdf - risk taking as a function of outcomes x earnings interaction plotting all variables in the model
-  5) taskEarnings.pdf - earnings for each participant over the task
-
-
-# Set up the environment/path
+***
+##### Set up
 ```{r}
 rm(list=ls());  # clear environment
 
 
-library(config)
-config <- config::get()
+library(config);
+config <- config::get();
 
 load("/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata"); # mriBehClean data frame
-```
 
-
-
-Load packages
-```{r}
 library(lme4);
 library(lmerTest);
 ```
 
-
-Subject information
+***
+##### Subject information
 ```{r}
 subIDs = unique(mriBehClean$subjectIndex);
 nSub = length(subIDs);
-print(nSub)
+sprintf("N = %s", nSub)
 ```
 
+***
+### Big Question
+#### Does risk-taking change as a function of temporal context at three levels?
+1) Immediate (past outcome) 
+2) Neighborhood (shifts) 
+3) Global (earnings)
 
-FOR THIS ANALYSIS, WE WANT TO KNOW IF RISK TAKING (RESIDUALS) CHANGES AS A FUNCTION OF TEMPORAL CONTEXT AT THREE LEVELS:
-1) PAST OUTCOME (IMMEDIATE)
-2) SHIFTS (NEIGHBORHOOD)
-3) CUMULATIVE EARNINGS (GLOBAL)
 
-INDIVIDUAL-LEVEL ANALYSES
-  DOES RISK-TAKING CHANGE ON THE IMMEDIATE LEVEL OF TEMPORAL CONTEXT?
-  Iindividual-level past outcome glms
+***
 
+### Trial-level model
+##### Summary: Participants more likely to choose an option as its amount increases (no effect of ground expected value)
 ```{r}
-subsTriLevMods = list();
-subsPocMods = list();
-trialLevelResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
-pocResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
-
-for (s in 1:nSub) {
-  sub = mriBehClean[mriBehClean$subjectIndex==subIDs[s],]; # pull out a single subject
-  
-  subsTriLevMods[[s]] = glm(choice~gainSC + altSC + grndEVscaled, data=sub, family="binomial"); # run the trial levelm odel
-
-  sub$pred = predict(subsTriLevMods[[s]],type='link'); # get predicted values
-  
-  subsPocMods[[s]] = glm(choice~poc1scaled, data=sub, family="binomial", offset=pred); # past outcome model with predicted values
-  
-  tmp =summary(subsPocMods[[s]]); #store coefficients from poc model
-  pocResults$subID[s] = subIDs[s]; # fill in sub ID
-  pocResults$beta[s] = tmp$coefficients[[2]]; # store beta
-  pocResults$pval[s] = tmp$coefficients[[8]]; # store pvalue
-}; 
-
-
-print(pocResults)
-
-sprintf(" %d participants had a negative, significant past outcome beta and %d participants had a positive, significant outcome beta", sum(pocResults$pval<.05 & pocResults$beta <0), sum(pocResults$pval<.05 & pocResults$beta >0))
-```
-
-Plot the individual past outcome results
-Blue is trending, green is significant, black is not significant or trending
-```{r}
-
-plot(pocResults$beta, ylim=c(min(pocResults$beta),max(pocResults$beta)), pch=16, main=sprintf("Individual past outcome estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(pocResults[,3]<.05, "green", ifelse(pocResults[,3]<.1 & pocResults$pval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
-abline(a=0,b=0, col="grey")
-
-
-
-```
-
-GROUP LEVEL ANALYSIS (LME4)
-
-Trial-level variables (model is identical to VIC):
-Summary: Participants more likely to choose an option as its amount increases (no effect of ground expected value)
-
-```{r}
-model1_trialLevel = glmer(choice~ 0 + gainSC + altSC + grndEVscaled + (0+ gainSC + altSC|subjectIndex), data = mriBehClean, family = "binomial");
+model1_trialLevel = glmer(choice~ 0 + gainSC + altSC + grndEVscaled + (0+ gainSC + altSC|subjectIndex), data = mriBehClean, family = "binomial"); # model identical to VIC
 
 summary(model1_trialLevel);
 
 ```
 
+***
+#####  Pull out "predicted" values from trial-level model and save as variable "pred" in mriBehClean dataframe
+**Using "offset", they'll be applied inside the softmax with a weight of 1 every time, in effect accounting for our best current-trial predictions by directly entering those predictions on a trial-by-trial level. This lets us retain the binomial analysis structure vs using residuals ("resids"), which is much more accurate.**
 
-Pull out "predicted" values from trial-level model and save as variable "pred" in mriBehClean dataframe
 ```{r}
-
 mriBehClean$pred= predict(model1_trialLevel,type="link"); 
 par(mfrow=c(1,1))
 plot(mriBehClean$pred, ylab="predicted values");
 
 ```
 
-
-###### Does temporal context influence risk taking? #######
-
-Each timescale of temporal context in models alone
-
-Timescale 1: Past outcome
+***
+#### 1) Immediate timescale: past outcome  
+##### Summary: There is a negative interaction between past outcome type and amount (plotted below) where risk-taking increases following a large loss (missed gain) and decreases following a large gain.
 ```{r}
 model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt);  # ns; AIC = 7592.9 
@@ -133,8 +81,8 @@ summary(model2_potc_amt_type_intxn); # negative interaction between outcome type
 
 ```
 
-Plot the interaction between past outcome amount and type:
-Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)
+**Plot the interaction between past outcome amount and type:**  
+**Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)**
 ```{r}
 
 m2coef = fixef(model2_potc_amt_type_intxn); # store all beta estimates
@@ -192,9 +140,9 @@ lines(c(PgamPOClossSmallGain,PgamPOClossMediumGain,PgamPOClossLargeGain), pch=16
 
 
 ```
-
-
-Timescale 2: Shifts
+***
+#### 2) Neighborhood timescale: Shifts 
+##### Summary: Risk-taking increases following a positive shift only and the effect is short-lasting (similar to VIC). Shift does not interact with run size or past outcome.
 ```{r}
 model3_signed_shifts = glmer(choice~0 + shiftDiffsc + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model3_signed_shifts); # signed shift difference, significant
@@ -223,7 +171,7 @@ axis(2)
 
 ```
 
-How far back does shift effect go?
+#### How far back does shift effect go?
 ```{r}
 # create new positive shift variable (n-1)
 newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2);
@@ -241,7 +189,7 @@ summary(model3_pos_shift_howfarback); #short lasting, only trial directly after 
 ```
 
 
-Does positive shift interact with previous run size or past outcome?
+#### Does positive shift interact with previous run size or past outcome?
 ```{r}
 
 # positive shift amount and run size before positive shift
@@ -262,9 +210,9 @@ summary(model3_posShift_potc_intxn); #all betas ns
 
 ```
 
-
-
-Timescale 3: Earnings (and trial) 
+***
+#### 3) Global timescale: Cumulative earnings (and trial) 
+##### Summary: Cumulative earnings are more tied to trial than previous datasets, even VIC. Earnings and trial have opposite effects with risk-taking increasing with earnings and decreasing across the task. Similar to VIC and CBM, earnings interacts with past outcome (trial DOES NOT). P
 ```{r}
 model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
@@ -321,7 +269,7 @@ legend("topleft", legend=c("sub 7", "sub 35"), lty = 1, lwd=3, bty="n", col=c("g
 ```
 
 
-Do earnings interact with outcome? 
+##### Do earnings interact with outcome? 
 ```{r}
 # Earnings interact with past outcome in previous datasets, does that happen here?
 model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
@@ -354,7 +302,8 @@ legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=
 
 
 
-Each timescale in a single model:
+### Each timescale in a single model:
+#### Summary: Similar effects that we have noted prior: negative past outcome effect that interacts with cumulative earnings and positive shift effect. Note - did not account for outcome type in this model.
 ```{r}
 model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsNormalized + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 
@@ -362,4 +311,41 @@ summary(model5_potc_posshift_earn_trial); # everything significant
 ```
 
 
+
+#### Individual-level analyses (glm)
+###### output = pocResults {subID, beta, pval}
+
+
+```{r}
+subsTriLevMods = list();
+subsPocMods = list();
+trialLevelResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
+pocResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
+
+for (s in 1:nSub) {
+  sub = mriBehClean[mriBehClean$subjectIndex==subIDs[s],]; # pull out a single subject
+  
+  subsTriLevMods[[s]] = glm(choice~gainSC + altSC + grndEVscaled, data=sub, family="binomial"); # run the trial levelm odel
+
+  sub$pred = predict(subsTriLevMods[[s]],type='link'); # get predicted values
+  
+  subsPocMods[[s]] = glm(choice~poc1scaled, data=sub, family="binomial", offset=pred); # past outcome model with predicted values
+  
+  tmp =summary(subsPocMods[[s]]); #store coefficients from poc model
+  pocResults$subID[s] = subIDs[s]; # fill in sub ID
+  pocResults$beta[s] = tmp$coefficients[[2]]; # store beta
+  pocResults$pval[s] = tmp$coefficients[[8]]; # store pvalue
+}; 
+
+
+print(pocResults)
+```
+
+**Plot the individual past outcome results**
+```{r}
+
+plot(pocResults$beta, ylim=c(min(pocResults$beta),max(pocResults$beta)), pch=16, main=sprintf("Individual past outcome estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(pocResults[,3]<.05, "green", ifelse(pocResults[,3]<.1 & pocResults$pval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
+abline(a=0,b=0, col="grey");
+legend("topright", legend= c("p < .05", ".05 < p < .1", "p > .1"), bty="n", pch = 16, col=c("green", "blue", "black"));
+```
 
