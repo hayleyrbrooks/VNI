@@ -58,11 +58,11 @@
 ![trialStructure](https://user-images.githubusercontent.com/19710394/118421794-096a5f00-b67f-11eb-98bc-6728b0a90ad3.png)
 
 ######
-ISIs: 1.75 to 5.75s
-ITIs: .75 to 4.75s (+ 2s-RT from choice display)
-Task was split up into 3 blocks of 73 trials
-Each block was 12.025 minutes
-Average trial time is 9.88s 
+- ISIs: 1.75 to 5.75s
+- ITIs: .75 to 4.75s (+ 2s-RT from choice display)
+- Task was split up into 3 blocks of 73 trials
+- Each block was 12.025 minutes
+- Average trial duration is 9.88s 
 
 
 
