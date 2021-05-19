@@ -20,12 +20,13 @@
   - levels, or  mean expected values: 5,10,15,20,25
   - On each trial, the mean expected value is +/- .50 from the mean expected value of the context (to create some noise)
   - Variance at each level is identical
-- Context was set up in the task by 4 "runs" of trials at each level
+- Context was set up in the task by 4 "runs" of trials at each level 
   - Runs contained 6,9,12,15 trials  
   - The starting context consited of a fifth run with 9 trials to ensure a shift *back* to that level
+  - 21 runs total
   - 42 trials at each level of context with the exception of 51 trials at the starting context
     - This number was in part determined by time constraints (i.e. how many trials we could fit in the task) 
-    - Along each context, most trials were sampled from a combination of risky gain and safe combinations that were close to indifference (follow-up on this)
+    - 28 of 42 trials were sampled from a combination of risky gain and safe combinations that were close to indifference and the other 14 trials were sampled on the edges 
 - Context changed following a shift up or down to the next context
   - 20 total shifts to ensure that for each level of context, there was a shift to-and-from the other contexts
 - All participants experienced the same shifts and run sizes but the order was random
@@ -56,7 +57,12 @@
 #### Figure 4 Structure and timing of a single trial
 ![trialStructure](https://user-images.githubusercontent.com/19710394/118421794-096a5f00-b67f-11eb-98bc-6728b0a90ad3.png)
 
-Average trial time is 8.5s (triple check this - we may have changed is slightly because of CINC's time constraint)
+######
+ISIs: 1.75 to 5.75s
+ITIs: .75 to 4.75s (+ 2s-RT from choice display)
+Task was split up into 3 blocks of 73 trials
+Each block was 12.025 minutes
+Average trial time is 9.88s 
 
 
 
