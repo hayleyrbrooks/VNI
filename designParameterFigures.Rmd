@@ -1,0 +1,55 @@
+---
+title: "Desing Parameter Figures"
+author: Hayley Brooks
+output: html_notebook
+---
+***
+##### Set up
+```{r}
+rm(list=ls());  # clear environment
+
+
+library(config);
+config <- config::get();
+
+load("/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata"); # mriBehClean data frame
+
+library(lme4);
+library(lmerTest);
+```
+
+
+
+##### Plot choice set
+```{r}
+
+singleSub = mriBehClean[mriBehClean$subjectIndex==5,];
+
+# set colors by mean ev level (context)
+singleSub$mEVcolor = "palegreen4"
+singleSub$mEVcolor[singleSub$groundEV==10] = "lightsalmon2"
+singleSub$mEVcolor[singleSub$groundEV==15] = "mediumpurple2"
+singleSub$mEVcolor[singleSub$groundEV==20] = "goldenrod3"
+singleSub$mEVcolor[singleSub$groundEV==25] = "royalblue1"
+
+png("/Users/hayley/Documents/GitHub/vni/singleSubLevelsOfcontext.png")
+plot(singleSub$riskyGain, singleSub$alternative, col=singleSub$mEVcolor, main="Five levels of context", ylab= "safe ($)", xlab="risky gain ($)", pch=16)
+dev.off();
+
+png("/Users/hayley/Documents/GitHub/vni/singleSubMeanEVacrossTask.png")
+plot(singleSub$groundEV, pch=16, col=singleSub$mEVcolor, xlab="trial", ylab="mean EV", main="Context created by runs and shifts (mean EV)");
+dev.off();
+
+png("/Users/hayley/Documents/GitHub/vni/singleSubSafeacrossTask.png")
+plot(singleSub$alternative, col=singleSub$mEVcolor, xlab="trial", ylab="safe ($)", main="Context created by runs and shifts (safe amt)", pch=16)
+dev.off()
+
+
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
