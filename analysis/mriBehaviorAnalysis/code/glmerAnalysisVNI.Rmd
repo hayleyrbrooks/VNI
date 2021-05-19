@@ -229,15 +229,29 @@ PgamSub1EarnTrial =1/(1+exp(-1*( (triCoef*sub1$trialSC) + (earnCoef*sub1$earning
 sub2 = mriBehClean[mriBehClean$subjectIndex==35,];
 PgamSub2EarnTrial =1/(1+exp(-1*( (triCoef*sub2$trialSC) + (earnCoef*sub2$earningsNormalized) )))
 
+sub3 = mriBehClean[mriBehClean$subjectIndex==52,];
+PgamSub3EarnTrial =1/(1+exp(-1*( (triCoef*sub3$trialSC) + (earnCoef*sub3$earningsNormalized) )))
 
-plot(PgamSub1EarnTrial, type="l", col="green", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings")
-lines(PgamSub2EarnTrial, col="darkgreen", lwd=3)
-legend("topleft", legend=c("sub 7", "sub 35"), lty = 1, lwd=3, bty="n", col=c("green", "darkgreen"))
+sub4 = mriBehClean[mriBehClean$subjectIndex==15,];
+PgamSub4EarnTrial =1/(1+exp(-1*( (triCoef*sub4$trialSC) + (earnCoef*sub4$earningsNormalized) )))
 
-plot(sub1$earningsNormalized,type="l", col="green", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task")
-lines(sub2$earningsNormalized, col="darkgreen", lwd=3)
-legend("topleft", legend=c("sub 7", "sub 35"), lty = 1, lwd=3, bty="n", col=c("green", "darkgreen"))
+sub5 = mriBehClean[mriBehClean$subjectIndex==28,];
+PgamSub5EarnTrial =1/(1+exp(-1*( (triCoef*sub5$trialSC) + (earnCoef*sub5$earningsNormalized) )))
 
+plot(PgamSub1EarnTrial, type="l", col="darkgreen", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings")
+lines(PgamSub2EarnTrial, col="darkred", lwd=3);
+lines(PgamSub3EarnTrial, col="darkblue", lwd=3);
+lines(PgamSub4EarnTrial, col="darkorange", lwd=3);
+lines(PgamSub5EarnTrial, col="goldenrod", lwd=3);
+legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
+
+plot(sub1$earningsNormalized,type="l", col="darkgreen", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task")
+lines(sub2$earningsNormalized, col="darkred", lwd=3)
+lines(sub3$earningsNormalized, col="darkblue", lwd=3)
+lines(sub4$earningsNormalized, col="darkorange", lwd=3)
+lines(sub5$earningsNormalized, col="goldenrod", lwd=3)
+
+legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
 
 
 # Model and plot with interaction term between earnings and trials
@@ -309,6 +323,33 @@ model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsNormaliz
 
 summary(model5_potc_posshift_earn_trial); # everything significant
 ```
+
+##### Plot earnings x outcome effect using the model above (the interaction term is much smaller than in m4_earning_potc_intxn model), so we'd expect the switching of the past outcome effect to be less intense:
+```{r}
+# store model results
+model5_coef = fixef(model5_potc_posshift_earn_trial)
+m5earnCoef = model5_coef[2]; 
+m5pocCoef = model5_coef[1];
+M5intxnCoef = model5_coef[5];
+
+# Plot interaction between outcome and earnings
+
+poc= rep(c(0,.25,.5,.75, 1), times =5);
+earnings = rep(c(0,.25,.5,.75, 1), each =5);
+
+
+PgamPOCearningsIntxn =1/(1+exp(-1*( (m5earnCoef*earnings) + (m5pocCoef*poc) + (M5intxnCoef*poc*earnings) )));
+
+plot(PgamPOCearningsIntxn[1:5], type="l", lwd = 3, col = "pink", ylab= "p(gamble)", xlab="past outcome ($)", axes=F, ylim= c(0,1), main="risk taking as a function of \n earnings and past outcome (big model 5)");
+lines(PgamPOCearningsIntxn[6:10], lwd=3, col="lightpink")
+lines(PgamPOCearningsIntxn[11:15], lwd=3, col="pink2")
+lines(PgamPOCearningsIntxn[16:20], lwd=3, col="pink3")
+lines(PgamPOCearningsIntxn[21:25], lwd=3, col="pink4")
+axis(2)
+axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=2))
+legend("bottomleft", legend=c("zero", "small", "medium", "medium-large", "large"), bty="n", lty=1, lwd=3, col=c("pink","lightpink", "pink2" ,"pink3", "pink4"), title="earnings:")
+```
+
 
 
 
