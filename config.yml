@@ -15,6 +15,7 @@ default:
     data:
         raw: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles"
         clean: "/Volumes/shlab/Projects/VNI/data/mriBehaviorClean"
+        timing_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles"
         quality_analysis_output: "/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput"
   csvs:
     group_clean_csv: "group_mriBehavior_clean.csv"
