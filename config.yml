@@ -18,6 +18,7 @@ default:
         quality_analysis_output: "/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput"
   csvs:
     group_clean_csv: "group_mriBehavior_clean.csv"
+    group_raw_csv: "mriBehaviorRawCombined.csv"
 
 
 
