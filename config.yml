@@ -13,7 +13,7 @@
 default:
   path:
     data:
-        raw: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles/"
+        raw: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles"
         clean: "/Volumes/shlab/Projects/VNI/data/mriBehaviorClean"
         quality_analysis_output: "/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput"
   csvs:
