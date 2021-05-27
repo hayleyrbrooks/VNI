@@ -3,8 +3,19 @@ title: "createEventFiles"
 author: "Hayley Brooks"
 date: "5/27/2021"
 output: pdf_document
---
+---
 
+##### Event files
+- For each participant, there will be three event.tsv files for each run. The even files will have 3 columns {event name, onset, and duration}. Then we will use these event files to create the timing/onset files for fMRI analysis in FSL. We are using the raw data (i.e. missed trials included) to create the event.tsv files. Raw data files include RT, isi and itis. All participants will have event .tsv files (even the ones we exclude from behavior portion)
+
+##### Timing information
+-Choice options were displayed for 2 seconds (forced viewing) then participants had 2 seconds to respond. Once they responded, the ISI (varied 1.75s-5.75s) began and anytime remaining in the 2 second response window was added to the ITI at the end of the trial. After the ISI, the outcome was shown for 1 second followed by the ITI (varied .75 - 4.75 plus the leftover response time (2-RT) ). ITI, ISI and RT are included in the raw dataset loaded below.
+
+- There was a 15 second fixation at the start of each block (to allow the scanner to settle). The first trial started immediately after the fixation ended.
+
+- Note that subject 13 does not have a RTs or choices (just NaN) because they did not start task (had to exit scanner after practice trials)
+
+#### Set up
 ```{r}
 rm(list=ls());  # clear environment
 
@@ -12,9 +23,26 @@ rm(list=ls());  # clear environment
 library(config);
 config <- config::get();
 
-vni_csv = file.path(config$path$data$clean,config$csvs$group_clean_csv);
-mriBehClean = read.csv(vni_csv);
+vniRaw_csv = file.path(config$path$data$raw,config$csvs$group_raw_csv);
+mriBehRaw = read.csv(vniRaw_csv);
 
+timingFileOutput = file.path(config$path$data$timing_files)
+```
+
+#### Subject Information
+```{r}
+subNum = unique(mriBehRaw$subjectIndex);
+nSubRaw = length(subNum);
+
+```
+
+#### Create tsv files
+For a given trial, there are 5 events: choice display, RT, ISI, outcome, ITI and 73 trials in each run for a total of 365 events in a run (1095 total events across all three runs because 5 x 219 = 1095)
+```{r}
+nEvents = 5;
+nTrun = 73;
+nEventsRun = nEvents*nTrun
+run1events = matrix(data=NA, nrow = nEventsRun, ncol = 3, dimnames=list(c(NULL), c("event","onset","duration")));
 ```
 
 
