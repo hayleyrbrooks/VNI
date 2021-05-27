@@ -22,7 +22,9 @@ rm(list=ls());  # clear environment
 library(config);
 config <- config::get();
 
-load("/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata"); # mriBehClean data frame
+vni_csv = file.path(config$path$data$clean,config$csvs$group_clean_csv);
+mriBehClean = read.csv(vni_csv);
+
 
 library(lme4);
 library(lmerTest);
