@@ -12,12 +12,12 @@
 #   https://cran.r-project.org/web/packages/config/vignettes/introduction.html.
 default:
   path:
-    data: "/Volumes/shlab/Projects/VNI/data"
-        raw_group: "/mriBehaviorRaw/groupLevelFiles"
-        raw_singleSub: "/mriBehaviorRaw/singleSubjectFiles"
-        clean: "/mriBehaviorClean"
-        timing_files: "/mriTimingFiles"
-        quality_analysis_output: "/mriBehaviorQAoutput"
+    data:         
+        raw_group: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles"
+        raw_singleSub: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/singleSubjectFiles"
+        clean: "/Volumes/shlab/Projects/VNI/data/mriBehaviorClean"
+        timing_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles"
+        quality_analysis_output: "/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput"
   csvs:
     RDM_group_clean_csv: "group_mriBehavior_clean.csv"
     RDM_group_raw_csv: "mriBehaviorRawCombined.csv"
