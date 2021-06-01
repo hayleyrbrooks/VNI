@@ -16,6 +16,9 @@
   - Script for creating event files (Matlab)
   - Script for creating onset/timing file for FSL(R)
 ## [Analysis](./analysis)
-### Behavior
-### fMRI (BOLD)
+### [Behavior](./analysis/mriBehaviorAnalysis)
+#### [code](./analysis/mriBehaviorAnalysis/code)
+#### [documentation](./analysis/mriBehaviorAnalysis/documentation)
+#### [figures](./analysis/mriBehaviorAnalysis/figures)
+### fMRI (BOLD) - not created yet
 
