@@ -17,10 +17,10 @@
 -	fmriprep_ica#####_##.log: logs that are produced from running fmriprep (usually deleted afterward or moved to fmripreplogs)
 -	sbatch_fmriprep_ICA.sh: SLURM job submission script
 
-## 3) Updated the sbatch_fmriprep_ICA.sh job submission script to specify which participants to run
+## 3) Update the sbatch_fmriprep_ICA.sh job submission script to specify which participants to run
 		vim sbatch_fmriprep.sh
 
-specify participants 
+specify participants in the 'SBATCH --array' line:
 		
 		SBATCH --array (specify row numbers corresponding to subject ID numbers in ids.tx). 
 for example, for the first three participants
