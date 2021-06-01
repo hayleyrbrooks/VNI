@@ -26,7 +26,11 @@ specify participants in the 'SBATCH --array' line:
 for example, for the first three participants
 		
 		SBATCH --array=1-3 
+		
+## 4) Run the sbatch_fmriprep_ICA.sh file to run fMRIprep by typing: 
+		sbatch sbatch_fmriprep_ICA.sh 
 
+No need to load singularity module here because its loaded by the sbatch_fmriprep_ICA.sh script
 
 
 ## If singularity image for fMRIprep needs to be updates: 
