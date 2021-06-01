@@ -12,6 +12,7 @@
 ### [fMRIPrep](./preprocessing/fMRIprep)
   - Instructions for running fMRIprep using singularity container on RDAC
   - Bash script for running fMRIprep on this dataset
+  - CITATION.md provided by fMRIprep for describing fMRIprep in manuscript
 ### [Timing files](./preprocessing/timingFilesSetup)
   - Script for creating event files (Matlab)
   - Script for creating onset/timing file for FSL(R)
