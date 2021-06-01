@@ -1,7 +1,7 @@
-# Quality analysis for VNI MRI behavior dataset 
+# Quality analysis for VNI MRI behavior dataset
 # (e.g. how many missed trials? how many missed attention checks? individual-level glm)
 
-# output: 
+# output:
 # 1) behQualCheck.Rdata - for each sub, total and proportion of "no mans land" choices, total and proportion of choices where safe = 0 and partiicipants took the gamble
 # 2) subID_exclude.Rdata - which participants are we excluding (1 = exclude; 0 = keep)
 # 3) subChoices.pdf - each participant's choices over the task and as a function of safe x risky gain, pgamble included
@@ -13,6 +13,8 @@
 
 rm(list = ls());
 
+library('config');
+
 vniBeh = read.csv("/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles/mriBehaviorRawCombined.csv");
 
 sem <- function(x) sd(x)/sqrt(length(x)); # function for calculating standard error of the mean
@@ -22,7 +24,7 @@ ind13 = which(vniBeh$subjectIndex==13);
 vniBeh = vniBeh[-ind13,];
 
 
-nSub = length(unique(vniBeh$subjectIndex)); 
+nSub = length(unique(vniBeh$subjectIndex));
 subNum = unique(vniBeh$subjectIndex);
 
 nanInd = which(is.na(vniBeh$choice));
@@ -33,7 +35,7 @@ missTri = matrix(data=NA, nrow = nSub, ncol=2, dimnames = list(c(NULL), c("subID
 
 for (s in 1:nSub){
   missTri[s,1] = subNum[[s]]
-  missTri[s,2] = sum(vniBeh$subjectIndex[nanInd] == subNum[s]); 
+  missTri[s,2] = sum(vniBeh$subjectIndex[nanInd] == subNum[s]);
 };
 
 mean(missTri[,2]); #11/11 mean missed trial = 2.61; range = 0 - 49 trials; median = 0
@@ -49,18 +51,18 @@ for (n in 1:nSub){
 
 
 #PLOT PARTICIPANTS CHOICES AND CALCULATE PGAMBLE
-plotChoices<- function(data,subnum){ 
+plotChoices<- function(data,subnum){
   subjectn = data[data$subjectIndex==subnum,]; # pull out subject data
   maxAlt = max(subjectn$alternative); #max alternative value for this subject
   subP = round(mean(subjectn$choice),digits = 2); #find the probabilit of gambling
   ind0 = which(subjectn$outcome==0); #which outcomes were zeroes (gamble taken and not won)
-  
+
   #par(mfrow = c(1,2), mai = c(1,1,1,.25)); # settings for plot
   par(mfrow=c(1,2))#,oma = c(0, 0, .5, 0))
   plot(subjectn$alternative, col = subjectn$choice/.55+2, xlab="Trial", ylab = "Alternative ($)", ylim = c(0,31), cex.axis=1, cex.main = 1, cex.lab = 1, main = sprintf("Choice set across task\n  sub %g p(gamble)= %g", subnum, subP)); #plot alternative, gambles taken are in green
   points(subjectn$groundEV, col = "black", pch = "-"); # plot ground EV
   points(ind0, subjectn$alternative[ind0], col = "darkgreen", pch = 1);#dark green = gamble not won
-  
+
   plot(subjectn$riskyGain, subjectn$alternative, col = subjectn$choice/.55+2, xlab="Risky gain ($)", ylab="Alternative ($)", main="Risky gain x Alternative\ngreen = accept; red = reject", cex.axis=1, cex.main = 1, cex.lab = 1, ylim = c(0,31), xlim = c(0,65))
   #points(ind0, subjectn$alternative[ind0], col = "darkgreen", pch = 1);#dark green = gamble not won
 };
@@ -90,14 +92,14 @@ for(s in 1:nSub){
   nmlChoices[s,1] = subNum[s]
   nmlChoices[s,2] = mean(sub$choice[nmlInd1]); # 0 = no gamble on any nml choices; >0 gambled on at least one nml choice
   nmlChoices[s,3] = length(nmlInd1); # how many choices in "no man's land"
-  
+
   nmlInd2 = which(sub$alternative==0);
-  
+
   nmlChoices[s,4] = mean(sub$choice[nmlInd2]); #1=gambled on all, <1 = took safe atleast once; Nan = there were no choices were alternative was =0 (this was a coding error that was fixed after sub 11)
   nmlChoices[s,5] = length(nmlInd2); # how many choices where alternative =0?
-  
-  subModels[[s]] = glm(choice~gainSC + altSC, data=sub, family="binomial"); 
-  
+
+  subModels[[s]] = glm(choice~gainSC + altSC, data=sub, family="binomial");
+
 };
 
 # Notes: updated 11/11
