@@ -284,6 +284,17 @@ legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), 
 
 ```
 
+Plot cumulative earnings for all participants across the task
+```{r}
+plot(mriBehClean$earnings[mriBehClean$subjectIndex==1], type = "l",lwd = 2, ylim = c(0,max(mriBehClean$earnings)), xlim= c(0,219), main = "Earnings across task\n each line is a participant", ylab = "earnings", xlab="trial number", axes=FALSE)
+axis(1, label = c(1, 219), at = c(1,219), tck = 0, lwd = 3)
+axis(2, label = c(0, max(mriBehClean$earnings)), at = c(0,max(mriBehClean$earnings)), tck = 0, lwd =3)
+for(s in 2:nSub){
+  points(mriBehClean$earnings[mriBehClean$subjectIndex==s], type="l", lwd = 1, col = mriBehClean$subjectIndex/.2+s)
+};
+```
+
+
 
 ##### Do earnings interact with outcome? 
 ```{r}
