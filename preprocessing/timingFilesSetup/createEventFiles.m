@@ -1,5 +1,5 @@
 
-% create event files for each run
+% create event files for each run that indicates event type, onset and duration of each event.
 
 dataFolder = '/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/singleSubjectFiles'; %defining working folder
 filePattern = fullfile(dataFolder, '*.mat'); %file pattern to load 
