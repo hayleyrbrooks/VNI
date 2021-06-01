@@ -1,0 +1,405 @@
+---
+title: "VNI Analysis of RDM behavior"
+author: "Hayley Brooks"
+output:
+  #pdf_notebook: default
+  html_notebook: default
+---
+
+***
+##### Tips from template:
+1) Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
+2) Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
+3) When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
+4) The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+***
+##### Set up
+```{r}
+rm(list=ls());  # clear environment
+
+
+library(config);
+config <- config::get();
+
+vni_csv = file.path(config$path$data$clean,config$csvs$RDM_group_clean_csv);
+mriBehClean = read.csv(vni_csv);
+
+
+library(lme4);
+library(lmerTest);
+```
+
+***
+##### Subject information
+```{r}
+subIDs = unique(mriBehClean$subjectIndex);
+nSub = length(subIDs);
+sprintf("N = %s", nSub)
+```
+
+***
+### Big Question
+#### Does risk-taking change as a function of temporal context at three levels?
+1) Immediate (past outcome) 
+2) Neighborhood (shifts) 
+3) Global (earnings)
+
+
+***
+
+### Trial-level model
+##### Summary: Participants more likely to choose an option as its amount increases (no effect of ground expected value)
+```{r}
+model1_trialLevel = glmer(choice~ 0 + gainSC + altSC + grndEVscaled + (0+ gainSC + altSC|subjectIndex), data = mriBehClean, family = "binomial"); # model identical to VIC
+
+summary(model1_trialLevel);
+
+```
+
+***
+#####  Pull out "predicted" values from trial-level model and save as variable "pred" in mriBehClean dataframe
+**Using "offset", they'll be applied inside the softmax with a weight of 1 every time, in effect accounting for our best current-trial predictions by directly entering those predictions on a trial-by-trial level. This lets us retain the binomial analysis structure vs using residuals ("resids"), which is much more accurate.**
+
+```{r}
+mriBehClean$pred= predict(model1_trialLevel,type="link"); 
+par(mfrow=c(1,1))
+plot(mriBehClean$pred, ylab="predicted values");
+
+```
+
+***
+#### 1) Immediate timescale: past outcome  
+##### Summary: There is a negative interaction between past outcome type and amount (plotted below) where risk-taking increases following a large loss (missed gain) and decreases following a large gain.
+```{r}
+model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_amt);  # ns; AIC = 7592.9 
+
+model2_potc_type = glmer(choice ~ 0 + poc1type + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_type); # ns; AIC =7592.1 
+
+model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_amt_type_intxn); # negative interaction between outcome type and amount; AIC = 7588.0
+
+```
+
+**Plot the interaction between past outcome amount and type:**  
+**Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)**
+```{r}
+
+m2coef = fixef(model2_potc_amt_type_intxn); # store all beta estimates
+
+typeCoef = m2coef[1]; # past outcome type coefficient
+amtCoef = m2coef[2]; # past outcome amount coefficient
+intxnCoef = m2coef[3]; # past outcome type and amount interaction coefficient
+
+## SAFE OUTCOMES
+# Largest outcome when a participant rejected gamble = 30.49, scaled = .499918
+# smallest outcome when a participant rejected gamble  = .78, scaled = .01278898
+PgamPOCsafeSmall = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*.499918) + (intxnCoef*0*.499918) ))); 
+# probability of gambling following a small, safe past outcome  = 0.5275424, 2.7% increase
+
+PgamPOCsafeLarge = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*.01278898) + (intxnCoef*0*.01278898) ))); 
+# probability of gambling following a large, safe past outcome  = 0.5007053 
+
+## GAINS
+# largest outcome when a participant accepted gamble and won = $60.99, scaled = 1
+# smallest outcome when a participant accepted gamble and won = $5.31, scaled = 0.08706345
+  # technically, the minimum it could be 0 if participants missed an attn check
+# medium outcome = $30.5, scaled = .5
+# outcome when a participant accepted gamble and lost = $0
+
+PgamPOCwinLarge = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*1) + (intxnCoef*1*1) ))); 
+# probability of gambling following a large, risky win = 0.4511035, 5% decrease 
+PgamPOCwinSmall = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*0.08706345) + (intxnCoef*1*0.08706345) ))); 
+# probability of gambling following a small, risky win = 0.5237715, a 2% increase
+PgamPOCwinMedium = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*.5) + (intxnCoef*1*.5) ))); 
+# probability of gambling following a medium, risky win = 0.4908425, a slight (<1%) decrease
+
+
+## LOSSES (and MISSED GAINS)
+PgamPOClossZero = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*0) + (intxnCoef*-1*0) ))); 
+# probability of gambling following a loss = 0.4693025, a 4.5% decrease
+
+PgamPOClossSmallGain = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*0.08706345) + (intxnCoef*-1*0.08706345) )));
+# probability of gambling following a small missed gain = 0.4858174, a 1.4% decrease
+
+PgamPOClossLargeGain = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*1) + (intxnCoef*-1*1) ))); 
+# probability of gambling following a large missed gain = 0.6541677, a 15.4% increase
+
+PgamPOClossMediumGain = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*.5) + (intxnCoef*-1*.5) ))); 
+# probability of gambling following a medium missed gain = 0.5639559, a 6.3% increase
+
+
+plot(c(PgamPOCwinSmall, PgamPOCwinMedium, PgamPOCwinLarge), type="l", col="green", lwd=3, ylim=c(0,1), main="Risk-taking changes as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
+legend("topleft", legend=c("gain", "missed gain", "safe"), text.col = c("green", "red", "blue"), bty="n")
+axis(2)
+axis(1, labels=c("small", "medium", "large"), at=c(1,2,3))
+lines(c(PgamPOCsafeSmall,PgamPOCsafeLarge), col="blue", lwd=3)
+lines(c(PgamPOClossSmallGain,PgamPOClossMediumGain,PgamPOClossLargeGain), pch=16, col="red", lwd= 3)
+
+
+
+
+```
+***
+#### 2) Neighborhood timescale: Shifts 
+##### Summary: Risk-taking increases following a positive shift only and the effect is short-lasting (similar to VIC). Shift does not interact with run size or past outcome.
+```{r}
+model3_signed_shifts = glmer(choice~0 + shiftDiffsc + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_signed_shifts); # signed shift difference, significant
+
+model3_abs_shift = glmer(choice ~ 0 + shiftDiffscABs + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_abs_shift); # absolute shift difference, ns
+
+model3_pos_neg_shifts = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_pos_neg_shifts); # both positive and negative shift difference, only positive significant
+m3_coef_posShift = fixef(model3_pos_neg_shifts)[1];
+
+## Plot the effect of positive shift
+# scaled shift amounts = 0 to .33 (or 0 to 20 nonscaled)
+PgamPosShiftZero = 1/(1+exp(-1*( (m3_coef_posShift*0) ))); # should be .5
+PgamPosShiftLarge = 1/(1+exp(-1*( (m3_coef_posShift*.33) )));
+# probability of gambling following large positive shift = 0.6518448, a %15.2 increase
+PgamPosShiftMedium = 1/(1+exp(-1*( (m3_coef_posShift*.16) )));
+# probability of gambling following medium positive shift = 0.5754388, a %7.5 increase
+
+
+plot(c(PgamPosShiftZero, PgamPosShiftMedium,PgamPosShiftLarge), type="l", lwd=3, col="blue", axes=F, ylab="p(gamble)", xlab="positive shift", main="risk taking as a function of positive shift")
+axis(1, labels=c("no shift", "medium", "large"), at=c(1,2,3))
+axis(2)
+
+
+
+```
+
+#### How far back does shift effect go?
+```{r}
+# create new positive shift variable (n-1)
+newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2);
+newMat[,1] <- mriBehClean$shiftDiffscPOS; #take data from columns
+newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
+newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
+newMat[,2]<-c(0,diff(mriBehClean$subjectIndex)); #put differences between subjectIndex into newvector, 1s show up when subject changes
+newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
+mriBehClean$shiftDiffscPOS1 = newMat[,1];# add new vector to mriBehClean
+
+# do the regressions
+model3_pos_shift_howfarback = glmer(choice ~ 0 + shiftDiffscPOS + shiftDiffscPOS1 + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_pos_shift_howfarback); #short lasting, only trial directly after a shift
+
+```
+
+
+#### Does positive shift interact with previous run size or past outcome?
+```{r}
+
+# positive shift amount and run size before positive shift
+model3_shift_pos_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS +(1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shift_pos_runSize); # all betas ns
+
+
+# both positive and negative shift and run size before positive and negative shift
+model3_shift_pos_neg_runSize = glmer(choice ~ 0 + shiftDiffscPOS*runSizePOS + shiftDiffscNEG*runSizeNEG + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_shift_pos_neg_runSize); #all betas ns
+
+
+
+# Does positive shift interact with past outcome?
+model3_posShift_potc_intxn = glmer(choice ~ 0 + shiftDiffscPOS*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model3_posShift_potc_intxn); #all betas ns
+
+
+```
+
+***
+#### 3) Global timescale: Cumulative earnings (and trial) 
+##### Summary: Cumulative earnings are more tied to trial than previous datasets, even VIC. Earnings and trial have opposite effects with risk-taking increasing with earnings and decreasing across the task. Similar to VIC and CBM, earnings interacts with past outcome (trial DOES NOT). P
+```{r}
+model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
+
+# pull and store coefficients
+m4_coef_trial_Earn = fixef(model4_earnings_trial);
+earnCoef = m4_coef_trial_Earn[1];
+triCoef = m4_coef_trial_Earn[2];
+
+# plot a couple of subs' earnings and pgamble over the task as a function of earnings and trial
+sub1 = mriBehClean[mriBehClean$subjectIndex==7,];
+PgamSub1EarnTrial =1/(1+exp(-1*( (triCoef*sub1$trialSC) + (earnCoef*sub1$earningsNormalized) )));
+
+sub2 = mriBehClean[mriBehClean$subjectIndex==35,];
+PgamSub2EarnTrial =1/(1+exp(-1*( (triCoef*sub2$trialSC) + (earnCoef*sub2$earningsNormalized) )))
+
+sub3 = mriBehClean[mriBehClean$subjectIndex==52,];
+PgamSub3EarnTrial =1/(1+exp(-1*( (triCoef*sub3$trialSC) + (earnCoef*sub3$earningsNormalized) )))
+
+sub4 = mriBehClean[mriBehClean$subjectIndex==15,];
+PgamSub4EarnTrial =1/(1+exp(-1*( (triCoef*sub4$trialSC) + (earnCoef*sub4$earningsNormalized) )))
+
+sub5 = mriBehClean[mriBehClean$subjectIndex==28,];
+PgamSub5EarnTrial =1/(1+exp(-1*( (triCoef*sub5$trialSC) + (earnCoef*sub5$earningsNormalized) )))
+
+plot(PgamSub1EarnTrial, type="l", col="darkgreen", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings")
+lines(PgamSub2EarnTrial, col="darkred", lwd=3);
+lines(PgamSub3EarnTrial, col="darkblue", lwd=3);
+lines(PgamSub4EarnTrial, col="darkorange", lwd=3);
+lines(PgamSub5EarnTrial, col="goldenrod", lwd=3);
+legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
+
+plot(sub1$earningsNormalized,type="l", col="darkgreen", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task")
+lines(sub2$earningsNormalized, col="darkred", lwd=3)
+lines(sub3$earningsNormalized, col="darkblue", lwd=3)
+lines(sub4$earningsNormalized, col="darkorange", lwd=3)
+lines(sub5$earningsNormalized, col="goldenrod", lwd=3)
+
+legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
+
+
+# Model and plot with interaction term between earnings and trials
+    # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
+# model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+# summary(model4_earnings_trial_intxn); # interaction trending, AIC = 7655.5
+# 
+# m4_coef_trialEarn_intxn = fixef(model4_earnings_trial_intxn);
+# earnCoef = m4_coef_trialEarn_intxn[1];
+# triCoef = m4_coef_trialEarn_intxn[2];
+# m4intxnCoef = m4_coef_trialEarn_intxn[3];
+
+# Plot
+# earnings= rep(c(0,.5,1), times =3)
+# trials = rep(c(.005, .5, 1), each =3)
+# 
+# PgamEarnings = 1/(1+exp(-1*(earnCoef*earnings) ));
+# PgamTrial = 1/(1+exp(-1*(triCoef*trials) ));
+# PgamEarnTrialIntxn = 1/(1+exp(-1*(earnCoef*earnings) + (triCoef*trials) + m4intxnCoef*earnings*trials ))
+
+# plot(PgamEarnTrialIntxn[1:3], type="l", lwd=3, ylim = c(.5,1), ylab="p(gamble)",xlab="earnings", axes=F, col="orange")
+# lines(PgamEarnTrialIntxn[4:6], lwd = 3, col="darkorange2")
+# lines(PgamEarnTrialIntxn[7:9], lwd = 3, col="darkorange4")
+# axis(2)
+# axis(1, at=c(1,2,3), labels=c("small", "medium", "large"))
+# legend("bottomright", legend=c("t=1", "t=109", "t=219"), text.col = c("orange", "darkorange2", "darkorange4"), bty="n")
+# 
+
+```
+
+Plot cumulative earnings for all participants across the task
+```{r}
+plot(mriBehClean$earnings[mriBehClean$subjectIndex==1], type = "l",lwd = 2, ylim = c(0,max(mriBehClean$earnings)), xlim= c(0,219), main = "Earnings across task\n each line is a participant", ylab = "earnings", xlab="trial number", axes=FALSE)
+axis(1, label = c(1, 219), at = c(1,219), tck = 0, lwd = 3)
+axis(2, label = c(0, max(mriBehClean$earnings)), at = c(0,max(mriBehClean$earnings)), tck = 0, lwd =3)
+for(s in 2:nSub){
+  points(mriBehClean$earnings[mriBehClean$subjectIndex==s], type="l", lwd = 1, col = mriBehClean$subjectIndex/.2+s)
+};
+```
+
+
+
+##### Do earnings interact with outcome? 
+```{r}
+# Earnings interact with past outcome in previous datasets, does that happen here?
+model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_potc_intxn); # past outcome, and interaction between outcomes and earnings are significant. Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). Interaction between outcome and trial is trending p =.07
+# model fails to converge though
+
+# store model results
+m4_earnPOCintxn_coefs = fixef(model4_earnings_potc_intxn)
+earnCoef_2 = m4_earnPOCintxn_coefs[1] 
+pocCoef = m4_earnPOCintxn_coefs[2];
+intxnCoef_2 = m4_earnPOCintxn_coefs[4]
+
+# Plot interaction between outcome and earnings
+
+poc= rep(c(0,.5,1), times =3)
+earnings = rep(c(.0, .5, 1), each =3)
+
+
+PgamPOCearningsIntxn =1/(1+exp(-1*( (earnCoef_2*earnings) + (pocCoef*poc) + (intxnCoef_2*poc*earnings) )));
+
+plot(PgamPOCearningsIntxn[1:3], type="l", lwd = 3, col = "pink", ylab= "p(gamble)", xlab="past outcome", axes=F, ylim= c(min(PgamPOCearningsIntxn), max(PgamPOCearningsIntxn)), main="risk taking as a function of \n earnings and past outcome");
+lines(PgamPOCearningsIntxn[4:6], lwd=3, col="pink2")
+lines(PgamPOCearningsIntxn[7:9], lwd=3, col="pink4")
+axis(2)
+axis(1, at=c(1:3), labels = c("small", "medium", "large"))
+legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=c("pink","pink2", "pink4"), title="earnings:")
+
+```
+
+
+
+
+### Each timescale in a single model:
+#### Summary: Similar effects that we have noted prior: negative past outcome effect that interacts with cumulative earnings and positive shift effect. Note - did not account for outcome type in this model.
+```{r}
+model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsNormalized + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+
+summary(model5_potc_posshift_earn_trial); # everything significant
+```
+
+##### Plot earnings x outcome effect using the model above (the interaction term is much smaller than in m4_earning_potc_intxn model), so we'd expect the switching of the past outcome effect to be less intense:
+```{r}
+# store model results
+model5_coef = fixef(model5_potc_posshift_earn_trial)
+m5earnCoef = model5_coef[2]; 
+m5pocCoef = model5_coef[1];
+M5intxnCoef = model5_coef[5];
+
+# Plot interaction between outcome and earnings
+
+poc= rep(c(0,.25,.5,.75, 1), times =5);
+earnings = rep(c(0,.25,.5,.75, 1), each =5);
+
+
+PgamPOCearningsIntxn =1/(1+exp(-1*( (m5earnCoef*earnings) + (m5pocCoef*poc) + (M5intxnCoef*poc*earnings) )));
+
+plot(PgamPOCearningsIntxn[1:5], type="l", lwd = 3, col = "pink", ylab= "p(gamble)", xlab="past outcome ($)", axes=F, ylim= c(0,1), main="risk taking as a function of \n earnings and past outcome (big model 5)");
+lines(PgamPOCearningsIntxn[6:10], lwd=3, col="lightpink")
+lines(PgamPOCearningsIntxn[11:15], lwd=3, col="pink2")
+lines(PgamPOCearningsIntxn[16:20], lwd=3, col="pink3")
+lines(PgamPOCearningsIntxn[21:25], lwd=3, col="pink4")
+axis(2)
+axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=2))
+legend("bottomleft", legend=c("zero", "small", "medium", "medium-large", "large"), bty="n", lty=1, lwd=3, col=c("pink","lightpink", "pink2" ,"pink3", "pink4"), title="earnings:")
+```
+
+
+
+
+#### Individual-level analyses (glm)
+###### output = pocResults {subID, beta, pval}
+
+
+```{r}
+subsTriLevMods = list();
+subsPocMods = list();
+trialLevelResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
+pocResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
+
+for (s in 1:nSub) {
+  sub = mriBehClean[mriBehClean$subjectIndex==subIDs[s],]; # pull out a single subject
+  
+  subsTriLevMods[[s]] = glm(choice~gainSC + altSC + grndEVscaled, data=sub, family="binomial"); # run the trial levelm odel
+
+  sub$pred = predict(subsTriLevMods[[s]],type='link'); # get predicted values
+  
+  subsPocMods[[s]] = glm(choice~poc1scaled, data=sub, family="binomial", offset=pred); # past outcome model with predicted values
+  
+  tmp =summary(subsPocMods[[s]]); #store coefficients from poc model
+  pocResults$subID[s] = subIDs[s]; # fill in sub ID
+  pocResults$beta[s] = tmp$coefficients[[2]]; # store beta
+  pocResults$pval[s] = tmp$coefficients[[8]]; # store pvalue
+}; 
+
+
+print(pocResults)
+```
+
+**Plot the individual past outcome results**
+```{r}
+
+plot(pocResults$beta, ylim=c(min(pocResults$beta),max(pocResults$beta)), pch=16, main=sprintf("Individual past outcome estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(pocResults[,3]<.05, "green", ifelse(pocResults[,3]<.1 & pocResults$pval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
+abline(a=0,b=0, col="grey");
+legend("topright", legend= c("p < .05", ".05 < p < .1", "p > .1"), bty="n", pch = 16, col=c("green", "blue", "black"));
+```
+
