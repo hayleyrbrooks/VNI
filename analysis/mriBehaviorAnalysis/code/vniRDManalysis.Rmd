@@ -255,6 +255,14 @@ lines(sub5$earningsNormalized, col="goldenrod", lwd=3)
 
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
 
+# PSH IDEA ABOUT WHAT IS HAPPENING WITH TRIAL AND EARNINGS: this figure below is technically showing the difference between earnings and trial because they have opposite effects 
+# are these effects capturing the overall difference between actual earnings and expected earnings (which would be captured by linear regressor like trial)
+# as if people are adjusting risk taking depending on how they are doing compared to how they EXPECT to be doing
+# if so, this figure seems to show that:
+# points above .5: when doing better than expected earnings, more risk-seeking 
+# points below .5: when doing worse than expected earnings, less risk-seeking
+# HOW TO ACCOUNT FOR THIS WITH THE INTERACTION BETWEEN EARNINGS AND OUTCOME?
+
 
 # Model and plot with interaction term between earnings and trials
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
