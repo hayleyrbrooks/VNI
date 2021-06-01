@@ -2,11 +2,11 @@
 title: "createEventFiles"
 author: "Hayley Brooks"
 date: "5/27/2021"
-output: pdf_document
+output: html_document
 ---
-
-##### Event files
-- For each participant, there will be three event.tsv files for each run. The even files will have 3 columns {event name, onset, and duration}. Then we will use these event files to create the timing/onset files for fMRI analysis in FSL. We are using the raw data (i.e. missed trials included) to create the event.tsv files. Raw data files include RT, isi and itis. All participants will have event .tsv files (even the ones we exclude from behavior portion) except for participant 13 who did not get to the RDM task.
+##### Output:
+  - An onset/timing file for each event on each run (3) for every participant (51)
+  - events we are modeling for now: choice option display, decision, outcome, modulated by monetary amounts
 
 ##### Timing information
 -Choice options were displayed for 2 seconds (forced viewing) then participants had 2 seconds to respond. Once they responded, the ISI (varied 1.75s-5.75s) began and anytime remaining in the 2 second response window was added to the ITI at the end of the trial. After the ISI, the outcome was shown for 1 second followed by the ITI (varied .75 - 4.75 plus the leftover response time (2-RT) ). ITI, ISI and RT are included in the raw dataset loaded below.
