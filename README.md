@@ -20,9 +20,9 @@
 ### [Behavior](./analysis/mriBehaviorAnalysis)
 
 #### [code](./analysis/mriBehaviorAnalysis/code)
-  - Clearning risky decision-making (RDM) data script
-  - Quality analysis of RDM script
-  - RDM analysis (glmer) script
+  - [Cleaning risky decision-making (RDM) data script (e.g. removing missed trials)](./analysis/mriBehaviorAnalysis/code/vniRDMclean.R)
+  - [Quality analysis of RDM script](./analysis/mriBehaviorAnalysis/code/vniRDMqa.R)
+  - [RDM analysis (glmer) script](./analysis/mriBehaviorAnalysis/code/vniRDManalysis.Rmd)
 #### [documentation](./analysis/mriBehaviorAnalysis/documentation)
   - Quality analysis document
   - RDM analysis document
