@@ -48,14 +48,17 @@ We had a 15 second delay which = 32.6087 TRs, so we will delete 32 volumes in FS
 
 Questions:
 1a) use exact timing from matlab or do it based on how we set it 2s, 1s etc.
-1b) round the timing? 
+1b) round the timing? - look around for FSL guidelines
 2) very slight delay between trial start and stimulus start, when rounding using digits =1, the two have an identical onset time, should we just combine this instead of separating?
 3) at the end, offset everything by .6087 or is there a better way to do this?
 4) combine the duration for stimulus start and decision window? need to model them separately? i think not? if not, go back and fix the event files
-5) modeling decision (action) as decision window + RT?
+5) modeling decision (action) as decision window + RT? it would be when this happened in the time series
+- make sure that we know what FSL does with those timing files when we tell it to remove the volumes in the feat first level analysis
 6) will need to add event and onset files to RDAC - easier to mover over to RDAC now?
 
-
+Onset files:
+1) choice display modulated by mean expected value
+2) 
 
 ```{r}
 
