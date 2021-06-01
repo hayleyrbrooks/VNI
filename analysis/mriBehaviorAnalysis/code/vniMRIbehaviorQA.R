@@ -16,7 +16,9 @@ rm(list = ls());
 library('config');
 config =config::get()
 
-vniBeh = read.csv("/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles/mriBehaviorRawCombined.csv");
+vniBehCSV= file.path(config$path$data$raw_group,config$csvs$RDM_group_raw_csv);
+
+vniBeh = read.csv(vniBehCSV);
 
 sem <- function(x) sd(x)/sqrt(length(x)); # function for calculating standard error of the mean
 
@@ -122,7 +124,10 @@ subID_exclude$exclude[-c(13,16,42,43)]=0;  # included participants = 0
 
 
 # save the output for the quality analysis
-save(file="/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput/behQualCheck.Rdata",nmlChoices);
-save(file="/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput/subID_exclude.Rdata", subID_exclude);
+outputPath_nmlChoices = file.path(config$path$data$quality_analysis_output,config$Rdata$RDM_qualityCheck);
+save(file=outputPath_nmlChoices, nmlChoices);
+
+outputPath_exclusion = file.path(config$path$data$quality_analysis_output, config$Rdata$RDM_exclude);
+save(file=outputPath_exclusion, subID_exclude);
 
 
