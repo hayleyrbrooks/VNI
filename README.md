@@ -11,7 +11,7 @@
   - Instructions for running MRIQC using singularity container on RDAC
 ### [fMRIPrep](./preprocessing/fMRIprep)
   - Instructions for running fMRIprep using singularity container on RDAC
-### [Timing files](./timingFilesSetup)
+### [Timing files](./preprocessing/timingFilesSetup)
   - Script for creating event files (Matlab)
   - Script for creating onset/timing file for FSL(R)
 ## [Analysis](./analysis)
