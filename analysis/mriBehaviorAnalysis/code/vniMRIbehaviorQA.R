@@ -14,6 +14,7 @@
 rm(list = ls());
 
 library('config');
+config =config::get()
 
 vniBeh = read.csv("/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles/mriBehaviorRawCombined.csv");
 
