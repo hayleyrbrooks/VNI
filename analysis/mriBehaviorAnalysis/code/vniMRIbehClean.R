@@ -13,9 +13,13 @@
 # clear envrionment
 rm(list = ls());
 
+library("config")
+config <- config::get();
+
 # load data
-mriBehClean = read.csv("/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles/mriBehaviorRawCombined.csv");
-load("/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput/subID_exclude.Rdata");
+mriBehCleanCSV = file.path(config$path$data$raw_group, config$csvs$RDM_group_raw_csv)
+mriBehClean = read.csv(mriBehCleanCSV)
+
 
 
 # remove participants using subID_exclude (output from vniMRIbehaviorQA.R)
@@ -181,5 +185,8 @@ mriBehClean$earningsNormalized = earningsNormalized # store normalized earnings 
 summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
 
 # save the big dataset we will use for our future analyses
-save(file="/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.Rdata", mriBehClean);
-write.csv(file = "/Volumes/shlab/Projects/VNI/data/mriBehaviorClean/group_mriBehavior_clean.csv", x = mriBehClean, row.names = F);
+Output_mriBehCleanRdata=file.path(config$path$data$clean,config$Rdata$RDM_group_clean_Rdata)
+save(file=Output_mriBehCleanRdata, mriBehClean);
+
+Output_mriBehCleanCSV = file.path(config$path$data$clean, config$csvs$RDM_group_clean_csv)
+write.csv(file = Output_mriBehCleanCSV, x = mriBehClean, row.names = F);
