@@ -1,11 +1,12 @@
-
 % create event files for each run that indicates event type, onset and duration of each event.
+% Hayley Brooks
+% May 2021
 
 dataFolder = '/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/singleSubjectFiles'; %defining working folder
 filePattern = fullfile(dataFolder, '*.mat'); %file pattern to load 
 matFiles = dir(filePattern); %%pull out files that match file pattern
 
-% participant 13 did not do the RDM task so we should skip them
+% participant 13 did not do the RDM task so we will skip them
 subNum = [1:12,14:52];
 nSub =size(subNum,2);
 
@@ -16,27 +17,16 @@ for k = 1:length(subNum) % for each file that we want to pull out
   matData(subNum(k)) = load(fullFileName); %save the file in matData
 end %at the end of this loop, only the .mat files we want will be in matData
 
-notesTable = table; % create table for some timing things we check in the loop
-notesTable.subID = subNum';
+
 
 for s = 1:nSub
     
 timing = matData(subNum(s)).subjdata.ts; % store timing stuff
 timing.RTs = matData(subNum(s)).subjdata.cs.RTs'; % store RTs
 
-% check some stuff and save it in notesTable
 
-notesTable.startDelay(s) = timing.studystart - timing.blockStart(1); 
-    %block 1 starts -.00030623s after "study start"
-% Runs start at same time as first trials in that block/run
-notesTable.block1Delay(s) = timing.blockStart(1) - timing.trialStart(1);
-    %block 1 and trial 1 start at the same time, difference = 0s
-notesTable.block2Delay(s) = timing.blockStart(2) - timing.trialStart(74);
-    % block 2 and trials 74 start at the same time, differnece = 0s
-notesTable.block3Delay(s) = timing.blockStart(3) - timing.trialStart(147);
-    % block 3 and trials 147 start at the same time, differnece = 0s
     
- nT = subjdata.nT;
+ nT = matData(subNum(s)).subjdata.nT;
  blockTrialStart = [1,74,147]; % trial number when a new block starts
  nTblock = 73;
  % the way the timing is set up right now is not as useful as it could be
@@ -70,9 +60,9 @@ notesTable.block3Delay(s) = timing.blockStart(3) - timing.trialStart(147);
  % need to get the duration for the last ITIs 
  % this can be found by the predetermined ITI plus the "extraTime" variable which based on
  % the difference between the response window (2s) and RT
- lastITIdurationBlock1 = timing.extraTime(blockTrialStart(1)) +  subjdata.cs.iti(blockTrialStart(1));
- lastITIdurationBlock2 = timing.extraTime(blockTrialStart(2)) +  subjdata.cs.iti(blockTrialStart(2));
- lastITIdurationBlock3 = timing.extraTime(blockTrialStart(3)) +  subjdata.cs.iti(blockTrialStart(3));
+ lastITIdurationBlock1 = timing.extraTime(blockTrialStart(1)) +  matData(subNum(s)).subjdata.cs.iti(blockTrialStart(1));
+ lastITIdurationBlock2 = timing.extraTime(blockTrialStart(2)) +  matData(subNum(s)).subjdata.cs.iti(blockTrialStart(2));
+ lastITIdurationBlock3 = timing.extraTime(blockTrialStart(3)) +  matData(subNum(s)).subjdata.cs.iti(blockTrialStart(3));
 
  % now we can add the final ITI information to the eventDuration matrix:
  eventDuration = [eventDuration;[lastITIdurationBlock1,lastITIdurationBlock2,lastITIdurationBlock3]];
@@ -133,7 +123,8 @@ notesTable.block3Delay(s) = timing.blockStart(3) - timing.trialStart(147);
     writetable(eventRun3, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/sub-%s_run3_event.csv',matData(subNum(s)).subjdata.subjID))
 end
 
-      writetable(notesTable,'/Volumes/shlab/Projects/VNI/data/mriTimingFiles/notes.csv')
+      
+      
 
     
     
