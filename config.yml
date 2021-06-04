@@ -16,7 +16,8 @@ default:
         raw_group: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/groupLevelFiles"
         raw_singleSub: "/Volumes/shlab/Projects/VNI/data/mriBehaviorRaw/singleSubjectFiles"
         clean: "/Volumes/shlab/Projects/VNI/data/mriBehaviorClean"
-        timing_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles"
+        event_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles/eventFiles"
+        onset_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles/onsetFiles"
         quality_analysis_output: "/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput"
   csvs:
     RDM_group_clean_csv: "group_mriBehavior_clean.csv"
