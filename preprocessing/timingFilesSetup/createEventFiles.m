@@ -118,9 +118,9 @@ timing.RTs = matData(subNum(s)).subjdata.cs.RTs'; % store RTs
 
 
     %SAVE OUTPUT
-    writetable(eventRun1, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/sub-%s_run1_event.csv',matData(subNum(s)).subjdata.subjID))
-    writetable(eventRun2, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/sub-%s_run2_event.csv',matData(subNum(s)).subjdata.subjID))
-    writetable(eventRun3, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/sub-%s_run3_event.csv',matData(subNum(s)).subjdata.subjID))
+    writetable(eventRun1, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/eventFiles/sub-%s_run1_event.csv',matData(subNum(s)).subjdata.subjID))
+    writetable(eventRun2, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/eventFiles/sub-%s_run2_event.csv',matData(subNum(s)).subjdata.subjID))
+    writetable(eventRun3, sprintf('/Volumes/shlab/Projects/VNI/data/mriTimingFiles/eventFiles/sub-%s_run3_event.csv',matData(subNum(s)).subjdata.subjID))
 end
 
       
