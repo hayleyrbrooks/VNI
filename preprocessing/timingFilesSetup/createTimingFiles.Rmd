@@ -23,8 +23,8 @@ library("config");
 config <- config::get();
 
 # load timing files:
-timingFilePath = file.path(config$path$data$timing_files); # location of event files for each participant and each run
-timingFiles = list.files(timingFilePath, pattern= "*_event.csv", full.names = T); # store names of files that we will need
+eventFilePath = file.path(config$path$data$event_files); # location of event files for each participant and each run
+eventFiles = list.files(eventFilePath, pattern= "*_event.csv", full.names = T); # store names of files that we will need
 
 # load raw dataset for choiceset
 RDMgroupCSVpath = file.path(config$path$data$raw_group,config$csvs$RDM_group_raw_csv);
@@ -39,31 +39,59 @@ RDMraw = RDMraw[RDMraw$subjectIndex!=13,]
 subNum = unique(RDMraw$subjectIndex);
 nSubRaw = length(subNum); # should be 51
 
+# Create a vector that has the sub IDs formatted as in BIDS (e.g. 001, 002)
+subID_bids = vector(); # create empty vector
+
+for (s in 1: nSubRaw){
+  if(s<10){
+   subID_bids[s]=paste("00",subNum[s],sep="")
+  }
+  else {
+   subID_bids[s]=paste("0", subNum[s],sep="")
+  }
+};
+
+
+
 ```
 
-#### Create tsv files
+#### Create txt files
 For a given trial, there are 5 events: choice display, choice/RT, ISI, outcome, ITI and 73 trials in each run for a total of 365 events in a run (1095 total events across all three runs because 5 x 219 = 1095);
 
 We had a 15 second delay which = 32.6087 TRs, so we will delete 32 volumes in FSL and will need to adjust the timing files by .6087 seconds. From FSL: "remember when setting up the design matrix that the timings in the design matrix start at t=0 seconds, and this corresponds to the start of the first image taken after the deleted scans. In other words, the design matrix starts after the deleted scans have been deleted.""
 
-Using timing information from the sub_0##_run#_event.csv files which were created using the output from the study sessions. We will start each trial with stimulus start (not trial start) because there is a very slight delay but the stimuli were not shown on the screen until stimulus start
+To create the onset files for FSL, we use timing information from the sub_0##_run#_event.csv files which were created using the timing output from the study sessions. We will start each trial with stimulus start (not trial start) because there is a very slight delay between trial start and stimulus start (trial starts, computer randomly decides location of gamble/safe location on screen, then shows the stimuli)
 
 We will be combining duration for stimulus and decision window because these are identical with the exception that participants were allowed to respond once the decision window started.
 
 For modeling decision(action), it would be when RT happened in the time series (not RTs themselves)
 
-Add these timing files to RDAC
+When done, add these timing files to RDAC
 
 
 Onset files:
-1) choice display modulated by mean expected value
-2) outcome display modulated by outcome amount
-3) time of decision (modulated by choice type?)
+
+Choice:
+- choiceDisp_meanEV_run#.txt: choice display modulated by mean expected value
+- choiceDisp_gainAmt_run#.txt: choice display modulated by gain amount (mean center?)
+- choiceDisp_safeAmt_run#.txt: choice display modulated by safe amount (mean center?)
+
+Outcome:
+- outcomeDisp_otcAmt_run#.txt: all outcomes, outcome amount
+- outcomeDisp_otcWinAmt_run#.txt: win, received - not received 
+- outcomeDisp_otcLossAmt_run#.txt: loss, received - not received
+- outcomeDisp_otcSafeAmt_run#.txt: safe, amount received 
+
+Decision: (when they made a choice)
+- decision_run#.txt: choice (generally)
+- decisionGamble_run#.txt: chose gamble
+- decisionSafe_run#.txt: choice safe
+
 
 ```{r}
 
 # start with a single participant and run and create onset files for stimulus display
-tmpdf = read.csv(timingFiles[1])
+tmpdf = read.csv(eventFiles[1])
 
 # stimulus timing files 
  # parametric modulation = mean EV?
@@ -85,5 +113,45 @@ write.table(newfile, file="/Users/shlab/Desktop/testOnsetfile.txt", row.names = 
 
 ```
 
+```{r} 
+# LEFT OFF HERE - MAKE THIS DYNAMIC SO THAT WE CAN CREATE MULTIPLE TIMING FILES FOR ALL PARTICIPANTS
+onsetFileNames = c("choiceDisp_meanEV_run1","choiceDisp_meanEV_run2", "choiceDisp_meanEV_run3",
+                   "choiceDisp_gainAmt_run1","choiceDisp_gainAmt_run2","choiceDisp_gainAmt_run3",
+                   "choiceDisp_safeAmt_run1","choiceDisp_safeAmt_run2","choiceDisp_safeAmt_run3")
 
+# each participant has three event files, one for each run
+# each event file has 438 rows (73 trials x 6 events)
+nTblock = 73;
+nEvents = 6;
+
+for (s in 1:nSubRaw) {
+
+  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+  
+  eventrun1 = read.csv(eventFiles[ind[1]]); # load run 1
+  eventrun2 = read.csv(eventFiles[ind[2]]); # load run 2
+  eventrun3 = read.csv(eventFiles[ind[3]]); # load run 3
+  
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]
+
+  # choice display (onset is stimStart onset, duration is stimStart duration + decisionWindow duration)
+ 
+  stimStartInd = which(eventrun1$eventType=="stimulusStart");
+  decWindowInd = which(eventrun1$eventType=="decisionWindow");
+  
+  onset = eventrun1$onset[stimStartInd]; # onset
+  duration = eventrun1$duration[stimStartInd] + eventrun1$duration[decWindowInd]; # duration
+  modulation = RDMraw$meanEV[RDMraw$subjectIndex==1 & RDMraw$block==1]; # mean EV
+
+  newfile = cbind(onset,duration, modulation)
+
+  
+  newfilename = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],onsetFileNames[1])
+  write.table(newfile, file=newfilename, row.names = F, col.names = F, sep="\t")
+
+  
+}
+
+```
+  
 
