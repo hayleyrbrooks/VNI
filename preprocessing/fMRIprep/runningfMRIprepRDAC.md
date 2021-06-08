@@ -5,17 +5,19 @@
 		ssh -Y first.last@rdac.du.edu
 
 
-## 2) change directory
-		cd /data/psychology/sokol-hessnerlab/VNI/
+## 2) change directory to scripts location
+		cd /data/psychology/sokol-hessnerlab/VNI/scripts/
 
 ### VNI directory contents used for fMRIprep (RDAC)
--	vniBIDS: VNI data in bids format
--	sourceData:  raw VNI data with COINS' M803 numbers for participants
--	fmriPrepOutput_ica: output of fMRIprep output using ICA-AROMA
--	FMRIPREPsing: where the singularity image is stored 
--	work: created by MRIQC/fMRIprep to store workflow stuff
--	fmriprep_ica#####_##.log: logs that are produced from running fmriprep (usually deleted afterward or moved to fmripreplogs)
--	sbatch_fmriprep_ICA.sh: SLURM job submission script
+-	vniBIDS(directory): VNI data in bids format
+-	sourceData(directory):  raw VNI data with COINS' M803 numbers for participants
+-	fmriPrepOutput_ica(directory): output of fMRIprep output using ICA-AROMA
+-	FMRIPREPsing(directory): where the singularity image is stored 
+-	work(directory): created by MRIQC/fMRIprep to store workflow stuff
+-	ids.txt(file): list of subject IDs
+-	scripts(directory): where scripts for VNI are stored
+	-	fmriprep_ica#####_##.log: logs that are produced from running fmriprep (usually deleted afterward or moved to fmripreplogs)
+	-	sbatch_fmriprep_ICA.sh: SLURM job submission script
 
 ## 3) Update the sbatch_fmriprep_ICA.sh job submission script to specify which participants to run
 		vim sbatch_fmriprep.sh
