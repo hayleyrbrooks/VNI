@@ -3,16 +3,19 @@
 ## 1) log into rdac: 
 	ssh -Y first.last@rdac.du.edu
 ## 2) change directory:
-	cd /data/psychology/sokol-hessnerlab/VNI
+	cd /data/psychology/sokol-hessnerlab/VNI/scripts
+	
 ### VNI directory contents used for MRIQC (RDAC)
--	vniBIDS: VNI data in bids format
--	sourceData:  raw VNI data with COINS' M803 numbers for participants
--	MRIQCoutput: output of MRIQC
--	MRIQCsing: where the singularity image is stored 
--	work: created by MRIQC/fMRIprep to store workflow stuff
--	mriqc_#####.log: any logs that are produced from running mriqc (usually deleted afterward)
--	sbatch_mriqc.sh: SLURM job submission script for a single participant
--	sbatch_mriqc_group.sh: SLURM job submission script for group MRIQC
+-	vniBIDS(directory): VNI data in bids format
+-	sourceData(directory):  raw VNI data with COINS' M803 numbers for participants
+-	MRIQCoutput(directory): output of MRIQC
+-	MRIQCsing(directory): where the singularity image is stored 
+-	work(directory): created by MRIQC/fMRIprep to store workflow stuff
+-	scripts(directory):
+	-	sbatch_mriqc.sh: SLURM job submission script for a single participant
+	-	sbatch_mriqc_group.sh: SLURM job submission script for group MRIQC
+	-	mriqc_#####.log: any logs that are produced from running mriqc (usually deleted afterward)
+
 	
 ## 3) Run the sbatch_mriqc.sh file to run MRIQC on a single participant by typing: 
 		sbatch sbatch_mriqc.sh ### 
