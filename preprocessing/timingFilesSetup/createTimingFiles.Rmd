@@ -69,89 +69,216 @@ For modeling decision(action), it would be when RT happened in the time series (
 When done, add these timing files to RDAC
 
 
-Onset files:
 
-Choice:
+
+
+
+
+#### Create onset files for CHOICE DISPLAY
+
 - choiceDisp_meanEV_run#.txt: choice display modulated by mean expected value
 - choiceDisp_gainAmt_run#.txt: choice display modulated by gain amount (mean center?)
 - choiceDisp_safeAmt_run#.txt: choice display modulated by safe amount (mean center?)
 
-Outcome:
-- outcomeDisp_otcAmt_run#.txt: all outcomes, outcome amount
-- outcomeDisp_otcWinAmt_run#.txt: win, received - not received 
-- outcomeDisp_otcLossAmt_run#.txt: loss, received - not received
-- outcomeDisp_otcSafeAmt_run#.txt: safe, amount received 
-
-Decision: (when they made a choice)
-- decision_run#.txt: choice (generally)
-- decisionGamble_run#.txt: chose gamble
-- decisionSafe_run#.txt: choice safe
-
-
-```{r}
-
-# start with a single participant and run and create onset files for stimulus display
-tmpdf = read.csv(eventFiles[1])
-
-# stimulus timing files 
- # parametric modulation = mean EV?
-stimStartInd = which(tmpdf$eventType=="stimulusStart");
-
-onset = round(tmpdf$onset[stimStartInd],digits=2); # onset
-duration = round(tmpdf$duration[stimStartInd],digits=2); # duration
-modulation = RDMraw$meanEV[RDMraw$subjectIndex==1 & RDMraw$block==1]; # mean EV
-
-newfile = cbind(onset,duration, modulation)
-
-
-
-# onset file names: stored in each participants' folder
-# following this naming format: "rdm_choiceOptions_run#.txt"
-write.table(newfile, file="/Users/shlab/Desktop/testOnsetfile.txt", row.names = F, col.names = F, sep="\t")
-
-
-
-```
 
 ```{r} 
-# LEFT OFF HERE - MAKE THIS DYNAMIC SO THAT WE CAN CREATE MULTIPLE TIMING FILES FOR ALL PARTICIPANTS
-onsetFileNames = c("choiceDisp_meanEV_run1","choiceDisp_meanEV_run2", "choiceDisp_meanEV_run3",
-                   "choiceDisp_gainAmt_run1","choiceDisp_gainAmt_run2","choiceDisp_gainAmt_run3",
-                   "choiceDisp_safeAmt_run1","choiceDisp_safeAmt_run2","choiceDisp_safeAmt_run3")
+
+# Onset file names (will dynamically add run number once files are created)
+#outcomeOnsetFileNames = c("outcomeDisp_otcAmt_run","outcomeDisp_otcWinAmt_run", "outcomeDisp_otcLossAmt_run", "outcomeDisp_otcSafeAmt_run");
+#decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
 
 # each participant has three event files, one for each run
 # each event file has 438 rows (73 trials x 6 events)
 nTblock = 73;
 nEvents = 6;
+nRun = 3;
+offset = .6087;
 
 for (s in 1:nSubRaw) {
-
+  
   ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
-  
-  eventrun1 = read.csv(eventFiles[ind[1]]); # load run 1
-  eventrun2 = read.csv(eventFiles[ind[2]]); # load run 2
-  eventrun3 = read.csv(eventFiles[ind[3]]); # load run 3
-  
-  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+   
+  for (r in 1:nRun){
+    
+    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+    
+   
+    ###   CHOICE DISPLAY ###
+    stimStartInd = which(eventrun$eventType=="stimulusStart");  # index start of stimulus display
+    decWindowInd = which(eventrun$eventType=="decisionWindow"); # index start of decision window
+   
+    # store events by onset, duration and modulation (mean ev, gain, safe)
+    onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
+    duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
+    modulationEV = RDMsub$meanEV[RDMsub$block==r]; # mean EV
+    modulationGain = RDMsub$riskyGain[RDMsub$block==r]; # risky gain amount
+    modulationSafe = RDMsub$alternative[RDMsub$block==r]; # risky safe amount
+    
+    
+    # Offset the onset times by .6087s (see notes above)
+    onset = onset + offset;
+    
+    
+    # store onset, duration and modulation into a single data frame
+    choiceMeanEV = cbind(onset, duration, modulationEV);
+    choiceGain = cbind(onset, duration, modulationGain);
+    choiceSafe = cbind(onset, duration, modulationSafe);
+    
+    # create file names
+    choiceMEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_meanEV_run",r,sep=""));
+    choiceGAINfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_gainAmt_run",r,sep=""));
+    choiceSAFEfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_safeAmt_run",r,sep=""));
+    
+    # save files
+    write.table(choiceMeanEV, file=choiceMEVfileName, row.names = F, col.names = F, sep="\t");
+    write.table(choiceGain, file=choiceGAINfileName, row.names = F, col.names = F, sep="\t");
+    write.table(choiceSafe, file=choiceSAFEfileName, row.names = F, col.names = F, sep="\t");
 
-  # choice display (onset is stimStart onset, duration is stimStart duration + decisionWindow duration)
- 
-  stimStartInd = which(eventrun1$eventType=="stimulusStart");
-  decWindowInd = which(eventrun1$eventType=="decisionWindow");
-  
-  onset = eventrun1$onset[stimStartInd]; # onset
-  duration = eventrun1$duration[stimStartInd] + eventrun1$duration[decWindowInd]; # duration
-  modulation = RDMraw$meanEV[RDMraw$subjectIndex==1 & RDMraw$block==1]; # mean EV
-
-  newfile = cbind(onset,duration, modulation)
-
-  
-  newfilename = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],onsetFileNames[1])
-  write.table(newfile, file=newfilename, row.names = F, col.names = F, sep="\t")
-
-  
-}
+    
+  } # end for (r in 1:nRun)
+} # end for (s in 1:nSubRaw)
 
 ```
   
+  
+  
+#### Create onset files for OUTCOME
+- outcomeDisp_otcAmt_run#.txt: all outcomes, outcome amount
+- outcomeDisp_otcWinAmt_run#.txt: win, received - not received 
+- outcomeDisp_otcLossAmt_run#.txt: loss, received - not received
+- outcomeDisp_otcSafeAmt_run#.txt: safe, amount received 
 
+```{r}
+
+# Onset file names
+#decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
+
+# each participant has three event files, one for each run
+# each event file has 438 rows (73 trials x 6 events)
+nTblock = 73;
+nEvents = 6;
+nRun = 3;
+offset = .6087;
+
+for (s in 1:nSubRaw) {
+  
+  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+   
+  for (r in 1:nRun){
+    
+    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+    
+   
+    ###   OUTCOME    ###
+    
+    outcomeInd = which(eventrun$eventType=="outcome");  # index start of outcome display for all outcomes
+    gainOutcomeTrial = RDMsub$triBlock[RDMsub$outcome==RDMsub$riskyGain & RDMsub$block==r];   # RDM trial number of gain outcome for block r
+    lossOutcomeTrial = RDMsub$triBlock[RDMsub$outcome==RDMsub$riskyLoss & RDMsub$block==r];   # RDM trial number of loss outcome for block r
+    safeOutcomeTrial = RDMsub$triBlock[RDMsub$outcome==RDMsub$alternative & RDMsub$block==r]; # RDM trial number of safe outcome for block r
+    
+    # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+      # all outcomes
+        onsetAllotc = eventrun$onset[outcomeInd]; # onset is outcome onset
+        durationAllotc = eventrun$duration[outcomeInd]; # duration is outcome duration
+        modulationAllotc = RDMsub$outcome[RDMsub$block==r]; # outcome amount
+
+      # gain outcomes
+        onsetGainotc = onsetAllotc[gainOutcomeTrial]; 
+        durationGainotc = durationAllotc[gainOutcomeTrial]; 
+        modulationGainotc = modulationAllotc[gainOutcomeTrial]
+          
+      # loss outcomes
+        onsetLossotc = onsetAllotc[lossOutcomeTrial]; 
+        durationLossotc = durationAllotc[lossOutcomeTrial]; 
+        modulationLossotc = modulationAllotc[lossOutcomeTrial]
+        
+      # safe outcomes
+        onsetSafeotc = onsetAllotc[safeOutcomeTrial]; 
+        durationSafeotc = durationAllotc[safeOutcomeTrial]; 
+        modulationSafeotc = modulationAllotc[safeOutcomeTrial]
+          
+          
+    # Offset the onset times by .6087s (see notes above)
+    onsetAllotc = onsetAllotc + offset;
+    onsetGainotc = onsetGainotc + offset;
+    onsetLossotc = onsetLossotc + offset;
+    onsetSafeotc = onsetSafeotc + offset;
+    
+    # store onset, duration and modulation into a single data frame
+    outcomeAmt = cbind(onsetAllotc, durationAllotc, modulationAllotc);
+    GAINoutcomeAmt = cbind(onsetGainotc, durationGainotc, modulationGainotc);
+    LOSSoutcomeAmt = cbind(onsetLossotc, durationLossotc, modulationLossotc);
+    SAFEoutcomeAmt = cbind(onsetSafeotc, durationSafeotc, modulationSafeotc);
+    
+    
+    # create file names
+    outcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcAmt_run",r,sep=""));
+    GAINoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcWinAmt_run",r,sep=""));
+    LOSSoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcLossAmt_run",r,sep=""));
+    SAFEoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcSafeAmt_run",r,sep=""));
+
+    # save files
+    write.table(outcomeAmt, file=outcomeAmtfileName, row.names = F, col.names = F, sep="\t");
+    write.table(GAINoutcomeAmt, file=GAINoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
+    write.table(LOSSoutcomeAmt, file=LOSSoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
+    write.table(SAFEoutcomeAmt, file=SAFEoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
+
+    
+  } # end for (r in 1:nRun)
+} # end for (s in 1:nSubRaw)
+
+```
+
+#### Create onset files for DECISION -  LEFT OFF HERE!!!
+- decision_run#.txt: choice (generally)
+- decisionGamble_run#.txt: chose gamble
+- decisionSafe_run#.txt: choice safe
+
+```{r}
+# Onset file names
+#decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
+
+# each participant has three event files, one for each run
+# each event file has 438 rows (73 trials x 6 events)
+nTblock = 73;
+nEvents = 6;
+nRun = 3;
+offset = .6087;
+
+for (s in 1:nSubRaw) {
+  
+  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+   
+  for (r in 1:nRun){
+    
+    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+    
+    ###   DECISION/RT    ###
+    
+    
+    # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+          
+    # Offset the onset times by .6087s (see notes above)
+
+    
+    # store onset, duration and modulation into a single data frame
+
+    
+    # create file names
+
+
+    # save files
+
+    
+  } # end for (r in 1:nRun)
+} # end for (s in 1:nSubRaw)
+
+```
+
+THEN: Missed trials - do this uniformly across timing file types
+THEN: go through and check all the timing files one last time to be extra sure they are corect!
+THEN: add notes to the preprocessing about this script, what it does, and its output
+THEN: add timing files to RDAC for analysis!
