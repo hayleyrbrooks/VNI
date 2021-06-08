@@ -9,6 +9,9 @@
 #SBATCH --output=fmriprep_ica%A_%a.log    # Standard output and error log -- %A for parent array and %a for sub array 
 #SBATCH --array=1-3 # specify which rows we want this script to look for in ids.txt 
 
+# change directory to VNI head directory
+cd ../
+
 SUBJECT=$(sed -n "${SLURM_ARRAY_TASK_ID}p" ids.txt)
 
 # Load modules below
