@@ -72,17 +72,18 @@ plot(mriBehClean$pred, ylab="predicted values");
 #### 1) Immediate timescale: past outcome  
 ##### Summary: There is a negative interaction between past outcome type and amount (plotted below) where risk-taking increases following a large loss (missed gain) and decreases following a large gain.
 ```{r}
-model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+model2_potc_amt = glmer(choice ~ 0 + pocRcvdMinusNotSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt);  # ns; AIC = 7592.9 
 
 model2_potc_type = glmer(choice ~ 0 + poc1type + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_type); # ns; AIC =7592.1 
 
-model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*pocRcvdMinusNotSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt_type_intxn); # negative interaction between outcome type and amount; AIC = 7588.0
 
 ```
 
+LEFT OFF HERE!! 6/14 - CREATED THE RECEIVED-NOT, UPDATED THE MODELS AND NOW NEED TO CHANGE THE PLOT
 **Plot the interaction between past outcome amount and type:**  
 **Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)**
 ```{r}
