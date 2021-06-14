@@ -19,8 +19,8 @@ config <- config::get();
 # load data
 mriBehCleanCSV = file.path(config$path$data$raw_group, config$csvs$RDM_group_raw_csv)
 mriBehClean = read.csv(mriBehCleanCSV)
-
-
+subID_excludePath = file.path(config$path$data$quality_analysis_output, config$Rdata$RDM_exclude)
+load(subID_excludePath);
 
 # remove participants using subID_exclude (output from vniMRIbehaviorQA.R)
 excludeSub = which(subID_exclude$exclude==1);
@@ -181,6 +181,40 @@ mriBehClean$trialSC = trialsc # store scaled trial in mriBehClean
 mriBehClean$earnings = allEarnings; #store earnings in mriBehClean
 mriBehClean$earningsSC = mriBehClean$earnings/scaleby ; #create scaled earnings variable and store it
 mriBehClean$earningsNormalized = earningsNormalized # store normalized earnings in mriBehClean
+
+
+# Create a previous choice variable (0/1)
+newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2)
+newMat[,1] <- mriBehClean$choice; #take data from columns
+newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
+newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
+newMat[,2]<-c(0,diff(mriBehClean$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
+newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
+mriBehClean$pastChoice = newMat[,1];# add new vector to
+
+
+
+
+# Create a past outcome variable that is recieved-not received
+mriBehClean$recievedMinusNot = NA;
+mriBehClean$recievedMinusNot = mriBehClean$outcome*mriBehClean$choice # this will store prevous risky win outcome amounts
+riskyLossInd = which(mriBehClean$choice==1 & mriBehClean$outcome==mriBehClean$riskyLoss);
+safeInd= which(mriBehClean$choice==0 & mriBehClean$outcome==mriBehClean$alternative);
+mriBehClean$recievedMinusNot[riskyLossInd] = mriBehClean$outcome[riskyLossInd] - mriBehClean$riskyGain[riskyLossInd];
+mriBehClean$recievedMinusNot[safeInd]=mriBehClean$outcome[safeInd];
+
+# scale it
+mriBehClean$rcvdMinusNotSC = mriBehClean$recievedMinusNot/scaleby;
+
+# shift it so that it captures the previous trial
+newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2)
+newMat[,1] <- mriBehClean$rcvdMinusNotSC; #take data from columns
+newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
+newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
+newMat[,2]<-c(0,diff(mriBehClean$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
+newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
+mriBehClean$pocRcvdMinusNotSC = newMat[,1];# add new vector to
+
 
 summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
 
