@@ -17,7 +17,7 @@ Event file name example: "sub-001_run1_event.csv"
 
 
 ## Onset files (for FSL)
-Onset files are created by the script [createOnsetFiles.Rmd](./createOnsetFiles.Rmd)
+Onset files are created by the script [createTimingFiles.Rmd](./createTimingFiles.Rmd)
 
 Onset files contain three columns: onset, duration, parametric modulation
 
