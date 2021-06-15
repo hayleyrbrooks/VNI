@@ -72,14 +72,44 @@ plot(mriBehClean$pred, ylab="predicted values");
 #### 1) Immediate timescale: past outcome  
 ##### Summary: There is a negative interaction between past outcome type and amount (plotted below) where risk-taking increases following a large loss (missed gain) and decreases following a large gain.
 ```{r}
-model2_potc_amt = glmer(choice ~ 0 + pocRcvdMinusNotSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+model2_potc_amt = glmer(choice ~ 0 + poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt);  # ns; AIC = 7592.9 
 
 model2_potc_type = glmer(choice ~ 0 + poc1type + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_type); # ns; AIC =7592.1 
 
-model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*pocRcvdMinusNotSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt_type_intxn); # negative interaction between outcome type and amount; AIC = 7588.0
+
+# LEFT OFF HERE 6/15- HRB CONFUSED ABOUT BEST WAY TO PLOT THIS
+# use the received-not recieved regressor and past outcome type will be 1= gamble, 0 = safe
+model2_potc_receivedDiff_type_intxn = glmer(choice ~ 0 + poc1type*pocRcvdMinusNotSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model2_potc_receivedDiff_type_intxn); # negative interaction between outcome type and amount; AIC = 7589.2
+
+```
+
+
+```{r}
+m2coefReceivedNot = fixef(model2_potc_receivedDiff_type_intxn); # store all beta estimates
+
+typeCoef = m2coefReceivedNot[1]; # past outcome type coefficient
+amtCoef = m2coefReceivedNot[2]; # past outcome amount coefficient
+intxnCoef = m2coefReceivedNot[3]; # past outcome type and amount interaction coefficient
+
+gainOutcomes = c(.09, .5, 1);
+lossOutcomes = c(-1, -.5, -.09);
+safeOutcomes = c(0, .25, .5)
+
+safePgam = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*safeOutcomes) + (intxnCoef*0*safeOutcomes) ))); 
+gainPgam = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*gainOutcomes) + (intxnCoef*1*gainOutcomes) ))); 
+lossPgam = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*lossOutcomes) + (intxnCoef*-1*lossOutcomes) ))); 
+
+plot(c(safePgam), type="l", col="green", lwd=3, ylim=c(0,1), main="Risk-taking changes as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
+legend("topleft", legend=c("gain", "missed gain", "safe"), text.col = c("green", "red", "blue"), bty="n")
+axis(2)
+axis(1, labels=c("small", "medium", "large"), at=c(1,2,3))
+lines(c(PgamPOCsafeSmall,PgamPOCsafeLarge), col="blue", lwd=3)
+lines(c(PgamPOClossSmallGain,PgamPOClossMediumGain,PgamPOClossLargeGain), pch=16, col="red", lwd= 3)
 
 ```
 
