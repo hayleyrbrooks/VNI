@@ -11,9 +11,9 @@ Event file name example: "sub-001_run1_event.csv"
 - trial start 
 - stimulus start (forced viewing for 2s)
 - decision window (up to 2 seconds, changes once participants responds)
-- ISI (variable)
+- ISI (variable: 1.75-5.75s)
 - outcome display (1 second)
-- ITI (variable, includes left over time from decision window)
+- ITI (variable: .75-4.75s, includes left over time from decision window)
 
 
 ## Onset files (for FSL)
@@ -37,6 +37,8 @@ For each participant, there are 3 onset files (corresponding to each run) for al
 ### Decision
 ~ coming soon
 
+### handling scanner settling (15 seconds fixation etc)
+~ coming soon
 
 ### handing missed trials
 ~ coming soon
