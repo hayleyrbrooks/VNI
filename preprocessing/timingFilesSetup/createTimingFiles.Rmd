@@ -151,8 +151,7 @@ for (s in 1:nSubRaw) {
 
 ```{r}
 
-# Onset file names
-#decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
+
 
 # each participant has three event files, one for each run
 # each event file has 438 rows (73 trials x 6 events)
@@ -236,9 +235,10 @@ for (s in 1:nSubRaw) {
 - decisionGamble_run#.txt: chose gamble
 - decisionSafe_run#.txt: choice safe
 
+
+- ***big thing here is how to incorporate reaction time and does the timing add up between the event files (when the decision window ends) and reaction time in the choice set dataframe. The duration of the decision window is slightly longer (~.01s) than the reaction time (probably because once the participant makes a decision, the RT and left over time from decision window are saved, then the screen changes). For the decision time series, the onset of the choice will be the onset of the decision window + reaction time. The duration will be 0 seconds.
+
 ```{r}
-# Onset file names
-#decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
 
 # each participant has three event files, one for each run
 # each event file has 438 rows (73 trials x 6 events)
@@ -268,6 +268,7 @@ for (s in 1:nSubRaw) {
 
     
     # create file names
+      #decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
 
 
     # save files
