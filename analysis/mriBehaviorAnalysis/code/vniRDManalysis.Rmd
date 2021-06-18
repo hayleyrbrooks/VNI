@@ -286,15 +286,6 @@ lines(sub5$earningsNormalized, col="goldenrod", lwd=3)
 
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
 
-# PSH IDEA ABOUT WHAT IS HAPPENING WITH TRIAL AND EARNINGS: this figure below is technically showing the difference between earnings and trial because they have opposite effects 
-# are these effects capturing the overall difference between actual earnings and expected earnings (which would be captured by linear regressor like trial)
-# as if people are adjusting risk taking depending on how they are doing compared to how they EXPECT to be doing
-# if so, this figure seems to show that:
-# points above .5: when doing better than expected earnings, more risk-seeking 
-# points below .5: when doing worse than expected earnings, less risk-seeking
-# HOW TO ACCOUNT FOR THIS WITH THE INTERACTION BETWEEN EARNINGS AND OUTCOME?
-
-
 # Model and plot with interaction term between earnings and trials
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
 # model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
@@ -323,6 +314,7 @@ legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), 
 
 ```
 
+
 Plot cumulative earnings for all participants across the task
 ```{r}
 plot(mriBehClean$earnings[mriBehClean$subjectIndex==1], type = "l",lwd = 2, ylim = c(0,max(mriBehClean$earnings)), xlim= c(0,219), main = "Earnings across task\n each line is a participant", ylab = "earnings", xlab="trial number", axes=FALSE)
@@ -333,6 +325,28 @@ for(s in 2:nSub){
 };
 ```
 
+```{r} 
+## LEFT OFF HERE TOO!! 
+
+# PSH IDEA ABOUT WHAT IS HAPPENING WITH TRIAL AND EARNINGS: this figure below is technically showing the difference between earnings and trial because they have opposite effects 
+# are these effects capturing the overall difference between actual earnings and expected earnings (which would be captured by linear regressor like trial)
+# as if people are adjusting risk taking depending on how they are doing compared to how they EXPECT to be doing
+# if so, this figure seems to show that:
+# points above .5: when doing better than expected earnings, more risk-seeking 
+# points below .5: when doing worse than expected earnings, less risk-seeking
+# HOW TO ACCOUNT FOR THIS WITH THE INTERACTION BETWEEN EARNINGS AND OUTCOME?
+
+# Include level tracking variable (adding up levels over time)
+subDiff = c(0,diff(mriBehClean$subjectIndex));
+levelTracking = vector()
+for (s in 1:nSub) {
+  sub = mriBehClean[mriBehClean$subjectIndex==subIDs[s],];
+  tmpvec = cumsum(sub$groundEV);
+  levelTracking = c(levelTracking, tmpvec)
+};
+
+
+```
 
 
 ##### Do earnings interact with outcome? 
