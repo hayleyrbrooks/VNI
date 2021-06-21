@@ -234,7 +234,10 @@ for (s in 1:nSub) {
 mriBehClean$levelTracking = levelTracking;
 mriBehClean$levelTrackingNorm = levelTrackingNorm;
 
-
+# create a missed gain variable
+mriBehClean$pocMissedGain = mriBehClean$pocRcvdMinusNotSC;
+mriBehClean$pocMissedGain[mriBehClean$pocMissedGain>0] = 0;
+mriBehClean$pocMissedGain = mriBehClean$pocMissedGain*-1; # make positive the missed gain
 
 
 summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
