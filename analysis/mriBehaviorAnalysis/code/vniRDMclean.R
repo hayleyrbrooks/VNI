@@ -236,8 +236,9 @@ mriBehClean$levelTrackingNorm = levelTrackingNorm;
 
 # create a missed gain variable
 mriBehClean$pocMissedGain = mriBehClean$pocRcvdMinusNotSC;
-mriBehClean$pocMissedGain[mriBehClean$pocMissedGain>0] = 0;
-mriBehClean$pocMissedGain = mriBehClean$pocMissedGain*-1; # make positive the missed gain
+tmp = mriBehClean$poc1type;
+tmp[tmp==0] = 1; # create tmp vector, change safe type to = 1, so that the vector is just 1 and -1 for losses
+mriBehClean$pocMissedGain = mriBehClean$pocMissedGain*tmp; # multiply missed gain vector by our tmp vector to make the negative loss values into positive values.
 
 
 summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
