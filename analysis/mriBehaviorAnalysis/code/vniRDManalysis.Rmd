@@ -81,13 +81,17 @@ summary(model2_potc_type); # ns; AIC =7592.1
 model2_potc_amt_type_intxn = glmer(choice ~ 0 + poc1type*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_amt_type_intxn); # negative interaction between outcome type and amount; AIC = 7588.0
 
-# LEFT OFF HERE 6/15- HRB CONFUSED ABOUT BEST WAY TO PLOT THIS
+# QUESTION FOR PSH: I
+# 1) INCLUDE SAFE IN RECEIVED-NOT? AND DOES THE NOT RECEIVED IN THIS CASE = 0 OR EV OF THE GAMBLE?
+# 2) PLOTTING THIS
 # use the received-not recieved regressor and past outcome type will be 1= gamble, 0 = safe
 model2_potc_receivedDiff_type_intxn = glmer(choice ~ 0 + poc1type*pocRcvdMinusNotSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_receivedDiff_type_intxn); # negative interaction between outcome type and amount; AIC = 7589.2
 
 ```
 
+
+There is an interaction between outcome amount (received minus not recieved) and outcome type. Let's plot it.
 
 ```{r}
 m2coefReceivedNot = fixef(model2_potc_receivedDiff_type_intxn); # store all beta estimates
@@ -96,24 +100,26 @@ typeCoef = m2coefReceivedNot[1]; # past outcome type coefficient
 amtCoef = m2coefReceivedNot[2]; # past outcome amount coefficient
 intxnCoef = m2coefReceivedNot[3]; # past outcome type and amount interaction coefficient
 
-gainOutcomes = c(.09, .5, 1);
-lossOutcomes = c(-1, -.5, -.09);
-safeOutcomes = c(0, .25, .5)
 
-safePgam = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*safeOutcomes) + (intxnCoef*0*safeOutcomes) ))); 
-gainPgam = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*gainOutcomes) + (intxnCoef*1*gainOutcomes) ))); 
-lossPgam = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*lossOutcomes) + (intxnCoef*-1*lossOutcomes) ))); 
+poc = seq(from = -1, to = 1, length.out=20);
+# poc type is code 0 = safe, 1 = risky win, 2 = risky loss 
 
-plot(c(safePgam), type="l", col="green", lwd=3, ylim=c(0,1), main="Risk-taking changes as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
-legend("topleft", legend=c("gain", "missed gain", "safe"), text.col = c("green", "red", "blue"), bty="n")
+#safePgam = 1/(1+exp(-1*( (typeCoef*0) + (amtCoef*poc[6:10]) + (intxnCoef*0*poc[6:10]) ))); 
+
+gainPgam = 1/(1+exp(-1*( (typeCoef*1) + (amtCoef*poc[(length(poc)/2 + 1):(length(poc))]) + (intxnCoef*1*poc[(length(poc)/2 + 1):(length(poc))]) ))); 
+lossPgam = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*poc[1:(length(poc)/2)]) + (intxnCoef*-1*poc[1:(length(poc)/2)]) ))); 
+
+plot(poc,c(lossPgam, gainPgam), type="l", col="black", lwd=3, ylim=c(0,1), main="Risk-taking changes as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
+#legend("topleft", legend=c("gain", "missed gain", "safe"), text.col = c("green", "red", "blue"), bty="n")
+abline(a=.5,b=0, col="grey", lty="dashed")
+abline(v=c(0,0), col="grey", lty="dashed")
 axis(2)
-axis(1, labels=c("small", "medium", "large"), at=c(1,2,3))
-lines(c(PgamPOCsafeSmall,PgamPOCsafeLarge), col="blue", lwd=3)
-lines(c(PgamPOClossSmallGain,PgamPOClossMediumGain,PgamPOClossLargeGain), pch=16, col="red", lwd= 3)
+axis(1, labels=round(poc, digits=2), at=poc)
+#lines(gainPgam, col="blue", lwd=3)
+#lines(lossPgam, pch=16, col="red", lwd= 3)
 
 ```
 
-LEFT OFF HERE!! 6/14 - CREATED THE RECEIVED-NOT, UPDATED THE MODELS AND NOW NEED TO CHANGE THE PLOT
 **Plot the interaction between past outcome amount and type:**  
 **Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)**
 ```{r}
@@ -250,6 +256,7 @@ summary(model3_posShift_potc_intxn); #all betas ns
 model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
 
+
 # pull and store coefficients
 m4_coef_trial_Earn = fixef(model4_earnings_trial);
 earnCoef = m4_coef_trial_Earn[1];
@@ -325,28 +332,6 @@ for(s in 2:nSub){
 };
 ```
 
-```{r} 
-## LEFT OFF HERE TOO!! 
-
-# PSH IDEA ABOUT WHAT IS HAPPENING WITH TRIAL AND EARNINGS: this figure below is technically showing the difference between earnings and trial because they have opposite effects 
-# are these effects capturing the overall difference between actual earnings and expected earnings (which would be captured by linear regressor like trial)
-# as if people are adjusting risk taking depending on how they are doing compared to how they EXPECT to be doing
-# if so, this figure seems to show that:
-# points above .5: when doing better than expected earnings, more risk-seeking 
-# points below .5: when doing worse than expected earnings, less risk-seeking
-# HOW TO ACCOUNT FOR THIS WITH THE INTERACTION BETWEEN EARNINGS AND OUTCOME?
-
-# Include level tracking variable (adding up levels over time)
-subDiff = c(0,diff(mriBehClean$subjectIndex));
-levelTracking = vector()
-for (s in 1:nSub) {
-  sub = mriBehClean[mriBehClean$subjectIndex==subIDs[s],];
-  tmpvec = cumsum(sub$groundEV);
-  levelTracking = c(levelTracking, tmpvec)
-};
-
-
-```
 
 
 ##### Do earnings interact with outcome? 
@@ -417,7 +402,32 @@ legend("bottomleft", legend=c("zero", "small", "medium", "medium-large", "large"
 ```
 
 
+```{r} 
 
+# PSH IDEA ABOUT WHAT IS HAPPENING WITH TRIAL AND EARNINGS: the figure above is technically showing the difference between earnings and trial because they have opposite effects 
+# are these effects capturing the overall difference between actual earnings and expected earnings (which would be captured by linear regressor like trial)
+# as if people are adjusting risk taking depending on how they are doing compared to how they EXPECT to be doing
+# if so, this figure seems to show that:
+# points above .5: when doing better than expected earnings, more risk-seeking 
+# points below .5: when doing worse than expected earnings, less risk-seeking
+# HOW TO ACCOUNT FOR THIS WITH THE INTERACTION BETWEEN EARNINGS AND OUTCOME?
+
+#- in a regression —> purely linear (trial) and purely level tracking (adding each level), including cumulative earnings, outcome, and positive shift
+#—> make level tracking variable go from 0 to 1
+#Does this regression outperform one that assumes purely linear?
+# and plot what pgamble over time with these models
+
+model4_expectedEarn = glmer(choice~0 + trialSC + earningsNormalized*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+
+summary(model4_expectedEarn); #AIC = 7554.5  - larger AIC than model without level tracking and effect of earnings goes away and level tracking variable is not significant
+
+model4_expectedEarn_noCumulativeEarn = glmer(choice~0 + trialSC + levelTrackingNorm*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+
+# replacing cumulative earnings with level tracking variable  - results resemble the model when using cumulative earnings but model fails to converge, probably because these are very correlated variables. The beta estimates for trial and level tracking are similar but opposite direction and the interaction between poc and level tracking estimate/p value are similar to cumulatve earnings and poc scaled in previous model. Is level tracking and cumulative earnings too similar?
+
+
+
+```
 
 #### Individual-level analyses (glm)
 ###### output = pocResults {subID, beta, pval}
