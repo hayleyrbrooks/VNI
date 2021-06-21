@@ -216,6 +216,27 @@ newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this re
 mriBehClean$pocRcvdMinusNotSC = newMat[,1];# add new vector to
 
 
+# Create a level tracking variable (add the context level up over time) and normalize for each participant by the max level tracking value (result = values 0 to 1)
+
+# Include level tracking variable (adding up levels over time)
+subDiff = c(0,diff(mriBehClean$subjectIndex));
+levelTracking = vector(); # level tracking variable
+levelTrackingNorm = vector(); # for normalized variable
+for (s in 1:nSub) {
+  sub = mriBehClean[mriBehClean$subjectIndex==subNum[s],];
+  tmpvec = cumsum(sub$groundEV); # cumulative the sum of each increasing row
+  tmpvecNorm = tmpvec/max(tmpvec); # normalize by max level tracking value
+  levelTracking = c(levelTracking, tmpvec);
+  levelTrackingNorm = c(levelTrackingNorm, tmpvecNorm);
+};
+
+# add to our big dataset
+mriBehClean$levelTracking = levelTracking;
+mriBehClean$levelTrackingNorm = levelTrackingNorm;
+
+
+
+
 summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
 
 # save the big dataset we will use for our future analyses
