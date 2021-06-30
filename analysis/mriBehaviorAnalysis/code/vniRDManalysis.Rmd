@@ -6,14 +6,6 @@ output:
   html_notebook: default
 ---
 
-***
-##### Tips from template:
-1) Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Cmd+Shift+Enter*. 
-2) Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Cmd+Option+I*.
-3) When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Cmd+Shift+K* to preview the HTML file). 
-4) The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
-
-***
 ##### Set up
 ```{r}
 rm(list=ls());  # clear environment
@@ -64,7 +56,7 @@ summary(model1_trialLevel);
 ```{r}
 mriBehClean$pred= predict(model1_trialLevel,type="link"); 
 par(mfrow=c(1,1))
-plot(mriBehClean$pred, ylab="predicted values");
+#plot(mriBehClean$pred, ylab="predicted values");
 
 ```
 
@@ -122,7 +114,7 @@ PgamPOClossZero = 1/(1+exp(-1*( (typeCoef*-1) + (amtCoef*0) + (intxnCoef*-1*0) )
 # probability of gambling following a loss = 0.4693025, a 4.5% decrease
 
 
-plot(c(PgamPOCwinSmall, PgamPOCwinMedium, PgamPOCwinLarge), type="l", col="green", lwd=3, ylim=c(0,1), main="Risk-taking changes as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
+plot(c(PgamPOCwinSmall, PgamPOCwinMedium, PgamPOCwinLarge), type="l", col="green", lwd=3, ylim=c(0,1), main="Risk-taking as a function of past outcome type and amount", ylab="p(gamble)", xlab="past outcome", axes=F)
 legend("topleft", legend=c("gain", "loss", "safe"), text.col = c("green", "red", "blue"), bty="n")
 axis(2)
 axis(1, labels=c("small", "medium", "large"), at=c(1,2,3))
@@ -133,7 +125,7 @@ points(c(PgamPOClossZero), pch=16, col="red", lwd= 3)
 
 ```
 
-It looks like there is a very slight difference between loss and gain/safe outcome. Do people treat losses like a missed gain? nope, not finding it here 
+It looks like there is a very slight difference between loss and gain/safe outcome. Do people treat losses like a missed gain? No, doesn't look like that is happening here.
 ```{r}
 # Missed gain variable - positive value for losses (its the previous risky gain amount). Note that this is the missed gain on the previous trial.
 model2_potc_missedGain_type_intxn = glmer(choice ~ 0 + pocMissedGain*poc1type+ (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
@@ -218,7 +210,7 @@ summary(model3_posShift_potc_intxn); #all betas ns
 
 ***
 #### 3) Global timescale: Cumulative earnings (and trial) 
-##### Summary: Cumulative earnings are more tied to trial than previous datasets, even VIC. Earnings and trial have opposite effects with risk-taking increasing with earnings and decreasing across the task. There is a trending interaction between trial and earnings (p=.06). AIC is better in model that includes both terms and an interaction between them
+##### Summary: Cumulative earnings are more tied to trial than previous datasets, even VIC. Earnings and trial have opposite effects with risk-taking increasing with earnings and decreasing across the task. There is a trending interaction between trial and earnings (p=.06). AIC is better in model that includes both terms and an interaction between them.
 ```{r}
 
 # First looking at earnings and trial in a model (no past outcome, shift variable)
@@ -262,11 +254,16 @@ lines(sub5$earningsNormalized, col="goldenrod", lwd=3)
 
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
 
+# Plot #1 basically shows the difference between earnings and trial
+
+```
+
+
+```{r}
 # Model and plot with interaction term between earnings and trials
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
 model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial_intxn); # interaction trending, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7655.5
-
 
 ```
 
@@ -328,7 +325,7 @@ poc= rep(c(0,.5,1), times =3)
 earnings = rep(c(.0, .5, 1), each =3)
 
 
-PgamPOCearningsIntxn =1/(1+exp(-1*( (earnCoef_2*earnings) + (pocCoef*poc) + (intxnCoef_2*poc*earnings) )));
+PgamPOCearningsIntxn =1/(1+exp(-1*( (earnCoef_2*earnings) + (pocCoef*poc) + (pocEarnCoef*poc*earnings) )));
 
 plot(PgamPOCearningsIntxn[1:3], type="l", lwd = 3, col = "pink", ylab= "p(gamble)", xlab="past outcome", axes=F, ylim= c(min(PgamPOCearningsIntxn), max(PgamPOCearningsIntxn)), main="risk taking as a function of \n earnings and past outcome");
 lines(PgamPOCearningsIntxn[4:6], lwd=3, col="pink2")
@@ -343,8 +340,6 @@ legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=
 model4_earnings_potc_intxn_shift = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_potc_intxn_shift);
 ```
-
-
 
 
 ### Each timescale in a single model:
@@ -383,36 +378,80 @@ legend("bottomleft", legend=c("zero", "small", "medium", "medium-large", "large"
 
 
 ```{r} 
-# LEFT OFF HERE - INTEGRATE THESE RESULTS ABOVE WITH THE OUTCOME X TRIAL AND OUTCOME X EARNING MODELS.
-# PSH IDEA ABOUT WHAT IS HAPPENING WITH TRIAL AND EARNINGS: the figure above is technically showing the difference between earnings and trial because they have opposite effects 
-# are these effects capturing the overall difference between actual earnings and expected earnings (which would be captured by linear regressor like trial)
-# as if people are adjusting risk taking depending on how they are doing compared to how they EXPECT to be doing
-# if so, this figure seems to show that:
-# points above .5: when doing better than expected earnings, more risk-seeking 
-# points below .5: when doing worse than expected earnings, less risk-seeking
-# HOW TO ACCOUNT FOR THIS WITH THE INTERACTION BETWEEN EARNINGS AND OUTCOME?
+# In the figure above showing risk taking as a function of earnings and trial because they have opposite effects. Could it be that these effects are capturing the overall difference between actual earnings and expected earnings (which could be captured by a linear regressor like trial)? This could imply that people are adjusting their risky choice behavior depending on how they are doing compared to how they EXPECT to be doing. If that is the case, then points above p(Gamble) = .5 implies that when people do better than expected, there is more risk-seeking and points below p(Gamble) = .5 implies that when people are doing worse than expected, there is less risk-seeking.
 
-#- in a regression —> purely linear (trial) and purely level tracking (adding each level), including cumulative earnings, outcome, and positive shift
-#—> make level tracking variable go from 0 to 1
-#Does this regression outperform one that assumes purely linear?
-# and plot what pgamble over time with these models
+# Our task includes small --> large shifts up and down which could add to how people may expect to be doing (are they adjusting their expectations differently across the levels of context)? One way to account for this is by a 'level-tracking' variable (just adding up level on each trial, which will be a very similar variable to cumulative earnings). This variable is scaled between 0 and 1 for each participant (normalized within participant)
 
+
+# Run some regressions adding level-tracking and compare to our model above with trial, earnings, poc*earnings, positive shift (AIC = 7553.0).
+
+
+# trial, level tracking, earnings, poc, positive shift, earnings*poc. 
 model4_expectedEarn = glmer(choice~0 + trialSC + earningsNormalized*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+# AIC = 7554.5
+#                              Estimate Std. Error z value Pr(>|z|)    
+#trialSC                        -2.4437     0.8837  -2.765  0.00569 ** 
+#earningsNormalized              1.3481     1.3463   1.001  0.31666    
+#poc1scaled                     -0.7936     0.1696  -4.681 2.86e-06 ***
+#levelTrackingNorm               0.9764     1.4523   0.672  0.50139    
+#shiftDiffscPOS                  2.4201     0.7479   3.236  0.00121 ** 
+#earningsNormalized:poc1scaled   1.8089     0.3328   5.436 5.46e-08 ***
 
-summary(model4_expectedEarn); #AIC = 7554.5  - larger AIC than model without level tracking and effect of earnings goes away and level tracking variable is not significant
+# larger AIC than model without level tracking and effect of earnings goes away and level tracking variable is not significant
 
-model4_expectedEarn_noCumulativeEarn = glmer(choice~0 + trialSC + levelTrackingNorm*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred); # AIC =  7555.0
+# trial, level tracking, level tracking * poc, positive shift (no cumulative earnings).
+model4_expectedEarn_noCumulativeEarn = glmer(choice~0 + trialSC + levelTrackingNorm*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);  
+# all significant, AIC =  7555.0 which is worse than model with earnings and level tracking (AIC = 7554.5) and model with earnings only (AIC = 7553.0)
 
-# replacing cumulative earnings with level tracking variable  - results resemble the model when using cumulative earnings but model fails to converge, probably because these are very correlated variables. The beta estimates for trial and level tracking are similar but opposite direction and the interaction between poc and level tracking estimate/p value are similar to cumulatve earnings and poc scaled in previous model. Is level tracking and cumulative earnings too similar?
+# replacing cumulative earnings with level tracking variable  - results resemble the model when using cumulative earnings but model fails to converge. The beta estimates for trial and level tracking are similar but opposite direction and the interaction between poc and level tracking estimate/p value are similar to cumulatve earnings and poc scaled in previous model. Is level tracking and cumulative earnings too similar?
 
 # take out trial 
 model4_expectedEarn_noTrial = glmer(choice~0 + earningsNormalized*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_expectedEarn_noTrial); # AIC = 7560.5 - this has larger AIC than our original model
+summary(model4_expectedEarn_noTrial); # AIC = 7560.5 - this has larger AIC than our original model (AIC = 7553.0)
 
 
-# The best model includes trial and cumulative earnings (not level tracking). This seems like expectations are not changing level-wise. It looks like people are not significantly adjusting their expectations (whereas, Khaw (2017) for example, people are adjusting after hundreds of trials). If it is the case that people are not adjusting their expectations, are they not adjusting their reference point?
+# The best model includes trial and cumulative earnings (not level tracking). This seems like expectations are not changing level-wise. It looks like people are not significantly adjusting their expectations (in Khaw (2017) people are adjusting after hundreds of trials). If it is the case that people are not adjusting their expectations, are they not adjusting their reference point?
+
+
+
 
 ```
+
+
+A few things seem to be happening based on our best model (model5_potc_posshift_earn_trial). 
+# 1) There is a negative past outcome effect
+# 2) There is a If people's risky choice behavior is reflecting the difference between how they are doing and how they EXPECT to be doing.
+```{r}
+#                               Estimate Std. Error z value Pr(>|z|)    
+# poc1scaled                     -0.7851     0.1691  -4.644 3.42e-06 ***
+# earningsNormalized              2.0781     0.8126   2.557  0.01055 *  
+# shiftDiffscPOS                  2.4082     0.7488   3.216  0.00130 ** 
+# trialSC                        -2.1953     0.8022  -2.737  0.00621 ** 
+# poc1scaled:earningsNormali zed   1.7987     0.3325   5.410 6.31e-08 ***
+# AIC = 7553 (model5_potc_posshift_earn_trial)
+
+# Add and interaction between trial and poc
+
+model5_potc_posshift_earn_trial_intxns = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model5_potc_posshift_earn_trial_intxns); # AIC =  7552.4 - slightly better AIC than model above
+
+#                               Estimate Std. Error z value Pr(>|z|)    
+# earningsNormalized              0.6839     1.1742   0.582   0.5603    
+# poc1scaled                     -0.7891     0.1689  -4.671    3e-06 ***
+# trialSC                        -0.8086     1.1637  -0.695   0.4871    
+# shiftDiffscPOS                  2.3355     0.7484   3.121   0.0018 ** 
+# earningsNormalized:poc1scaled   7.3235     3.4204   2.141   0.0323 *  
+# poc1scaled:trialSC             -5.4923     3.3842  -1.623   0.1046  
+
+# The interaction between past outcome and trial is trending p=.1. Past outcome, shift, and interaction between past outcome and earnings still there. Now the main effect of earnings and trial not there.
+
+```
+
+
+
+
+
+
 
 #### Individual-level analyses (glm)
 ###### output = pocResults {subID, beta, pval}
