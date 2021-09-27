@@ -47,6 +47,6 @@ Do some stuff following instructions on fMRIprep website and load the latest fmr
 
 	export SINGULARITY_TMPDIR="/data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/SINGULARITY_TMPDIR"
 	export SINGULARITY_CACHEDIR="/data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/SINGULARITY_CACHEDIR"
-	singularity pull --name fmriprep-<version>.simg docker://nipreps/fmriprep:latest 
+	singularity build --name fmriprep-<version>.simg docker://nipreps/fmriprep:latest 
 	
 	
