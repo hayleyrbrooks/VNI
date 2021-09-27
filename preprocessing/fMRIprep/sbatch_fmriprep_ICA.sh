@@ -19,7 +19,7 @@ module purge
 module load singularity/3.4.1
 
 # Execute commands for application below
-singularity run --cleanenv -B vniBIDS/:/data1:ro -B /data/psychology/sokol-hessnerlab/VNI/fmriPrepOutput_ica/:/out \
+singularity run --cleanenv -B vniBIDS/:/data1:ro -B /data/psychology/sokol-hessnerlab/VNI/fmriPrepOutput_ica_20.2.2/:/out \
  /data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/fmriprep_20.2.2.simg \
  --participant_label $SUBJECT \
  -v \
