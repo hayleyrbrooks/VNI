@@ -28,6 +28,6 @@ Go to directory where singluarity image lives, load singularity module, pull ima
 	
 	cd MRIQCsing/
 	module load singularity/3.4.1 
-	singularity pull --name mriqc_<version>.sif docker://poldracklab/mriqc:latest 
+	singularity pull --name mriqc_<version>.sif docker://nipreps/mriqc:latest 
 	
 Update the singularity image name in the sbatch_mriqc.sh file
