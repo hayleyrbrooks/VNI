@@ -35,7 +35,7 @@ for example, for the first three participants
 No need to load singularity module here because its loaded by the sbatch_fmriprep_ICA.sh script
 
 
-## If singularity image for fMRIprep needs to be updates: 
+## If singularity image for fMRIprep needs to be updated: 
 Change directory to where image lives
 	
 	cd /data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/ 
