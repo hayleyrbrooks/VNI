@@ -19,13 +19,14 @@ module purge
 module load singularity/3.4.1
 
 # Execute commands for application below
-singularity run --cleanenv -B vniBIDS/:/data1:ro -B /data/psychology/sokol-hessnerlab/VNI/fmriPrepOutput_ica_20.2.2/:/out \
- /data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/fmriprep-20.2.2.simg \
+singularity run --cleanenv -B vniBIDS/:/data1:ro -B /data/psychology/sokol-hessnerlab/VNI/fmriPrepOutput_ica_20.2.3/:/out \
+ /data/psychology/sokol-hessnerlab/VNI/FMRIPREPsing/fmriprep-20.2.3.simg \
  --participant_label $SUBJECT \
  -v \
  --dummy-scans 32 \
  --use-aroma --aroma-melodic-dimensionality -100 \
  --fs-license-file /data/psychology/sokol-hessnerlab/VNI/FSlicense/license.txt \
  --nthreads 1 --omp-nthreads 1 \
+ -w /data/psychology/sokol-hessnerlab/VNI/work2 \
  /data1 /out participant
 
