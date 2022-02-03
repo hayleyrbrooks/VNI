@@ -52,7 +52,17 @@ For each participant, there are 3 onset files (corresponding to each run) for al
 ### handing missed trials
 - Missed trials files location: /shlab/Projects/VNI/data/mriTimingFiles/missedTrials/
 - for each participant and run, there is a dummy EV file that notes missed trials. Each file is one column by 73 rows where 0 means include this row(trial) and 1 means skip it (it was a missed trial). 
-- AS OF NOW - 02/03/22 - these timing files are just for each run for 73 trials per block but not done for each of the above onset files (16 types per participants x 3 runs = 48 dummy EV files)
+
+These missed trial files are only necessary to complement onset files that use ALL trials (based on the onset files we have as now 2/3/22; these are valuation period onset files, outcome onset file that uses all outcomes and decision period onset file that uses all types of decision). For the other variations of onset files - we don't need to complement with dummy EVs because none of the missed trials are included in those onset files based on how we subset those files using participants' choice (i.e. if a participant missed a choice, there would be an NA for that choice and outcome and so they wouldn't have been pulled into those specific onset files above).
+
+Missed trial dummy EV files will need to be used for the following:
+1) valuation period modulated by mean EV 
+2) valuation period modulated by risky gain 
+3) valuation period modulated by safe 
+4) outcome modulated by all outcome amounts 
+5) all decisions modulated by mean EV 
+6) all decisions modulated by gain amount  
+7) all decisions modulated by safe amount  
 
 ### DEALING WITH SLICE TIME ISSUES?
 
