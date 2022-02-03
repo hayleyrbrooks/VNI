@@ -230,13 +230,15 @@ for (s in 1:nSubRaw) {
 
 ```
 
-#### Create onset files for DECISION -  LEFT OFF HERE!!!
+#### Create onset files for DECISION -  
 - decision_run#.txt: choice (generally)
 - decisionGamble_run#.txt: chose gamble
 - decisionSafe_run#.txt: choice safe
 
+- create files that modulate decision by mean ev, risky gain and safe amounts
 
-- ***big thing here is how to incorporate reaction time and does the timing add up between the event files (when the decision window ends) and reaction time in the choice set dataframe. The duration of the decision window is slightly longer (~.01s) than the reaction time (probably because once the participant makes a decision, the RT and left over time from decision window are saved, then the screen changes). For the decision time series, the onset of the choice will be the onset of the decision window + reaction time. The duration will be 0 seconds.
+
+- ***big thing here is how to incorporate reaction time and does the timing add up between the event files (when the decision window ends) and reaction time in the choice set dataframe. For the decision time series, the onset of the choice will be the onset of the decision window + reaction time. The duration will be 0 seconds.
 
 ```{r}
 
@@ -257,21 +259,83 @@ for (s in 1:nSubRaw) {
     eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
     
     ###   DECISION/RT    ###
+  
+    decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
+    gambleTrial = RDMsub$triBlock[RDMsub$choice==1 & RDMsub$block==r];   # RDM trial number of gamble choice for block r
+    safeTrial = RDMsub$triBlock[RDMsub$choice==0 & RDMsub$block==r]; # RDM trial number of safe choice for block r    
+    
     
     
     # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
-          
-    # Offset the onset times by .6087s (see notes above)
+      # all decision types
+        onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
+        durationAllDecision = 0; # duration of decision will be 0
+        modulationEV = RDMsub$meanEV[RDMsub$block==r]; # mean EV
+        modulationGain = RDMsub$riskyGain[RDMsub$block==r]; # risky gain amount
+        modulationSafe = RDMsub$alternative[RDMsub$block==r]; # risky safe amount
+            
+      # gamble decision trials
+        onsetGambleDecision = onsetAllDecision[gambleTrial]; 
+        durationGambleDecision = 0; 
+        modulateGambleGain = modulationGain[gambleTrial]
+        modulateGambleSafe = modulationSafe[gambleTrial]
+        modulateGambleEV = modulationEV[gambleTrial]
+        
 
+      # safe decision trials
+        onsetSafeDecision = onsetAllDecision[safeTrial]; 
+        durationSafeDecision = 0; 
+        modulateSafeGain = modulationGain[safeTrial]
+        modulateSafeSafe = modulationSafe[safeTrial]
+        modulateSafeEV = modulationEV[safeTrial]
+        
+        
+    # Offset the onset times by .6087s (see notes above)
+      onsetAllDecision = onsetAllDecision + offset
+      onsetGambleDecision = onsetGambleDecision + offset
+      onsetSafeDecision = onsetSafeDecision + offset
     
     # store onset, duration and modulation into a single data frame
-
+      EVdecisionAll   = cbind(onsetAllDecision, durationAllDecision, modulationEV);
+      GAINdecisionAll = cbind(onsetAllDecision, durationAllDecision, modulationGain);
+      SAFEdecisionAll = cbind(onsetAllDecision, durationAllDecision, modulationSafe);
+      
+      EVdecisionGamble =   cbind(onsetGambleDecision, durationGambleDecision, modulateGambleEV);
+      GAINdecisionGamble = cbind(onsetGambleDecision, durationGambleDecision, modulateGambleGain);
+      SAFEdecisionGamble = cbind(onsetGambleDecision, durationGambleDecision, modulateGambleSafe);
+      
+      EVdecisionSafe =  cbind(onsetSafeDecision, durationSafeDecision, modulateSafeEV);
+      GAINdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeGain); 
+      SAFEdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeSafe);
     
     # create file names
-      #decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
-
-
+    
+    # create file names
+    decisionAllmeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAll_meanEVamt_run",r,sep=""));
+    decisionAllGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAll_gainAmt_run",r,sep=""));
+    decisionAllSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAll_safeAmt_run",r,sep=""));  
+      
+    decisionGamblemeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGamble_meanEVamt_run",r,sep=""));
+    decisionGambleGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGamble_gainAmt_run",r,sep=""));
+    decisionGambleSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGamble_safeAmt_run",r,sep="")); 
+      
+    decisionSafemeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafe_meanEVamt_run",r,sep=""));
+    decisionSafeGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafe_gainAmt_run",r,sep=""));
+    decisionSafeSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafe_safeAmt_run",r,sep=""));
+      
+      
     # save files
+    write.table(EVdecisionAll, file=decisionAllmeanEVfileName, row.names = F, col.names = F, sep="\t");
+    write.table(GAINdecisionAll, file=decisionAllGainfileName, row.names = F, col.names = F, sep="\t");
+    write.table(SAFEdecisionAll, file=decisionAllSafefileName, row.names = F, col.names = F, sep="\t");
+    
+    write.table(EVdecisionGamble, file=decisionGamblemeanEVfileName, row.names = F, col.names = F, sep="\t");
+    write.table(GAINdecisionGamble, file=decisionGambleGainfileName, row.names = F, col.names = F, sep="\t");
+    write.table(SAFEdecisionGamble, file=decisionGambleSafefileName, row.names = F, col.names = F, sep="\t");
+      
+    write.table(EVdecisionSafe, file=decisionSafemeanEVfileName, row.names = F, col.names = F, sep="\t");
+    write.table(GAINdecisionSafe, file=decisionSafeGainfileName, row.names = F, col.names = F, sep="\t");
+    write.table(SAFEdecisionSafe, file=decisionSafeSafefileName, row.names = F, col.names = F, sep="\t");
 
     
   } # end for (r in 1:nRun)
@@ -279,7 +343,55 @@ for (s in 1:nSubRaw) {
 
 ```
 
-THEN: Missed trials - do this uniformly across timing file types
-THEN: go through and check all the timing files one last time to be extra sure they are corect!
+Create files for missed trials - we want to do this uniformly across timing file types above
+Each row either has a 1 (don't include this trial - its 'missing') or 0 (keep this trial)
+
+```{r}
+
+nTblock = 73;
+nRun = 3;
+
+for (s in 1:nSubRaw) {  
+  
+  missedTrialsRun1 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
+  missedTrialsRun2 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
+  missedTrialsRun3 = matrix(data=0, nrow = nTblock, ncol=1);
+    #vector(mode="numeric", length = nTblock); # all zeroes
+  
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+  
+    # pull out each run  
+      run1 = RDMsub[RDMsub$block==1,]; 
+      run2 = RDMsub[RDMsub$block==2,]; 
+      run3 = RDMsub[RDMsub$block==3,]; 
+    
+    # index the missed trials
+      missTrun1ind = which(is.na(run1$choice)); 
+      missTrun2ind = which(is.na(run2$choice)); 
+      missTrun3ind = which(is.na(run3$choice)); 
+  
+    # change missed trials to 1 in our complementary dummy EV files (as FSL calls it)
+      missedTrialsRun1[missTrun1ind] =1
+      missedTrialsRun2[missTrun2ind] =1
+      missedTrialsRun3[missTrun3ind] =1
+ 
+    # create files names and save vectors as txt files
+          
+    missTrun1fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run1");
+    missTrun2fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run2");
+    missTrun3fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run3");
+    
+    write.table(missedTrialsRun1, file=missTrun1fileName, row.names = F, col.names = F, sep="\t");
+    write.table(missedTrialsRun2, file=missTrun2fileName, row.names = F, col.names = F, sep="\t");
+    write.table(missedTrialsRun3, file=missTrun3fileName, row.names = F, col.names = F, sep="\t");
+    
+      
+} # end for (s in 1:nSubRaw)
+
+
+
+```
+
+
 THEN: add notes to the preprocessing about this script, what it does, and its output
 THEN: add timing files to RDAC for analysis!
