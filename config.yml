@@ -18,6 +18,7 @@ default:
         clean: "/Volumes/shlab/Projects/VNI/data/mriBehaviorClean"
         event_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles/eventFiles"
         onset_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles/onsetFiles"
+        missedTrials_files: "/Volumes/shlab/Projects/VNI/data/mriTimingFiles/missedTrials"
         quality_analysis_output: "/Volumes/shlab/Projects/VNI/data/mriBehaviorQAoutput"
   csvs:
     RDM_group_clean_csv: "group_mriBehavior_clean.csv"
