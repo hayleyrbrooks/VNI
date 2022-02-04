@@ -64,7 +64,5 @@ Missed trial dummy EV files will need to be used for the following:
 6) all decisions modulated by gain amount  
 7) all decisions modulated by safe amount  
 
-### DEALING WITH SLICE TIME ISSUES?
-
 ### adding onset files to RDAC
 ~ coming soon
