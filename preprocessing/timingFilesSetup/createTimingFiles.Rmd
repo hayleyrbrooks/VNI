@@ -174,10 +174,11 @@ for (s in 1:nSubRaw) {
     
     outcomeInd = which(eventrun$eventType=="outcome");  # index start of outcome display for all outcomes
     
-    gainOutcomeTrial = RDMsub$triBlock[is.finite(RDMsub$outcome) & RDMsub$outcome==RDMsub$riskyGain & RDMsub$block==r];   # RDM trial number of gain outcome for block r
-    lossOutcomeTrial = RDMsub$triBlock[is.finite(RDMsub$outcome) & RDMsub$outcome==RDMsub$riskyLoss & RDMsub$block==r];   # RDM trial number of loss outcome for block r
-    safeOutcomeTrial = RDMsub$triBlock[is.finite(RDMsub$outcome) & RDMsub$outcome==RDMsub$alternative & RDMsub$block==r]; # RDM trial number of safe outcome for block r
+    gainOutcomeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$outcome) & RDMsub$choice==1 & RDMsub$outcome==RDMsub$riskyGain];   # RDM trial number of gain outcome for block r
+    lossOutcomeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$outcome) & RDMsub$choice==1 & RDMsub$outcome==RDMsub$riskyLoss];   # RDM trial number of loss outcome for block r
+    safeOutcomeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$outcome) & RDMsub$choice==0 & RDMsub$outcome==RDMsub$alternative]; # RDM trial number of safe outcome for block r
     # Used "is.finite()" above because otherwise its includes missed trials for each of these variables.
+    # also added in RDMsub$choice==1 and 0 because some trials have safe and loss amounts that were both 0 on the same trial
     
     
     # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
@@ -195,7 +196,7 @@ for (s in 1:nSubRaw) {
         onsetLossotc = onsetAllotc[lossOutcomeTrial]; 
         durationLossotc = durationAllotc[lossOutcomeTrial]; 
         modulationLossotc = 1; # because this is always 0 in this task, we want to make this 1 for FSL timing files
-        modulationLossotc = modulationAllotc[lossOutcomeTrial]
+        #modulationLossotc = modulationAllotc[lossOutcomeTrial]
         
       # safe outcomes
         onsetSafeotc = onsetAllotc[safeOutcomeTrial]; 
@@ -234,7 +235,7 @@ for (s in 1:nSubRaw) {
 
 ```
 
-#### Create onset files for DECISION -  
+#### Create onset files for DECISION
 - decision_run#.txt: choice (generally)
 - decisionGamble_run#.txt: chose gamble
 - decisionSafe_run#.txt: choice safe
@@ -245,7 +246,7 @@ for (s in 1:nSubRaw) {
 - ***big thing here is how to incorporate reaction time and does the timing add up between the event files (when the decision window ends) and reaction time in the choice set dataframe. For the decision time series, the onset of the choice will be the onset of the decision window + reaction time. The duration will be 0 seconds.
 
 
-# SOMETHING IS OFF HERE -
+
 ```{r}
 
 # each participant has three event files, one for each run
@@ -267,8 +268,8 @@ for (s in 1:nSubRaw) {
     ###   DECISION/RT    ###
   
     decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
-    gambleTrial = RDMsub$triBlock[is.finite(RDMsub$choice) & RDMsub$choice==1 & RDMsub$block==r];   # RDM trial number of gamble choice for block r
-    safeTrial = RDMsub$triBlock[is.finite(RDMsub$choice) & RDMsub$choice==0 & RDMsub$block==r]; # RDM trial number of safe choice for block r    
+    gambleTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$choice) & RDMsub$choice==1];   # RDM trial number of gamble choice for block r
+    safeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$choice) & RDMsub$choice==0]; # RDM trial number of safe choice for block r    
     
     
     
@@ -408,5 +409,3 @@ for (s in 1:nSubRaw) {
 ```
 
 
-THEN: add notes to the preprocessing about this script, what it does, and its output
-THEN: add timing files to RDAC for analysis!
