@@ -13,6 +13,8 @@ output: html_document
 
 - There was a 15 second fixation at the start of each block (to allow the scanner to settle). The first trial started immediately after the fixation ended.
 
+- parametric modulations are mean-centered by participant across all runs?
+
 
 #### Set up
 ```{r}
@@ -108,12 +110,14 @@ for (s in 1:nSubRaw) {
     stimStartInd = which(eventrun$eventType=="stimulusStart");  # index start of stimulus display
     decWindowInd = which(eventrun$eventType=="decisionWindow"); # index start of decision window
    
-    # store events by onset, duration and modulation (mean ev, gain, safe)
+    # store events by onset, duration and modulation (mean ev, gain, safe) and mean center them
     onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
     duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
-    modulationEV = RDMsub$meanEV[RDMsub$block==r]; # mean EV
-    modulationGain = RDMsub$riskyGain[RDMsub$block==r]; # risky gain amount
-    modulationSafe = RDMsub$alternative[RDMsub$block==r]; # risky safe amount
+    modulationEV = RDMsub$meanEV[RDMsub$block==r]-mean(RDMsub$meanEV, na.rm=T); # mean EV
+    modulationGain = RDMsub$riskyGain[RDMsub$block==r]-mean(RDMsub$riskyGain, na.rm=T); # risky gain amount
+    modulationSafe = RDMsub$alternative[RDMsub$block==r]-mean(RDMsub$alternative, na.rm=T); # risky safe amount
+    
+  # ^right now, this mean-centers across all runs.
     
     
     # Offset the onset times by .6087s (see notes above)
@@ -186,12 +190,14 @@ for (s in 1:nSubRaw) {
         onsetAllotc = eventrun$onset[outcomeInd]; # onset is outcome onset
         durationAllotc = eventrun$duration[outcomeInd]; # duration is outcome duration
         modulationAllotc = RDMsub$outcome[RDMsub$block==r]; # outcome amount
+        
 
       # gain outcomes
         onsetGainotc = onsetAllotc[gainOutcomeTrial]; 
         durationGainotc = durationAllotc[gainOutcomeTrial]; 
         modulationGainotc = modulationAllotc[gainOutcomeTrial]
-          
+        
+        
       # loss outcomes
         onsetLossotc = onsetAllotc[lossOutcomeTrial]; 
         durationLossotc = durationAllotc[lossOutcomeTrial]; 
@@ -202,6 +208,7 @@ for (s in 1:nSubRaw) {
         onsetSafeotc = onsetAllotc[safeOutcomeTrial]; 
         durationSafeotc = durationAllotc[safeOutcomeTrial]; 
         modulationSafeotc = modulationAllotc[safeOutcomeTrial]
+        
           
           
     # Offset the onset times by .6087s (see notes above)
