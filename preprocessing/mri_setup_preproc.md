@@ -1,4 +1,4 @@
-# VNI fMRI data set-up and quality check 
+# VNI fMRI data set-up and quality check (before MRIQC and fMRIprep)
 -	Goal: make data BIDS compliant and visually inspect T1w and functional runs 	
 - 	This was originally done on HPC. We moved everything to RDAC after dataset was BIDS compliant 
 
