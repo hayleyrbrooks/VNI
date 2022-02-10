@@ -6,3 +6,8 @@ To check the output:
 2) We briefly looked at the anat and functional runs (e.g. ~_desc-smoothAROMAnonaggr_bold.nii.gz) for any issues using FSLeyes (movie mode - make sure to deselect "synchronize movie updates" in the control settings box.
 
 
+
+## NOTES:
+- functional output (e.g. ~_desc-smoothAROMAnonaggr_bold.nii.gz) is not preprocessed for the first 32 volumes (because these are the dummy scans that we will delete) but fmriprep doesn't delete these, it just doesn't preprocess them.
+
+
