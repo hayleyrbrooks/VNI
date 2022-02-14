@@ -20,7 +20,7 @@ Event file name example: "sub-001_run1_event.csv"
 Onset files are created by the script [createTimingFiles.Rmd](./createTimingFiles.Rmd)
 
 Onset files location: /shlab/Projects/VNI/data/mriTimingFiles/onsetFiles/
-Onset files contain three columns: onset, duration, parametric modulation
+Onset files contain three columns: onset, duration, parametric modulation. Parametric modulations are mean-centered by each functional run for each participant.
 
 For each participant, there are 3 onset files (corresponding to each run) for all of the following onset files listed below (i.e. a lot of timing files for each participant)
 
