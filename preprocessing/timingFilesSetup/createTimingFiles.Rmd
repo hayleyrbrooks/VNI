@@ -13,7 +13,7 @@ output: html_document
 
 - There was a 15 second fixation at the start of each block (to allow the scanner to settle). The first trial started immediately after the fixation ended.
 
-- parametric modulations are mean-centered by participant across all runs?
+- parametric modulations are mean-centered for each functional run for each participant
 
 
 #### Set up
@@ -68,11 +68,7 @@ We will be combining duration for stimulus and decision window because these are
 
 For modeling decision(action), it would be when RT happened in the time series (not RTs themselves)
 
-When done, add these timing files to RDAC
-
-
-
-
+When done, add these timing files to RDAC.
 
 
 
@@ -110,14 +106,14 @@ for (s in 1:nSubRaw) {
     stimStartInd = which(eventrun$eventType=="stimulusStart");  # index start of stimulus display
     decWindowInd = which(eventrun$eventType=="decisionWindow"); # index start of decision window
    
-    # store events by onset, duration and modulation (mean ev, gain, safe) and mean center them
+    # store events by onset, duration and modulation (mean ev, gain, safe) and mean center them (by functional run)
     onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
     duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
-    modulationEV = RDMsub$meanEV[RDMsub$block==r]-mean(RDMsub$meanEV, na.rm=T); # mean EV
-    modulationGain = RDMsub$riskyGain[RDMsub$block==r]-mean(RDMsub$riskyGain, na.rm=T); # risky gain amount
-    modulationSafe = RDMsub$alternative[RDMsub$block==r]-mean(RDMsub$alternative, na.rm=T); # risky safe amount
+    modulationEV = RDMsub$meanEV[RDMsub$block==r]- mean(RDMsub$meanEV[RDMsub$block==r], na.rm=T); # mean EV
+    modulationGain = RDMsub$riskyGain[RDMsub$block==r]-mean(RDMsub$riskyGain[RDMsub$block==r], na.rm=T); # risky gain amount
+    modulationSafe = RDMsub$alternative[RDMsub$block==r]-mean(RDMsub$alternative[RDMsub$block==r], na.rm=T); # safe amount
     
-  # ^right now, this mean-centers across all runs.
+
     
     
     # Offset the onset times by .6087s (see notes above)
@@ -186,28 +182,29 @@ for (s in 1:nSubRaw) {
     
     
     # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+    # modulations are mean-centered for each functional run for each participant
       # all outcomes
         onsetAllotc = eventrun$onset[outcomeInd]; # onset is outcome onset
         durationAllotc = eventrun$duration[outcomeInd]; # duration is outcome duration
-        modulationAllotc = RDMsub$outcome[RDMsub$block==r]; # outcome amount
+        modulationAllotc = RDMsub$outcome[RDMsub$block==r]-mean(RDMsub$outcome[RDMsub$block==r], na.rm=T); # outcome amount
         
 
       # gain outcomes
         onsetGainotc = onsetAllotc[gainOutcomeTrial]; 
         durationGainotc = durationAllotc[gainOutcomeTrial]; 
-        modulationGainotc = modulationAllotc[gainOutcomeTrial]
+        modulationGainotc = modulationAllotc[gainOutcomeTrial]; # modulationAllotc is already mean-centered
         
         
       # loss outcomes
         onsetLossotc = onsetAllotc[lossOutcomeTrial]; 
         durationLossotc = durationAllotc[lossOutcomeTrial]; 
         modulationLossotc = 1; # because this is always 0 in this task, we want to make this 1 for FSL timing files
-        #modulationLossotc = modulationAllotc[lossOutcomeTrial]
+        
         
       # safe outcomes
         onsetSafeotc = onsetAllotc[safeOutcomeTrial]; 
         durationSafeotc = durationAllotc[safeOutcomeTrial]; 
-        modulationSafeotc = modulationAllotc[safeOutcomeTrial]
+        modulationSafeotc = modulationAllotc[safeOutcomeTrial]; # modulationAllotc is already mean-centered
         
           
           
@@ -281,27 +278,28 @@ for (s in 1:nSubRaw) {
     
     
     # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+    # mean center modulation within each functional run for each participant
       # all decision types
         onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
         durationAllDecision = 0; # duration of decision will be 0
-        modulationEV = RDMsub$meanEV[RDMsub$block==r]; # mean EV
-        modulationGain = RDMsub$riskyGain[RDMsub$block==r]; # risky gain amount
-        modulationSafe = RDMsub$alternative[RDMsub$block==r]; # risky safe amount
+        modulationEV = RDMsub$meanEV[RDMsub$block==r]-mean(RDMsub$meanEV[RDMsub$block==r], na.rm=T); # mean EV
+        modulationGain = RDMsub$riskyGain[RDMsub$block==r]- mean(RDMsub$riskyGain[RDMsub$block==r], na.rm=T); # risky gain amount
+        modulationSafe = RDMsub$alternative[RDMsub$block==r] - mean(RDMsub$alternative[RDMsub$block==r], na.rm=T); # risky safe amount
             
       # gamble decision trials
         onsetGambleDecision = onsetAllDecision[gambleTrial]; 
         durationGambleDecision = 0; 
-        modulateGambleGain = modulationGain[gambleTrial]
-        modulateGambleSafe = modulationSafe[gambleTrial]
-        modulateGambleEV = modulationEV[gambleTrial]
+        modulateGambleGain = modulationGain[gambleTrial]; # modulationGain is already mean-centered
+        modulateGambleSafe = modulationSafe[gambleTrial]; # modulationSafe is already mean-centered
+        modulateGambleEV = modulationEV[gambleTrial]; # modulcationEV is already mean centered
         
 
       # safe decision trials
         onsetSafeDecision = onsetAllDecision[safeTrial]; 
         durationSafeDecision = 0; 
-        modulateSafeGain = modulationGain[safeTrial]
-        modulateSafeSafe = modulationSafe[safeTrial]
-        modulateSafeEV = modulationEV[safeTrial]
+        modulateSafeGain = modulationGain[safeTrial]; # modulationGain is already mean-centered
+        modulateSafeSafe = modulationSafe[safeTrial]; # modulationsafe is already mean-centered
+        modulateSafeEV = modulationEV[safeTrial]; # modulationEV is already mean-centered
         
         
     # Offset the onset times by .6087s (see notes above)
