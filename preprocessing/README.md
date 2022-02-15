@@ -3,3 +3,4 @@
 2) run [MRIQC](./MRIQC/runningMRIQCrdac.md)
 3) run [fMRIprep](./fMRIprep/runningfMRIprepRDAC.md)
 4) create [event and onset files](./timingFilesSetup)
+5) save [white_matter and csf confounds into tsv files](./get_confounds.sh)

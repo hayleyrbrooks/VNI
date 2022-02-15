@@ -39,3 +39,5 @@ Now all raw files in anat, fmap, func directories are in NIFTI + BIDS compliant 
 3.	Third, load a single functional run into FSL (it be much slower if you load all 3) and then turn on the ‘movie mode’. You may need to go to the settings to unclick the ‘synchronize movie mode’ and to increase the speed at which the movie is played. Make note of any abrupt movements or anything that looks problematic.
 
 
+
+
