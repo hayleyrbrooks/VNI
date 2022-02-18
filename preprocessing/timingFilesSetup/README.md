@@ -65,4 +65,4 @@ Missed trial dummy EV files will need to be used for the following:
 7) all decisions modulated by safe amount  
 
 ### adding onset files to RDAC
-~ coming soon
+use Cyber Duck or FUGU to move timing files to RDAC (/data/psychology/sokol-hessnerlab/VNI/timingFiles/)
