@@ -35,6 +35,32 @@
           -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/sub-###/run#.feat/report_log.html
       - this will open the FEAT log report and will give you more details including if it is still running and if an error ocurred
 
+#### 3. QA 
+1) Check that the following files exists for each participant: 
+	- zstat file for each contrast
+	- cope file for each contrast
+	- varcope file for each contrast
+
+      		- cd /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/
+      		- ls sub-*/run*.feat/stats/zstat*.nii.gz (this will print the existing zstat files for all the runs and participants)
+      		- add | wc -l to check the file count (faster if you know that each participants has 3 runs, the output should be 3 x Nsub x contrast)
+2) Check that there are not errors in the logs 
+	- in x2go terminal: firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/sub-001/run*.feat/report_log.html (this will open all the reports at once for a single participant)
+3) Check that models are good and check for collinearity. CD to scripts directory
+	- chmod +x QA_all_levs1.py
+	- ./QA_all_levs1.py
+	- This combines the models for each participant and run into a single html file that is stored in the FEAT_models_lev1 directory (lev1_QA.html)
+	- ignoring registration because we already did that fmriprep
+
+
 ### Scripts
+1. makeFSFlev1.py
+2. runFirstLevel.sh
+3. runFirstLevel_run1.sh
+4. runFirstLevel_run2.sh
+5. runFirstLevel_run3.sh
+6. QA_all_levs1.py
 
 ### Resources
+1. Mumford Brain Stats [youtube](https://www.youtube.com/channel/UCZ7gF0zm35FwrFpDND6DWeA)
+2. Mumford Brain Stats [blog](https://mumfordbrainstats.tumblr.com/post/166054797696/feat-registration-workaround)
