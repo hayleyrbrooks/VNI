@@ -500,27 +500,35 @@ legend("bottomleft", legend=c("earn>>exp", "earn>exp", "earn=exp", "earn<exp", "
 
 ```{r}
 subsTriLevMods = list();
-subsPocMods = list();
+#subsPocMods = list();
+subsContextMods = list();
 trialLevelResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
-pocResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
+#pocResults = as.data.frame(matrix(data = NA, nrow = nSub, ncol=3, dimnames=list(c(NULL), c("subID","beta","pval"))))
+contextResults = as.data.frame(matrix(data=NA,nrow=nSub, ncol=7, dimnames=list(c(NULL), c("subID", "pocBeta", "pocPval", "shiftBeta", "shiftPval", "relEarnBeta", "relEarnPval"))))
 
 for (s in 1:nSub) {
   sub = mriBehClean[mriBehClean$subjectIndex==subIDs[s],]; # pull out a single subject
   
-  subsTriLevMods[[s]] = glm(choice~gainSC + altSC + grndEVscaled, data=sub, family="binomial"); # run the trial levelm odel
+  subsTriLevMods[[s]] = glm(choice~gainSC + altSC + grndEVscaled, data=sub, family="binomial"); # run the trial level model
 
   sub$pred = predict(subsTriLevMods[[s]],type='link'); # get predicted values
   
-  subsPocMods[[s]] = glm(choice~poc1scaled, data=sub, family="binomial", offset=pred); # past outcome model with predicted values
+  subsContextMods[[s]] = glm(choice~poc1scaled + shiftDiffscPOS1 + relativeEarnings*poc1scaled + trialSC*poc1scaled, data=sub, family="binomial", offset=pred)
   
-  tmp =summary(subsPocMods[[s]]); #store coefficients from poc model
-  pocResults$subID[s] = subIDs[s]; # fill in sub ID
-  pocResults$beta[s] = tmp$coefficients[[2]]; # store beta
-  pocResults$pval[s] = tmp$coefficients[[8]]; # store pvalue
+  #subsPocMods[[s]] = glm(choice~poc1scaled, data=sub, family="binomial", offset=pred); # past outcome model with predicted values
+  
+  
+  tmp =summary(subsContextMods[[s]]); #store coefficients from poc model
+  contextResults$subID[s] = subIDs[s]; # fill in sub ID
+  contextResults$pocBeta[s] = tmp$coefficients[[2]]; # store poc beta
+  contextResults$pocPval[s] = tmp$coefficients[[23]]; # store poc pvalue
+  contextResults$shiftBeta[s] = tmp$coefficients[[3]]; # store shift beta
+  contextResults$shiftPval[s] = tmp$coefficients[[24]]; # store shift pvalue
+  contextResults$relEarnBeta[s] = tmp$coefficients[[4]]; # store relative earnings beta
+  contextResults$relEarnPval[s] = tmp$coefficients[[25]]; # store relative pvalue
 }; 
 
-
-print(pocResults)
+print(contextResults)
 ```
 
 **Plot the individual past outcome results**
