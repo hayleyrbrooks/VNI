@@ -487,6 +487,24 @@ legend("bottomleft", legend=c("earn>>exp", "earn>exp", "earn=exp", "earn<exp", "
 ```
 
 
+```{r regression-for-rcs-parameter recovery}
+# we will use earningsSC instead of earning normalized
+# earningsSC is large compared to the other values and the model breaks,
+# so we will scale it by 100 to make it smaller, and just make sure to do that in the RCS parameter recovery
+mriBehClean$earningsSCdouble=mriBehClean$earningsSC/max(mriBehClean$earningsSC); # these are basically double scaled now but range from 0-1; max(mriBehClean$earningsSC = 66.75)
+modelRCS_potc_posshift_earn_trial_intxns = glmer(choice~0 + earningsSCdouble*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(modelRCS_potc_posshift_earn_trial_intxns); # AIC =  7547.1 
+
+#                       Estimate Std. Error z value Pr(>|z|)    
+# earningsSCdouble             1.5493     1.1074   1.399  0.16180    
+# poc1scaled             -0.7730     0.1685  -4.588 4.47e-06 ***
+# trialSC                -1.4531     0.9589  -1.515  0.12967    
+# shiftDiffscPOS          2.3303     0.7474   3.118  0.00182 ** 
+# earningsSCdouble:poc1scaled   5.2010     3.1168   1.669  0.09517 .  # this is slightly weaker than earningsNormalized p=03
+# poc1scaled:trialSC     -2.8280     2.7232  -1.039  0.29903  
+
+
+```
 
 
 

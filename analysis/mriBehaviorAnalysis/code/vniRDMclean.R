@@ -158,6 +158,7 @@ trialsc = vector(); # scaling trial
 earningsNormalized = vector(); # normalizing each person's earnings by their max earnings (0 to 1 for each participant)
 indivMaxEarn = vector(mode = "numeric",length=nSub)
 
+
 for(s in 1:nSub){
   sub = mriBehClean[mriBehClean$subjectIndex==subNum[s],]; #pull out subject
   earnings = vector(); #empty vector to store values for one subject
