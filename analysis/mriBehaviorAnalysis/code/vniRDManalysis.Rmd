@@ -7,7 +7,7 @@ output:
 ---
 
 ##### Set up
-```{r}
+```{r Set-up, include=FALSE}
 rm(list=ls());  # clear environment
 
 
@@ -24,10 +24,11 @@ library(lmerTest);
 
 ***
 ##### Subject information
-```{r}
+```{r subject-information}
 subIDs = unique(mriBehClean$subjectIndex);
 nSub = length(subIDs);
-sprintf("N = %s", nSub)
+nSub
+#sprintf("N = %s", nSub)
 ```
 
 ***
@@ -35,14 +36,14 @@ sprintf("N = %s", nSub)
 #### Does risk-taking change as a function of temporal context at three levels?
 1) Immediate (past outcome) 
 2) Neighborhood (shifts) 
-3) Global (earnings)
+3) Global (earnings relative to expected)
 
 
 ***
 
 ### Trial-level model
 ##### Summary: Participants more likely to choose an option as its amount increases (no effect of ground expected value)
-```{r}
+```{r trial-level-glmer}
 model1_trialLevel = glmer(choice~ 0 + gainSC + altSC + grndEVscaled + (0+ gainSC + altSC|subjectIndex), data = mriBehClean, family = "binomial"); # model identical to VIC
 
 summary(model1_trialLevel);
@@ -53,7 +54,7 @@ summary(model1_trialLevel);
 #####  Pull out "predicted" values from trial-level model and save as variable "pred" in mriBehClean dataframe
 **Using "offset", they'll be applied inside the softmax with a weight of 1 every time, in effect accounting for our best current-trial predictions by directly entering those predictions on a trial-by-trial level. This lets us retain the binomial analysis structure vs using residuals ("resids"), which is much more accurate.**
 
-```{r}
+```{r save-predicted-values}
 mriBehClean$pred= predict(model1_trialLevel,type="link"); 
 par(mfrow=c(1,1))
 #plot(mriBehClean$pred, ylab="predicted values");
@@ -77,7 +78,7 @@ summary(model2_potc_amt_type_intxn); # negative interaction between outcome type
 
 **Plot the interaction between past outcome amount and type:**  
 **Outcome type is coded: 0 = safe; 1 = risky gain; -1 = risky loss (always $0)**
-```{r}
+```{r plot-intxn-poc-type, include=FALSE}
 
 m2coef = fixef(model2_potc_amt_type_intxn); # store all beta estimates
 
@@ -126,7 +127,7 @@ points(c(PgamPOClossZero), pch=16, col="red", lwd= 3)
 ```
 
 It looks like there is a very slight difference between loss and gain/safe outcome. Do people treat losses like a missed gain? No, doesn't look like that is happening here.
-```{r}
+```{r missed-gain, include=FALSE}
 # Missed gain variable - positive value for losses (its the previous risky gain amount). Note that this is the missed gain on the previous trial.
 model2_potc_missedGain_type_intxn = glmer(choice ~ 0 + pocMissedGain*poc1type+ (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model2_potc_missedGain_type_intxn); #AIC = 7594.1, nothing is significant
@@ -141,7 +142,7 @@ summary(model2_potc_receivedDiff_type_intxn); #AIC = 7589.2. ns
 ***
 #### 2) Neighborhood timescale: Shifts 
 ##### Summary: Risk-taking increases following a positive shift only and the effect is short-lasting (similar to VIC). Shift does not interact with run size or past outcome.
-```{r}
+```{r shift-effects}
 model3_signed_shifts = glmer(choice~0 + shiftDiffsc + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model3_signed_shifts); # signed shift difference, significant
 
@@ -170,7 +171,7 @@ axis(2)
 ```
 
 #### How far back does shift effect go?
-```{r}
+```{r shift-how-far-back}
 # create new positive shift variable (n-1)
 newMat = matrix(data=NA,nrow=nrow(mriBehClean), ncol=2);
 newMat[,1] <- mriBehClean$shiftDiffscPOS; #take data from columns
@@ -209,9 +210,9 @@ summary(model3_posShift_potc_intxn); #all betas ns
 ```
 
 ***
-#### 3) Global timescale: Cumulative earnings (and trial) 
+#### 3) Global timescale: Earnings
 ##### Summary: Cumulative earnings are more tied to trial than previous datasets, even VIC. Earnings and trial have opposite effects with risk-taking increasing with earnings and decreasing across the task. There is a trending interaction between trial and earnings (p=.06). AIC is better in model that includes both terms and an interaction between them.
-```{r}
+```{r earnings-trial}
 
 # First looking at earnings and trial in a model (no past outcome, shift variable)
 model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
@@ -259,8 +260,8 @@ legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), 
 ```
 
 
-```{r}
-# Model and plot with interaction term between earnings and trials
+```{r plot-intxn-earnings-trial}
+# Model and plot with interaction term between earnings and trial
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
 model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial_intxn); # interaction trending, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7655.5
@@ -269,7 +270,7 @@ summary(model4_earnings_trial_intxn); # interaction trending, effects of trial a
 
 
 Plot cumulative earnings for all participants across the task
-```{r}
+```{r plot-earnings-subs}
 plot(mriBehClean$earnings[mriBehClean$subjectIndex==1], type = "l",lwd = 2, ylim = c(0,max(mriBehClean$earnings)), xlim= c(0,219), main = "Earnings across task\n each line is a participant", ylab = "earnings", xlab="trial number", axes=FALSE)
 axis(1, label = c(1, 219), at = c(1,219), tck = 0, lwd = 3)
 axis(2, label = c(0, max(mriBehClean$earnings)), at = c(0,max(mriBehClean$earnings)), tck = 0, lwd =3)
@@ -281,7 +282,7 @@ for(s in 2:nSub){
 
 
 ##### Do earnings interact with outcome? 
-```{r}
+```{r earnings-intxn-poc}
 # Earnings interact with past outcome in previous datasets, does that happen here?
 model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_potc_intxn); # AIC = 7560.0 
@@ -343,14 +344,14 @@ legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=
 
 ### Each timescale in a single model:
 #### Summary: Similar effects that we have noted prior: negative past outcome effect that interacts with cumulative earnings and positive shift effect. 
-```{r}
+```{r all-timescales}
 model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsNormalized + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 
 summary(model5_potc_posshift_earn_trial); # everything significant, AIC = 7553.0 
 ```
 
 ##### Plot earnings x outcome effect using the model above (the interaction term is much smaller than in m4_earning_potc_intxn model), so we'd expect the switching of the past outcome effect to be less intense:
-```{r}
+```{r plot-earnings-outcome-intxn}
 # store model results
 model5_coef = fixef(model5_potc_posshift_earn_trial)
 m5earnCoef = model5_coef[2]; 
@@ -376,7 +377,7 @@ legend("bottomleft", legend=c("zero", "small", "medium", "medium-large", "large"
 ```
 
 
-```{r} 
+```{r level-tracking} 
 # In the figure above showing risk taking as a function of earnings and trial because they have opposite effects. Could it be that these effects are capturing the overall difference between actual earnings and expected earnings (which could be captured by a linear regressor like trial)? This could imply that people are adjusting their risky choice behavior depending on how they are doing compared to how they EXPECT to be doing. If that is the case, then points above p(Gamble) = .5 implies that when people do better than expected, there is more risk-seeking and points below p(Gamble) = .5 implies that when people are doing worse than expected, there is less risk-seeking.
 
 # Our task includes small --> large shifts up and down which could add to how people may expect to be doing (are they adjusting their expectations differently across the levels of context)? One way to account for this is by a 'level-tracking' variable (just adding up level on each trial, which will be a very similar variable to cumulative earnings). This variable is scaled between 0 and 1 for each participant (normalized within participant)
@@ -418,7 +419,7 @@ A few things seem to be happening: (model5_potc_posshift_earn_trial).
 # 1) There is a negative past outcome effect
 # 2) There is a shift effect
 # 3) There is a sign that there is something happening at the third level but the effect is happening across several regressors (earnings, trial, earnings x outcome, and possibly trial x outcome). It is not a nicely itemized effect like shift and past outcome effects and this effect could be happening as a result of the first level (past outcome). While it seems like one thing is happening, previous outcome effect changes based on how you're doing relative to expectations but it is so spread out across the variables that it makes the model with everything in it (the model including trial * poc) challenging. We could create a variable that captures the difference between earnings and expected earnings but the issue here is that we have to estimate the weighting - we try this at the end of this section:
-```{r}
+```{r relative-earnings}
 
 # Model results from model5_potc_posshift_earn_trial
 #                               Estimate Std. Error z value Pr(>|z|)    
@@ -513,10 +514,10 @@ summary(modelRCS_potc_posshift_earn_trial_intxns); # AIC =  7547.1
 
 
 #### Individual-level analyses (glm)
-###### output = pocResults {subID, beta, pval}
+###### output = contextResults {"subID", "pocBeta", "pocPval", "shiftBeta", "shiftPval", "relEarnBeta", "relEarnPval"}
+a.	After accounting for trial-level effects (gain, safe, EV), there are only a handful of participants who have significant context effects at each level. 
 
-
-```{r}
+```{r participant-level}
 subsTriLevMods = list();
 #subsPocMods = list();
 subsContextMods = list();
@@ -550,10 +551,22 @@ print(contextResults)
 ```
 
 **Plot the individual past outcome results**
-```{r}
-
-plot(pocResults$beta, ylim=c(min(pocResults$beta),max(pocResults$beta)), pch=16, main=sprintf("Individual past outcome estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(pocResults[,3]<.05, "green", ifelse(pocResults[,3]<.1 & pocResults$pval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
+```{r plot-sub-level-context-effects}
+pdf('../figures/subjectContextEffects.pdf')
+plot(contextResults$pocBeta, ylim=c(min(contextResults$pocBeta),max(contextResults$pocBeta)), pch=16, main=sprintf("Individual past outcome estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(contextResults$pocPval<.05, "green", ifelse(contextResults$pocPval<.1 & contextResults$pocPval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
 abline(a=0,b=0, col="grey");
 legend("topright", legend= c("p < .05", ".05 < p < .1", "p > .1"), bty="n", pch = 16, col=c("green", "blue", "black"));
+
+
+plot(contextResults$shiftBeta, ylim=c(min(contextResults$shiftBeta),max(contextResults$shiftBeta)), pch=16, main=sprintf("Individual positive shift estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(contextResults$shiftPval<.05, "green", ifelse(contextResults$shiftPval<.1 & contextResults$shiftPval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
+abline(a=0,b=0, col="grey");
+legend("bottomright", legend= c("p < .05", ".05 < p < .1", "p > .1"), bty="n", pch = 16, col=c("green", "blue", "black"));
+
+
+plot(contextResults$relEarnBeta, ylim=c(min(contextResults$relEarnBeta),max(contextResults$relEarnBeta)), pch=16, main=sprintf("Individual relative earning estimates (n=%s)", nSub), xlab="participant", ylab="estimate", col= ifelse(contextResults$relEarnPval<.05, "green", ifelse(contextResults$relEarnPval<.1 & contextResults$relEarnPval>.05,"blue", "black")), cex=1.75); # blue is trending, green is significant, black is neither
+abline(a=0,b=0, col="grey");
+legend("bottomright", legend= c("p < .05", ".05 < p < .1", "p > .1"), bty="n", pch = 16, col=c("green", "blue", "black"));
+
+dev.off()
 ```
 
