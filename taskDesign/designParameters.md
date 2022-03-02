@@ -55,7 +55,7 @@
 ## Task structure and timing
 
 #### Figure 4 Structure and timing of a single trial
-![trialStructure](https://user-images.githubusercontent.com/19710394/118421794-096a5f00-b67f-11eb-98bc-6728b0a90ad3.png)
+![trialStructure](https://user-images.githubusercontent.com/19710394/156453832-7f08f625-06a6-4e24-8ab1-b2483b4be385.jpg)
 
 ######
 - ISIs: 1.75 to 5.75s
