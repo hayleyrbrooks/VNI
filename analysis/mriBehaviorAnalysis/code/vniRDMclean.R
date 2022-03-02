@@ -244,6 +244,32 @@ mriBehClean$pocMissedGain = mriBehClean$pocMissedGain*tmp; # multiply missed gai
 
 summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
 
+
+# add age and gender to the dataset
+ageGenPath=file.path(config$path$data$clean, 'vni_age_gender.xlsx'); # set file path
+ageGen = read_xlsx(ageGenPath, col_names = TRUE); # import file
+ageGen = as.data.frame(ageGen); # change to dataframe
+colnames(ageGen) = c("subID", "age", "gender"); #change column names
+ageGen = ageGen[ageGen$subID %in% subNum,]; # remove subs that we are excluding
+
+ageGen$gender[ageGen$gender=='Female'] = 0;
+ageGen$gender[ageGen$gender=='Male'] = 1;
+ageGen$gender[ageGen$gender=='NB'] = 2;
+
+tmpDF = as.data.frame(matrix(data=NA, nrow=nrow(mriBehClean), ncol=2, dimnames=list(c(NULL),c("age", "gender"))))
+start = 1;
+end = 0;
+for (s in 1:nSub){
+  sub = mriBehClean[mriBehClean$subjectIndex==subNum[s],]
+  end = end + nrow(sub)
+  tmpDF$age[start:end] = ageGen$age[s]
+  tmpDF$gender[start:end] = ageGen$gender[s]
+  start = end+1
+}
+
+mriBehClean$age = tmpDF$age
+mriBehClean$gender = as.numeric(tmpDF$gender)
+
 # save the big dataset we will use for our future analyses
 Output_mriBehCleanRdata=file.path(config$path$data$clean,config$Rdata$RDM_group_clean_Rdata)
 save(file=Output_mriBehCleanRdata, mriBehClean);
