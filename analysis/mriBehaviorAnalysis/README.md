@@ -26,5 +26,5 @@ Age
 
 
 #### Analysis file:
-[INDIVIDUAL AND GROUP LEVEL ANALYSES](./vniRDManalysis.Rmd)
+[INDIVIDUAL AND GROUP LEVEL ANALYSES](./code/vniRDManalysis.Rmd)
 
