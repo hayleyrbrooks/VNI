@@ -68,3 +68,5 @@ Missed trial dummy EV files will need to be used for the following:
 
 ### adding onset files to RDAC
 use Cyber Duck or FUGU to move timing files to RDAC (/data/psychology/sokol-hessnerlab/VNI/timingFiles/)
+
+### note that the onset files don't need to be trimmed because they mark the start AFTER the 32 volumes have been removed.
