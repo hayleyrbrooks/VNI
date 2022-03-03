@@ -23,7 +23,7 @@ library(lmerTest);
 ##### Plot choice set
 ```{r}
 
-singleSub = mriBehClean[mriBehClean$subjectIndex==5,];
+singleSub = mriBehClean[mriBehClean$subjectIndex==25,];
 
 # set colors by mean ev level (context)
 singleSub$mEVcolor = "palegreen4"
@@ -32,16 +32,47 @@ singleSub$mEVcolor[singleSub$groundEV==15] = "mediumpurple2"
 singleSub$mEVcolor[singleSub$groundEV==20] = "goldenrod3"
 singleSub$mEVcolor[singleSub$groundEV==25] = "royalblue1"
 
-png("/Users/hayley/Documents/GitHub/vni/singleSubLevelsOfcontext.png")
-plot(singleSub$riskyGain, singleSub$alternative, col=singleSub$mEVcolor, main="Five levels of context", ylab= "safe ($)", xlab="risky gain ($)", pch=16)
+# set some rho values for plotting
+  yvals = seq(from=0,to=55,by=5);#  gain values
+  rho = 2; #risk seeking
+  xvalsSeekingH = (0.5*(yvals^rho))^(1/rho); # when the utility of the y value is equal to utility of x value
+  rho = 1.5; #risk seeking
+  xvalsSeekingL = (0.5*(yvals^rho))^(1/rho); # when the utility of the y value is equal to utility of x value
+  rho = 0.5; #risk averse
+  xvalsAverseL = (0.5*(yvals^rho))^(1/rho);
+  rho = 0.75; #risk averse
+  xvalsAverseH = (0.5*(yvals^rho))^(1/rho);
+  xvalsNeutral = yvals*.5;
+
+png("../singleSubLevelsOfcontext.png")
+
+plot(xvalsNeutral,yvals,type='l', xlab = "safe", ylab="gain", ylim = c(0,60), xlim =c(0,30), col="black",lty = "longdash", axes=FALSE, main="Five levels of context"); #risk neutral
+
+
+  lines(yvals,yvals,type='l', col="darkgrey",lty = "longdash"); # the limit; people will never gamble here
+  lines(xvalsNeutral,yvals, col='black',lty = "longdash"); # someone who is risk seeking
+  lines(xvalsSeekingH,yvals,col='black',lty = "longdash"); # someone who is risk seeking
+  lines(xvalsSeekingL,yvals,col='black',lty = "longdash"); # someone who is risk seeking
+  lines(xvalsAverseL,yvals,col='darkgrey',lty = "longdash"); # someone who is really risk averse
+  lines(xvalsAverseH,yvals,col='black',lty = "longdash"); # someone who is risk averse
+
+
+  points(singleSub$alternative, singleSub$riskyGain, col=singleSub$mEVcolor, ylab= "risky gain ($)", xlab="safe ($)", pch=16, cex=1.5)
+axis(1, at =c(0, 5,10,15,20,25,30) , cex.lab=2, lwd=3)
+axis(2, at =c(0, 10,20,30,40,50,60) , cex.lab=2, lwd=3)
+
 dev.off();
 
-png("/Users/hayley/Documents/GitHub/vni/singleSubMeanEVacrossTask.png")
-plot(singleSub$groundEV, pch=16, col=singleSub$mEVcolor, xlab="trial", ylab="mean EV", main="Context created by runs and shifts (mean EV)");
+png("../singleSubMeanEVacrossTask.png")
+plot(singleSub$groundEV, pch=16, col=singleSub$mEVcolor, xlab="trial", ylab="mean EV", main="Context created by runs and shifts (mean EV)", axes=FALSE, cex=1.5);
+axis(1, at =c(0,219) , cex.lab=2, lwd=3)
+axis(2, at =c(0, 5,10,15,20,25) , cex.lab=2, lwd=3)
 dev.off();
 
-png("/Users/hayley/Documents/GitHub/vni/singleSubSafeacrossTask.png")
-plot(singleSub$alternative, col=singleSub$mEVcolor, xlab="trial", ylab="safe ($)", main="Context created by runs and shifts (safe amt)", pch=16)
+png("../singleSubSafeacrossTask.png")
+plot(singleSub$alternative, col=singleSub$mEVcolor, xlab="trial", ylab="safe ($)", main="Context created by runs and shifts (safe amt)", pch=16, cex=1.5, axes=FALSE)
+axis(1, at =c(0,219) , cex.lab=2, lwd=3)
+axis(2, at =c(0, 5,10,15,20,25, 30) , cex.lab=2, lwd=3)
 dev.off()
 
 
