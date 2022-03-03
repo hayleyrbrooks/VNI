@@ -71,7 +71,6 @@ For modeling decision(action), it would be when RT happened in the time series (
 When done, add these timing files to RDAC.
 
 
-
 #### Create onset files for CHOICE DISPLAY
 
 - choiceDisp_meanEV_run#.txt: choice display modulated by mean expected value
@@ -108,12 +107,15 @@ for (s in 1:nSubRaw) {
    
     # store events by onset, duration and modulation (mean ev, gain, safe) and mean center them (by functional run)
     onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
-    duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
+    duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration (which is basically RT)
     modulationEV = RDMsub$meanEV[RDMsub$block==r]- mean(RDMsub$meanEV[RDMsub$block==r], na.rm=T); # mean EV
     modulationGain = RDMsub$riskyGain[RDMsub$block==r]-mean(RDMsub$riskyGain[RDMsub$block==r], na.rm=T); # risky gain amount
     modulationSafe = RDMsub$alternative[RDMsub$block==r]-mean(RDMsub$alternative[RDMsub$block==r], na.rm=T); # safe amount
     
-
+   # round modulators
+    modulationEV = round(modulationEV, digits =2);
+    modulationGain = round(modulationGain, digits =2);
+    modulationSafe = round(modulationSafe, digits =2);
     
     
     # Offset the onset times by .6087s (see notes above)
@@ -124,17 +126,20 @@ for (s in 1:nSubRaw) {
     choiceMeanEV = cbind(onset, duration, modulationEV);
     choiceGain = cbind(onset, duration, modulationGain);
     choiceSafe = cbind(onset, duration, modulationSafe);
+    choiceNoModulation = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
     
     # create file names
     choiceMEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_meanEV_run",r,sep=""));
     choiceGAINfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_gainAmt_run",r,sep=""));
     choiceSAFEfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_safeAmt_run",r,sep=""));
     
+    choiceNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDisp_noModulation_run",r,sep=""));
+        
     # save files
     write.table(choiceMeanEV, file=choiceMEVfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceGain, file=choiceGAINfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceSafe, file=choiceSAFEfileName, row.names = F, col.names = F, sep="\t");
-
+    write.table(choiceNoModulation, file=choiceNOMODfileName, row.names = F, col.names = F, sep="\t");
     
   } # end for (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
@@ -206,7 +211,10 @@ for (s in 1:nSubRaw) {
         durationSafeotc = durationAllotc[safeOutcomeTrial]; 
         modulationSafeotc = modulationAllotc[safeOutcomeTrial]; # modulationAllotc is already mean-centered
         
-          
+        # round the modulators
+        modulationGainotc = round(modulationGainotc, digits=2);
+        modulationSafeotc = round(modulationSafeotc, digits=2);
+        modulationAllotc = round(modulationAllotc, digits =2)
           
     # Offset the onset times by .6087s (see notes above)
     onsetAllotc = onsetAllotc + offset;
@@ -219,20 +227,21 @@ for (s in 1:nSubRaw) {
     GAINoutcomeAmt = cbind(onsetGainotc, durationGainotc, modulationGainotc);
     LOSSoutcomeAmt = cbind(onsetLossotc, durationLossotc, modulationLossotc);
     SAFEoutcomeAmt = cbind(onsetSafeotc, durationSafeotc, modulationSafeotc);
-    
+    NOMODoutcomeAmt = cbind(onsetAllotc, durationAllotc, 1);
     
     # create file names
     outcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcAmt_run",r,sep=""));
     GAINoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcWinAmt_run",r,sep=""));
     LOSSoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcLossAmt_run",r,sep=""));
     SAFEoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_otcSafeAmt_run",r,sep=""));
+    NOMODoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDisp_noModulation_run",r,sep=""));
 
     # save files
     write.table(outcomeAmt, file=outcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(GAINoutcomeAmt, file=GAINoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(LOSSoutcomeAmt, file=LOSSoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(SAFEoutcomeAmt, file=SAFEoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
-
+    write.table(NOMODoutcomeAmt, file=NOMODoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     
   } # end for (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
@@ -302,6 +311,17 @@ for (s in 1:nSubRaw) {
         modulateSafeEV = modulationEV[safeTrial]; # modulationEV is already mean-centered
         
         
+        # round the modulators
+         modulationEV = round(modulationEV, digits=2)
+         modulationGain= round(modulationGain, digits=2)
+         modulationSafe= round(modulationSafe, digits=2)
+         modulateGambleEV= round(modulateGambleEV, digits=2)
+         modulateGambleGain= round(modulateGambleGain, digits=2)
+         modulateGambleSafe= round(modulateGambleSafe, digits=2)
+         modulateSafeEV= round(modulateSafeEV, digits=2)
+         modulateSafeGain= round(modulateSafeGain, digits=2)
+         modulateSafeSafe= round(modulateSafeSafe, digits=2)
+         
     # Offset the onset times by .6087s (see notes above)
       onsetAllDecision = onsetAllDecision + offset
       onsetGambleDecision = onsetGambleDecision + offset
