@@ -484,8 +484,8 @@ lines(pgamRelEarnPOC[11:15],lwd=4,col="pink2")
 lines(pgamRelEarnPOC[16:20],lwd=4,col="pink3")
 lines(pgamRelEarnPOC[21:25],lwd=4,col="pink4")
 
-axis(2, at = seq(0, .6, by =.1))
-axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=0))
+axis(2, at = seq(0, .6, by =.1), lwd=4)
+axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=0), lwd=4)
 legend("bottomleft", legend=c("earn>>exp", "earn>exp", "earn=exp", "earn<exp", "earn<<exp"), bty="n", lty=1, lwd=4, col=c("pink4","pink3", "pink2" ,"lightpink", "pink"), title="relative earnings:")
 dev.off();
 ```
