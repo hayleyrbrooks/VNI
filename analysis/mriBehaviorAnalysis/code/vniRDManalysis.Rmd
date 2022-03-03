@@ -474,7 +474,7 @@ relEarnings = rep(c(-.12,-.05 ,0,.05, .11), each=5)
 #relEarnings = rep(c(seq(min(mriBehClean$relativeEarnings), max(mriBehClean$relativeEarnings), length.out = 5)), each=5);
 
 pgamRelEarnPOC =1/(1+exp(-1*( (relEarnBeta*relEarnings) + (pocBeta*poc) + (pocRelEarnBeta*poc*relEarnings) )));
-
+pdf('../figures/relativeEarnings.pdf')
 plot(pgamRelEarnPOC[1:5], type = "l", ylim=c(0,.6), lwd=3, col="pink", ylab="p(gamble)", xlab="past outcome($)", axes=F, main="risk taking as a function of relative \nearnings and past outcome")
 lines(pgamRelEarnPOC[6:10], lwd=3, col="lightpink" )
 lines(pgamRelEarnPOC[11:15],lwd=3,col="pink2")
@@ -484,7 +484,7 @@ lines(pgamRelEarnPOC[21:25],lwd=3,col="pink4")
 axis(2, at = seq(0, .6, by =.1))
 axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=2))
 legend("bottomleft", legend=c("earn>>exp", "earn>exp", "earn=exp", "earn<exp", "earn<<exp"), bty="n", lty=1, lwd=3, col=c("pink4","pink3", "pink2" ,"lightpink", "pink"), title="relative earnings:")
-
+dev.off
 ```
 
 
