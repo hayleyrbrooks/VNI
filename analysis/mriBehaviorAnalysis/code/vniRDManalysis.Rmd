@@ -467,25 +467,82 @@ m5_potc_shift_relativeEarn_trial = glmer(choice~ 0 + relativeEarnings*poc1scaled
 
 
 # plotting relative earnings x outcome interaction - ONLY SHOWING ONE PART OF THE PICTURE HERE THO - but the effect is that there is a negative efffect of past outcome that gets weaker/flips slightly as participants do better in the task (when earnings are much more than expected). AS expected, this figure looks very similar to the earnings * outcome figure above.
-relEarnBeta = 0.68397
-pocBeta = -0.78909
-pocRelEarnBeta = 7.32342
+contextResults = summary(m5_potc_shift_relativeEarn_trial)
+poc= rep(c(0,.25,.5,.75, 1), times =5); # past outcome values
+relEarnBeta = contextResults$coefficients[1]
+pocBeta = contextResults$coefficients[2]
+pocRelEarnBeta = contextResults$coefficients[5]
 relEarnings = rep(c(-.12,-.05 ,0,.05, .11), each=5)
-#relEarnings = rep(c(seq(min(mriBehClean$relativeEarnings), max(mriBehClean$relativeEarnings), length.out = 5)), each=5);
+
 
 pgamRelEarnPOC =1/(1+exp(-1*( (relEarnBeta*relEarnings) + (pocBeta*poc) + (pocRelEarnBeta*poc*relEarnings) )));
-pdf('../figures/relativeEarnings.pdf')
-plot(pgamRelEarnPOC[1:5], type = "l", ylim=c(0,.6), lwd=3, col="pink", ylab="p(gamble)", xlab="past outcome($)", axes=F, main="risk taking as a function of relative \nearnings and past outcome")
-lines(pgamRelEarnPOC[6:10], lwd=3, col="lightpink" )
-lines(pgamRelEarnPOC[11:15],lwd=3,col="pink2")
-lines(pgamRelEarnPOC[16:20],lwd=3,col="pink3")
-lines(pgamRelEarnPOC[21:25],lwd=3,col="pink4")
+
+png('../relativeEarnings.png')
+plot(pgamRelEarnPOC[1:5], type = "l", ylim=c(0,.6), lwd=4, col="pink", ylab="p(gamble)", xlab="past outcome($)", axes=F, main="risk taking as a function of relative \nearnings and past outcome")
+lines(pgamRelEarnPOC[6:10], lwd=4, col="lightpink" )
+lines(pgamRelEarnPOC[11:15],lwd=4,col="pink2")
+lines(pgamRelEarnPOC[16:20],lwd=4,col="pink3")
+lines(pgamRelEarnPOC[21:25],lwd=4,col="pink4")
 
 axis(2, at = seq(0, .6, by =.1))
-axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=2))
-legend("bottomleft", legend=c("earn>>exp", "earn>exp", "earn=exp", "earn<exp", "earn<<exp"), bty="n", lty=1, lwd=3, col=c("pink4","pink3", "pink2" ,"lightpink", "pink"), title="relative earnings:")
-dev.off
+axis(1, at=c(1:5), labels = round(poc[1:5]*max(mriBehClean$riskyGain), digits=0))
+legend("bottomleft", legend=c("earn>>exp", "earn>exp", "earn=exp", "earn<exp", "earn<<exp"), bty="n", lty=1, lwd=4, col=c("pink4","pink3", "pink2" ,"lightpink", "pink"), title="relative earnings:")
+dev.off();
 ```
+
+
+```{r plot-past-outcome}
+
+vniPOCgam = 1/(1+exp(-1*(contextResults$coefficients[2]*poc)))  # from the model where past outcome is alone 
+poc = seq(from=0, to = 1, by = .2); # values are scaled here
+
+png("../pastOutcomeEffectSize.png")
+par(mar=c(5,6,6,3));#change margin so ylab is not cut off
+plot(vniPOCgam, type = "l",axes = FALSE, xaxt="n", ann=F, lwd = 4, cex.lab=1, ylim=c(.3,.6))
+title(ylab = "p(gamble)", line = 3.75, cex.lab=1.35)
+title(xlab = "Past outcome", line = 2.5, cex.lab=1.35)
+title(main = sprintf("Risk-taking following outcomes \npast outcome: %.2f(%.2f), p=%.2f", contextResults$coefficients[2],contextResults$coefficients[8] ,contextResults$coefficients[20]))
+poclab = round(seq(from=0, to =61, length.out = 6), digits=0);
+axis(1, at = c(1:6), labels =poclab, tick =T, cex.axis = 1.25, cex=2, lwd = 4)
+axis(2, at = c(.3,round(vniPOCgam[2],digits=2),round(vniPOCgam[5], digits=2),.6), tick = T, las =2, cex.axis = 1.25, cex=2, lwd=4)
+abline(a=.5,b=0, col="grey", lty=1, lwd=3)
+lines(c(2,2), c(0,vniPOCgam[2]), lty = 4, col="red", lwd = 4);#vertical line at poc $14
+lines(c(1,2),c(vniPOCgam[2],vniPOCgam[2]), lty=4, col="red", lwd =4); #horizontal line 
+lines(c(5,5), c(0,vniPOCgam[5]), lty = 5, col="darkgreen", lwd = 4);
+lines(c(1,5),c(vniPOCgam[5],vniPOCgam[5]), lty=5, col="darkgreen", lwd =4); 
+lines(vniPOCgam, lwd=4); #plotting the line again so its on top.
+dev.off();
+
+```
+
+
+```{r plot-shift-effect}
+
+1/(1+exp(-1*(contextResults$coefficients[4]*max(mriBehClean$shiftDiffscPOS)))) # 0.6826262 is p(gamble | max shift up), vs. 0.5
+# an increase of 18%
+shiftvals = seq(from=0, to = max(mriBehClean$shiftDiffscPOS), length.out= 5)
+vniShiftgam = 1/(1+exp(-1*(contextResults$coefficients[4]*shiftvals)))
+
+png("../positiveShiftEffectSize.png")
+par(mar=c(5,6,6,3));#change margin so ylab is not cut off
+plot(vniShiftgam, type = "l",axes = FALSE, xaxt="n", ann=F, lwd = 4, cex.lab=1, ylim=c(.25,.75))
+title(ylab = "p(gamble)", line = 3.75, cex.lab=1.35)
+title(xlab = "Positive shift", line = 2.5, cex.lab=1.35)
+title(main = sprintf("Risk-taking following positive shift \npositive shift: %.2f(%.2f), p=%f", contextResults$coefficients[4],contextResults$coefficients[10], contextResults$coefficients[22]))
+shiftlab = c("$0", "$5","$10","15", "$20")
+abline(a=.5,b=0, col="grey", lty=1, lwd=3)
+
+axis(1, at = c(1:5), labels =shiftlab, tick =T, cex.axis = 1.25, cex=2, lwd = 4)
+axis(2, at = c(.25,round(vniShiftgam[2],digits=2),round(vniShiftgam[5], digits = 2),.75), tick = T, las =2, cex.axis = 1.25, cex=2, lwd=4)
+
+lines(c(2,2), c(-2,vniShiftgam[2]), lty = 4, col="red", lwd = 4);#
+lines(c(1,2),c(vniShiftgam[2],vniShiftgam[2]), lty=4, col="red", lwd =4); #horizontal line 
+lines(c(5,5), c(-2,vniShiftgam[5]), lty = 5, col="darkgreen", lwd = 4);
+lines(c(1,5),c(vniShiftgam[5],vniShiftgam[5]), lty=5, col="darkgreen", lwd =4); 
+lines(vniShiftgam, lwd=4); #plotting the line again so its on top.
+dev.off();
+```
+
 
 
 ```{r regression-for-rcs-parameter recovery}
