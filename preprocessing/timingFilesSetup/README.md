@@ -28,12 +28,14 @@ For each participant, there are 3 onset files (corresponding to each run) for al
 1) Choice display modulated by mean expected value
 2) Choice display modulated by risky gain amount
 3) Choice display modulated by safe amount
+4) Choice display with no modulation
 
 ### Outcome display 
 1) Outcome display modulated by outcome amount
 2) Outcome display for risky win outcome, modulated by amount
 3) Outcome display for risky loss outcome, modulated by amount (?? this is zero, change to received-not received)
 4) Outcome display for safe outcome, modulated by amount
+5) Outcome display for all otucomes, no modulation
 
 ### Decision
 1) Decision modulated by mean EV
@@ -66,3 +68,5 @@ Missed trial dummy EV files will need to be used for the following:
 
 ### adding onset files to RDAC
 use Cyber Duck or FUGU to move timing files to RDAC (/data/psychology/sokol-hessnerlab/VNI/timingFiles/)
+
+### note that the onset files don't need to be trimmed because they mark the start AFTER the 32 volumes have been removed.
