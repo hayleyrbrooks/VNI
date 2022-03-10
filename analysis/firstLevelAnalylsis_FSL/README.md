@@ -4,16 +4,17 @@
 ### Overview of steps
 #### 1. Generate a template design.fsf file using the FSL FEAT GUI. 
   - Start with a single participant (e.g. sub-001) and run (e.g. run 1), select all the options you want in the GUI and then click "save". This will output the model along with other files but the one we care about here is design.fsf.
-  - Save the design.fsf file as "template.fsf" on RDAC ("/data/psychology/sokol-hessnerlab/VNI/scripts/fsfs
-  - Created a directory for all level one .fsf files ("/data/.../scripts/fsfs/lev1/")
-  - Created a python script that takes the template.fsf file and fills in all the correct information for each subject and run. Each participant/run gets a unique .fsf file (script file name = makeFSFlev1.py, located in scripts directory on RDAC). Followed this [video](https://www.youtube.com/watch?v=Js0tlNXxd9k&ab_channel=mumfordbrainstats).
+  - Save the design.fsf file as a template named for the analysis "choiceDispNoMod.fsf" on RDAC ("/data/psychology/sokol-hessnerlab/VNI/scripts/fsfs/lev1")
+  - In the template fsf file, replaced subject numbers (e.g.  '001') with SUBJECT and run numbers (e.g. "1") with RUN. These are the replacement words that the python script below will look for to replace with the correct subject ID and run number.
+  - Created a directory for all level one .fsf files for a given analysis ("/data/.../scripts/fsfs/lev1/choiceDispNoMod")
+  - Created a python script that takes the template.fsf file and fills in all the correct information for each subject and run. Each participant/run gets a unique .fsf file (script file name = makeFSFlev1_choiceDispNoMod.py, located in scripts directory on RDAC). Followed this [video](https://www.youtube.com/watch?v=Js0tlNXxd9k&ab_channel=mumfordbrainstats).
   - This script inputs the correct location of onset files, confound files, output directorys, BOLD inputs, etc that FEAT needs for each participant and run.
 	- right now, first level model will include gain amount, safe amounts and mean ev amounts during choice option display (starting simple). Later, we will need to update these .fsf files with more EV information (will likely need to generate a template again through GUI)
   - Run the script to create the .fsf files for each participant:
   
         -  cd /data/psychology/sokol-hessnerlab/VNI/scripts
         -  module load apps/python<press tab to complete>
-        -  python makeFSFlev.py
+        -  python makeFSFlev1_choiceDispNoMod.py
       
 #### 2. Do the first-level analysis
   - Created runFirstLevel.sh script to run feat for a single participant and each of their runs in parallel:
