@@ -22,7 +22,9 @@ do
       		done
 
     	cd ${BASEDIR}/confoundFiles/sub-${line} # go to the confoundFiles directory again 
-    	paste sub-${line}_csf_run${run}.txt sub-${line}_white_matter_run${run}.txt | awk '{print $1,$2}' > sub-${line}_run${run}_csf_wm_confounds.tsv # combine confounds into one file
+    	paste sub-${line}_csf_run${run}.txt sub-${line}_white_matter_run${run}.txt | awk '{print $1,$2}' > sub-${line}_run${run}_csf_wm_confounds.txt # combine confounds into one file
+		sed -n '33,1608p' sub-${line}_run${run}_csf_wm_confounds.txt > sub-${line}_run${run}_csf_wm_confounds_Trimmed.txt # remove the first 33 lines (title +32 volumes)
+		sed -i "1i csf white_matter" sub-${line}_run${run}_csf_wm_confounds_Trimmed.txt # add column names back
     done
 done
 
