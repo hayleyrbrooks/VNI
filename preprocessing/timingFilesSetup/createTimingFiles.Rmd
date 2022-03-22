@@ -375,8 +375,11 @@ for (s in 1:nSubRaw) {
 
 ```
 
-Create files for missed trials - we want to do this uniformly across timing file types above
-Each row either has a 1 (don't include this trial - its 'missing') or 0 (keep this trial)
+Create files for missed trials 
+--> missed trials means participants did not respond at all or in time and during the outcome display, the message was "you did not respond in time"
+--> depending on what GLM we are running, these missed trial files may be slightly different because we are going to use 3-column format that specifies the timing
+--> I think each missed trial document needs to be the same size the EV files for each GLM analysis.
+--> Each row either has 1s (don't include this trial - its 'missing') or 0s (keep this trial)
 
 These missed trial files are only necessary to complement onset files that use ALL trials (e.g. valuation period onset files, outcome onset file that uses all outcomes and decision period (all types of decision)). For the other variations - we don't need to complement with dummy EVs because none of the missed trials are included in those onset files because we subset those files based on participants' choice (i.e. if a participant missed a choice, there would be an NA for that choice and outcome and so they wouldn't have been pulled into those specific onset files above).
 
@@ -390,45 +393,80 @@ Missed trial dummy EV files will need to be used for the following:
 7) all decisions modulated by safe amount  
 
 ```{r}
-
+# right now, these missed trial files are 73 rows long (for all trials).
+# we will need to make these so that they match the analyses we want to do (where some trials are not included)
 nTblock = 73;
 nRun = 3;
+offset = .6087;
 
 for (s in 1:nSubRaw) {  
-
+  
+  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+  
   RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
   
-  missedTrialsRun1 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-  missedTrialsRun2 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-  missedTrialsRun3 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-  
-    # pull out each run  
-      run1 = RDMsub[RDMsub$block==1,]; 
-      run2 = RDMsub[RDMsub$block==2,]; 
-      run3 = RDMsub[RDMsub$block==3,]; 
+  for (r in 1:nRun){
+    
+    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+    
+    
+    ###   OUTCOME    ###
+    
+    outcomeInd = which(eventrun$eventType=="outcome");# index start of outcome display for all outcomes
+         
+     # get the onset and duration for all outcomes
+    onsetAllotc = eventrun$onset[outcomeInd]; # onset is outcome onset
+    durationAllotc = eventrun$duration[outcomeInd]; # duration is outcome duration
+    
+    onsetAllotc = onsetAllotc + offset; # offset duration by .6087s
 
+
+    # note the missed trials - first set everything to 0 
+     missedTrialsRun = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
+    # missedTrialsRun1 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
+    # missedTrialsRun2 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
+    # missedTrialsRun3 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
+    
+    # pull out each run  
+     run1 = RDMsub[RDMsub$block==r,];
+    # run1 = RDMsub[RDMsub$block==1,]; 
+    # run2 = RDMsub[RDMsub$block==2,]; 
+    # run3 = RDMsub[RDMsub$block==3,]; 
+    
     
     # index the missed trials
-      missTrun1ind = which(is.na(run1$choice)); 
-      missTrun2ind = which(is.na(run2$choice)); 
-      missTrun3ind = which(is.na(run3$choice)); 
-  
+     missTrunInd = which(is.na(run1$choice)); 
+    # missTrun1ind = which(is.na(run1$choice)); 
+    # missTrun2ind = which(is.na(run2$choice)); 
+    # missTrun3ind = which(is.na(run3$choice)); 
+    
     # change missed trials to 1 in our complementary dummy EV files (as FSL calls it)
-      missedTrialsRun1[missTrun1ind] =1
-      missedTrialsRun2[missTrun2ind] =1
-      missedTrialsRun3[missTrun3ind] =1
- 
+    missedTrialsRun[missTrunInd] = 1
+    #missedTrialsRun1[missTrun1ind] =1
+    #missedTrialsRun2[missTrun2ind] =1
+    #missedTrialsRun3[missTrun3ind] =1
+    
+    # make the 3 column matrices
+    run1_3col = cbind(onsetAllotc, durationAllotc, missedTrialsRun)
+    
+    #copy the vectors above 2x to make 3 columns
+    # run1_3col = cbind(missedTrialsRun1, 0, 0);
+    # run2_3col = cbind(missedTrialsRun2, 0, 0);
+    # run3_3col = cbind(missedTrialsRun3, 0, 0);
+    
     # create files names and save vectors as txt files
-          
-    missTrun1fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run1");
-    missTrun2fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run2");
-    missTrun3fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run3");
+    missTrunfileName = sprintf("%s/sub-%s/missedTrials_run%s.txt", config$path$data$missedTrials_files,subID_bids[s],r);
     
-    write.table(missedTrialsRun1, file=missTrun1fileName, row.names = F, col.names = F, sep="\t");
-    write.table(missedTrialsRun2, file=missTrun2fileName, row.names = F, col.names = F, sep="\t");
-    write.table(missedTrialsRun3, file=missTrun3fileName, row.names = F, col.names = F, sep="\t");
+    # missTrun1fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run1");
+    # missTrun2fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run2");
+    # missTrun3fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run3");
     
-      
+    write.table(run1_3col, file=missTrunfileName, row.names = F, col.names = F, sep="\t");
+    # write.table(run1_3col, file=missTrun1fileName, row.names = F, col.names = F, sep="\t");
+    # write.table(run2_3col, file=missTrun2fileName, row.names = F, col.names = F, sep="\t");
+    # write.table(run3_3col, file=missTrun3fileName, row.names = F, col.names = F, sep="\t");
+    
+  }# endfor (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
 
 ```
