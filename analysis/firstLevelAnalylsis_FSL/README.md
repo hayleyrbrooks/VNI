@@ -118,12 +118,12 @@ Running each script is very similar:
 
 ## Scripts
 - These scripts are for examples purposes (using the model with choice display and no modulation). The rest of the scripts live on the RDAC and are updated to reflect each model/GLM.
-1. makeFSFlev1_choiceDispNoMod.py
-2. runLev1_choiceDispNoMod.sh
-3. runLev1_run1_choiceDispNoMod.sh
-4. runLev1_run2_choiceDispNoMod.sh
-5. runLev1_run3_choiceDispNoMod.sh
-6. QA_all_levs1.py
+1. [makeFSFlev1_choiceDispNoMod.py](./exampleScripts/makeFSFlev1_choiceDispNoMod.py)
+2. [runLev1_choiceDispNoMod.sh](./exampleScripts/runLev1_choiceDispNoMod.sh)
+3. [runLev1_run1_choiceDispNoMod.sh](./exampleScripts/runLev1_run1_choiceDispNoMod.sh)
+4. [runLev1_run2_choiceDispNoMod.sh](./exampleScripts/runLev1_run2_choiceDispNoMod.sh)
+5. [runLev1_run3_choiceDispNoMod.sh](./exampleScripts/runLev1_run3_choiceDispNoMod.sh)
+6. [QA_all_lev1s.py](./exampleScripts/QA_all_lev1s.py)
 
 ## Some resources
 1. Mumford Brain Stats [youtube](https://www.youtube.com/channel/UCZ7gF0zm35FwrFpDND6DWeA)
