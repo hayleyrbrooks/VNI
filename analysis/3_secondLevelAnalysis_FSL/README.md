@@ -1,11 +1,63 @@
-# Running first level analysis using FSL
-- In FSL, first-level analyses involves each functional run for each participant. There is an option to run all all runs together in FSL but only if you want to do identical things to each run which doesn't work for us because each run has unique onset files.
-- The following steps need to be done for EACH analysis (i.e. GLM) that we are interested in and it is important to name materials for each analysis accordingly. For the sake of providing an example for this document, I will refer to a simple analysis where we looked at BOLD signal during the display of choice options with no parametric modulation (i.e. we didn't consider the dollar amounts on each trial). The name for this analysis is choiceDispNoMod.
+# Running second level analysis using FSL
+- In FSL, second-level analyses combines all functional runs for each participant. 
+- Similar to the first-level analysis, the following steps need to be done for EACH GLM that we are interested in and it is important to name materials for each analysis accordingly. For the sake of providing an example for this document, I will refer to a simple analysis where we looked at BOLD signal during the display of choice options with no parametric modulation (i.e. we didn't consider the dollar amounts on each trial). The name for this analysis is choiceDispNoMod.
 
 ## Overview of steps
-### STEP 1: Generate a first-level analysis template file (.fsf) using the FSL FEAT GUI starting with a single participant (e.g. sub-001) and run (e.g. run 1).
+### STEP 1: Prep the directories from first-level analyses for second-level (using highLevelSetUp.sh script)
+- When we ran the first-level analysis, we did the bare minimum registration even though we've already done registration with fMRIprep preprocessing. We ran registration because FSL breaks at higher-levels if you don't. Now we need to replace a couple of files in the "reg" directory for each participant's run so that the data doesn't get moved or interpolated again.
+- As of now, the script (highLevelSetUp.sh) needs to be slightly changed for each analysis (GLM) to specify the model name (E.g. "choiceDispNoMod") so that the script knows where the first-level output directories are located. You can do this using Vim or other text editors. Save a version of this script with the name of the model you are running (e.g., highLevelSetUp_choiceDispNoMod.sh).
+- This script replaces the 'example_func2standard.mat' with an identity matrix from FSL and overwrites 'standard.nii.gz' file with 'mean_func.nii.gz' while keeping those file names the same since those are what FSL will look for. This process follows the steps by Jeneatte Mumford [here](https://mumfordbrainstats.tumblr.com/post/166054797696/feat-registration-workaround).
+
+1. Update script to reflect model you are running
+
+		- cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
+		- cp highLevelSetUp.sh highLevelSetUp_choiceDispNoMod.sh 	# this copies the original script with a new name 
+		- vim highLevelSetUp_choiceDispNoMod.sh 	# open the script using VIM (or some other text editor)
+		## Once vim opens the file: 
+		# 1) press "i" so that you can revise the document 
+		# 2) scroll down to where the variable 'MODELTYPE' is defined
+		# 3) change the name to reflect the analysis you are running (ideally the same as the modifier you added to the name of this script, e.g., 'choiceDispNoMod')
+		# 4) press the escape key, then type:
+		- :wq 		# this save the changes you made and exits the script.
+
+2. Run the highLevelSetUp_nameOfModel.sh for each participant
+
+		- sbatch highLeveLSetUp_choiceDispNoMod.sh 001  # 001 is for sub-001
+		## logs for this output are in the ../scripts/secondLevel/ directory on the RDAC. 
+
+3. Check that things look right (let's look at sub-001 and first run - changes took place in the reg directory):
+
+		- cd /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/choiceDispNoMod/sub-001/run1.feat/reg  # replace 'choiceDispNoMod' with correct directory
+		- ls  ## expected output show below in image
+
+	![Screen Shot 2022-03-29 at 11 59 30 AM](https://user-images.githubusercontent.com/19710394/160676008-6bbce2ce-c87b-40b5-8ff0-56ca0f3c00ef.png)
+	
+	You can also use 'cat' to see what the example_func2standard.mat looks like:
+	
+		- cat example_func2standard.mat 
+		## expected output below in image
+		
+	![Screen Shot 2022-03-29 at 12 04 54 PM](https://user-images.githubusercontent.com/19710394/160676483-ce6e4b36-dbcb-4359-aaef-39433298868c.png)
+
+	To see that the standard.nii.gz was overwritten by the participant's mean_func.nii.gz, you can check that these are the same files (without using FSLeyes):
+	
+		# assuming you're still in the reg folder:
+		
+		- module load apps/FSL/6.0.5
+		- fslinfo standard.nii.gz
+		- fslinfo ../mean_func.nii.gz
+		## These output should be identical
+		
+		- fslstats standard.nii.gz -r
+		- fslstats ../mean_func.nii.gz -r
+		## The voxel intensities should be identical
+
+### STEP 2: 
+
+
+
 - We use the GUI to generate a design.fsf template for a single participant and run, then we take that design template and use a script to dynamically update the template for each participant and each run. Otherwise, you have to use the GUI to set up the first-level analysis for each participant/run and that is *really* not recommended (seriously, please don't do this).
-1. Load FSL on the RDAC using terminal
+4. Load FSL on the RDAC using terminal
 	
 		- module load apps/FSL/<version, eg. 6.0.5 >
 		- fsl
