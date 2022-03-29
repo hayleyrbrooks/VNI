@@ -85,11 +85,11 @@ Running each script is very similar:
  - Output is saved in the directory that is specified in the .fsf files
  - Check how FEAT model is doing:
       #### one way:
-          -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/
+          -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/firstLevel
           -  cat feat_lev1_<jobID#>_<run#>.log (e.g. feat_lev1_260132_1.log)
       - this will tell you which run is being processed and which runs are complete (but it won't always tell you if there was an error)
       #### another way:
-          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/sub-*/run*.feat/report_log.html
+          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/<nameofmodel>/sub-*/run*.feat/report_log.html
       - this will open the FEAT log report and will give you more details including if it is still running and if an error ocurred
 
 ### STEP 4: QA 
@@ -104,7 +104,7 @@ Running each script is very similar:
 
 2) Check that there are not errors in the logs (open report for all runs for a single participant): 
 
-          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/sub-001/run*.feat/report_log.html
+          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/<nameofmodel>/sub-001/run*.feat/report_log.html
 	
 	
 3) Check that models are good and check for collinearity using QA_all_levs1.py in the scripts/firstLevel directory (this script will need to be updated for each GLM). 
