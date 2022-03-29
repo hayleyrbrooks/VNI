@@ -140,7 +140,7 @@ The first two steps are because we changed some of the feat input to skip regist
 		
 		- fslstats <copefilename> -r  # make sure fsl is loaded, do this command for both cope files
 		
-2) data dimension (copes) and pixel size should be the same as mean_func (use fslinfo)
+2) data dimension and pixel size of cope file(s) should be the same as mean_func (use fslinfo)
 3) check filtered-func data in fsleyes
 4) check output with QA_all_lev2s.py 
 - Sum of all input masks after transformation to standard space --> you want these all to show yellow brains. orange or red means one of the runs didn't have data for the brain and you won't get statistics for the missing voxels.
@@ -149,8 +149,8 @@ The first two steps are because we changed some of the feat input to skip regist
          	 -   chmod +x QA_all_lev2s.py
          	 -   ./QA_all_lev2s.py
 			
-5) In each lev 2 sub directory are cope*.feat files, one for each of the lower level contrasts (e.g. 3 cope files for gain, safe, and mean ev contrasts from level 1)
-- in each of those cope directories there is filtered_func data. check that, its the dependent variable (e.g. gain display). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
+5) In each lev 2 sub directory are cope*.feat files, one for each of the lower level contrasts (e.g. 1 cope for choice disp or 3 cope files for gain, safe, and mean ev contrasts from level 1)
+- in each of those cope directories there is filtered_func data. check that, its the dependent variable (e.g. choice display or gain display depending on analysis). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
 - in the stats directory is one cope.feat file that will be fed to 3rd level analysis 
 	
 
