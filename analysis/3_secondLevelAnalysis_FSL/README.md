@@ -52,130 +52,113 @@
 		- fslstats ../mean_func.nii.gz -r
 		## The voxel intensities should be identical
 
-### STEP 2: 
+### STEP 2: Create .fsf files for each participant's second level analysis
+- Similar to the first-level, we use the GUI to generate a design.fsf template for each participant, then we take that design template and use a script to dynamically update the template for each participant. Otherwise, you have to use the GUI to set up the second-level analysis for each participant and that is *really* not recommended (seriously, please don't do this).
 
+1. Create the directory where the .fsf files will live on the rdac
+- Base directory already exists: '/data/psychology/sokol-hessnerlab/VNI/scipts/fsfs/lev2'
+- create the directory for the .fsf for a given analysis
 
-
-- We use the GUI to generate a design.fsf template for a single participant and run, then we take that design template and use a script to dynamically update the template for each participant and each run. Otherwise, you have to use the GUI to set up the first-level analysis for each participant/run and that is *really* not recommended (seriously, please don't do this).
-4. Load FSL on the RDAC using terminal
+		- cd /data/psychology/sokol-hessnerlab/VNI/scripts/fsfs/lev2
+		- mkdir choiceDispNoMod  # replace with appropriate model name
+		
+2. Load FSL on the RDAC using terminal if it isn't already:
 	
 		- module load apps/FSL/<version, eg. 6.0.5 >
 		- fsl
-2. In the GUI click on the 'FEAT fmri analysis' button
-	- There are 6 tabs in the window that will pop up: Misc, Data, Registration, Pre-stats, Stats, Post-Stats. 
+		
+3. In the GUI click on the 'FEAT fmri analysis' button
+	- Change the setting to "higher-level analysis"
+	- There are 4 tabs in the window that will pop up: Misc, Data, Stats, Post-Stats. 
 	- The images below show the settings that will _generally_ be used for this study. The settings that will change will happen under the Stats tab since that is where we load the onset files which will vary depending on our GLM.
-	- *Note* that because we already preprocessed the data with fMRIprep, we don't need to do any additional preprocessing in FSL. However, we can't skip registration at the first-level because this will "break" higher-level FSL analyses. See how we set the settings in the image below (as recommended by Jeneatte Mumford [here](https://mumfordbrainstats.tumblr.com/post/166054797696/feat-registration-workaround)). We then have to do a couple of things *after* the first-level analyses to work out this (which we will wory about later).
 
 
 Data Tab:
 
-![FEATfirstLevDataTab](https://user-images.githubusercontent.com/19710394/159761573-1cf711e8-b989-4210-a492-3249d1cf696f.png)
+![featSecLev_DataTab](https://user-images.githubusercontent.com/19710394/160682747-08125b48-a782-4d2d-9eba-224a0907b4a6.png)
 
-Prestats Tab:
-
-![FEATfirstLevPrestatsTab](https://user-images.githubusercontent.com/19710394/159762061-1067637c-df75-4ddc-b2d4-1ccf5f091a5b.png)
-
-Registration Tab:
-
-![FEATfirstLevRegTab](https://user-images.githubusercontent.com/19710394/159762338-4f5b7b16-adee-4cbe-be1f-78e5858b713f.png)
 
 Stats Tab:
 
-![FEATfirstLevStatsTab](https://user-images.githubusercontent.com/19710394/159762715-3d1bb46d-785d-4fb8-9940-131eda054bec.png)
-
-Model Setup (loading timing files and setting up contrasts):
-
-![FEATfirstLevFullModelSetup](https://user-images.githubusercontent.com/19710394/159763799-71dba592-1844-47c6-b47a-1116ed39e40b.png)
-
-![FEATfirstLevContrast](https://user-images.githubusercontent.com/19710394/159763836-b8ec31d5-7497-49aa-b01a-cb78ef194090.png)
+![featSecLev_StatsTab](https://user-images.githubusercontent.com/19710394/160682946-a4ecb6fd-0e0e-45d0-a504-5d7974abbda5.png)
 
 
-Post-stats Tab:
-
-![FEATfirstLevPostStatsTab](https://user-images.githubusercontent.com/19710394/159764078-3a90689d-92f3-40f9-9f46-28c1bdb4b9da.png)
+Model Setup (not loading any timing files at this level):
 
 
-Misc Tab:
-
-![FEATfirstLevMiscTab](https://user-images.githubusercontent.com/19710394/159760333-4cbffbf3-e380-4b93-9f04-a7e84afd3f03.png)
+![featSecLev_fullModelSetup](https://user-images.githubusercontent.com/19710394/160683149-58d1e6be-85a6-4115-a973-a2975535d96e.png)
 
 
-- Once you have selected the options that you want for a given GLM, click "save". This will output the .fsf file along with other first-level model files that you can delete. Make sure that the template .fsf file is named for the analysis of interest (e.g. "choiceDispNoMod.fsf") on RDAC ("/data/psychology/sokol-hessnerlab/VNI/scripts/fsfs/lev1")
+![featSecLev_constrasts](https://user-images.githubusercontent.com/19710394/160683168-0d3c7828-383a-457a-998c-498f54784da6.png)
+
+
+Not changing anything on the Post-stats and Misc tabs
+
+- Once you have selected the options that you want for a given GLM, click "save". This will output the .fsf file along with other first-level model files that you can delete. Make sure that the template .fsf file is named for the analysis of interest (e.g. "choiceDispNoMod.fsf") on RDAC ("/data/psychology/sokol-hessnerlab/VNI/scripts/fsfs/lev2/choiceDispNoMod.fsf")
 - Then click "Exit". This will exit the FEAT window without running the model. 
 
-### STEP 2: Make the .fsf files for each participant and each run (using our template .fsf file, e.g. choiceDispNoMod.fsf)
-  - Open the template .fsf file. We want to replace the subject number (e.g.  '001') with SUBJECT and run numbers (e.g. "1") with RUN. These are the replacement words that the python script below will look for to replace with the correct subject ID and run number.
-  - Create a directory for all level one .fsf files for a given analysis ("/data/.../scripts/fsfs/lev1/choiceDispNoMod")
-  - Use the python script that takes the template .fsf file and fills in all the correct information for each subject and run. Each participant/run gets a unique .fsf file (script file name = makeFSFlev1_choiceDispNoMod.py, located in scripts directory on RDAC). I followed this [video](https://www.youtube.com/watch?v=Js0tlNXxd9k&ab_channel=mumfordbrainstats) to create this script. For each analysis, this script will need to be updated (by copying it, renaming it to match the appropriate analysis, and then making minor revisions to the correct file locations/names). Depending on the GLM, this python script may need more complex revisions (e.g. if we need to add more onset files).
-  - This script inputs the correct location of onset files, confound files, output directorys, BOLD inputs, etc that FEAT needs for each participant and run.
+### STEP 3: Make the .fsf files for each participant and each run (using our template .fsf file, e.g. choiceDispNoMod.fsf)
+  - Open the template .fsf file. We want to replace the subject number (e.g.  '001') with SUBJECT. These are the replacement words that the python script below will look for to replace with the correct subject ID and run number.
+  - Create a directory for all level two .fsf files for a given analysis ("/data/.../scripts/fsfs/lev2/choiceDispNoMod")
+  - Use the python script that takes the template .fsf file and fills in all the correct information for each subject and run. Each participant/run gets a unique .fsf file (script file name = makeFSFlev2_choiceDispNoMod.py, located in scripts directory on RDAC). I followed this [video](https://www.youtube.com/watch?v=Js0tlNXxd9k&ab_channel=mumfordbrainstats) to create this script. For each analysis, this script will need to be updated (by copying it, renaming it to match the appropriate analysis, and then making minor revisions to the correct file locations/names). This step is similar to the copying, renaming and editing the highLevelSetUp.sh script above, so I won't write it out again here. 
+  - This makeFSFlev2.py script inputs the correct location of each subject's lower level feat directories and sets the new output directory in a .fsf for each participant.
   - Run the script to create the .fsf files for each participant:
   
-        -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/firstLevel
+        -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
         -  module load apps/python<press tab to complete>
-        -  python makeFSFlev1_choiceDispNoMod.py
+        -  python makeFSFlev2_choiceDispNoMod.py
 
  - Now there should be .fsf file for each participant and run in "/data/psychologyscripts/fsfs/lev1/choiceDispNoMod/"
       
-### STEP 3: Do the first-level analysis
-There are four different scripts for this:
-1. runLev1_nameOfModel.sh (e.g. runLev1_choiceDispNoMod.sh) 
-2. runLev1_run1_nameOfModel.sh (e.g. runLev1_run1_choiceDispNoMod.sh)
-3. runLev1_run2_nameOfModel.sh (e.g. runLev1_run2_choiceDispNoMod.sh)
-4. runLev1_run3_nameOfModel.sh (e.g. runLev1_run3_choiceDispNoMod.sh)
+### STEP 4: Make a copy of and necessary changes to the script that runs the second level analysis:
+In the scripts/secondLevel directory, make a copy of the runLev2.sh script and add modifying name for the analysis(GLM):
 
-The first model runs all three runs in parallel for a single participant and the others run a single run (this is necessary for when a single run crashes, which unfortunately happens often on the RDAC).
+	-  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel  # change directory if not already there
+	-  cp runLev2.sh runLev2_choiceDispNoMod.sh   # makes a copy with a new name
+	-  vim runLev2_choiceDispNoMod.sh # open in vim and follow instructions in step 1 where we changed the MODELTYPE variable to be the directory where the correct fsf files live for the analysis we are interested in (for this example, its choiceDispNoMod)
 
-Running each script is very similar:
+### STEP 5: Run the second-level analysis
 
-         -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/firstLevel
-         -  sbatch runLev1_nameOfModel.sh <three digit ID number, e.g. 001> (to run all runs)
+         -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
+         -  sbatch runLev2_nameOfModel.sh <three digit ID number, e.g. 001> (to run all runs)
 	  
-	To run a single run:
-	  -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/firstLevel
-	  -  sbatch runLev1_run1_nameOfModel.sh <001> 
 	  
- - Output is saved in the directory that is specified in the .fsf files
+ - Output is saved in the directory that is specified in the .fsf files (e.g. ../VNI/FEAT_models_lev2/choiceDispNoMod/)
+
+
  - Check how FEAT model is doing:
       #### one way:
-          -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/
-          -  cat feat_lev1_<jobID#>_<run#>.log (e.g. feat_lev1_260132_1.log)
-      - this will tell you which run is being processed and which runs are complete (but it won't always tell you if there was an error)
+          -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
+          -  cat feat_lev2_<jobID#>_<run#>.log (e.g. feat_lev2_260132.log)
       #### another way:
-          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/sub-*/run*.feat/report_log.html
+          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/sub-001/report_log.html
       - this will open the FEAT log report and will give you more details including if it is still running and if an error ocurred
 
-### STEP 4: QA 
-1) Check that the following files exists for each participant: 
-	- zstat file for each contrast
-	- cope file for each contrast
-	- varcope file for each contrast
-
-      		- cd /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/<nameofmodel>
-      		- ls sub-*/run*.feat/stats/zstat*.nii.gz (this will print the existing zstat files for all the runs and participants)
-      		- add | wc -l to check the file count (faster if you know that each participants has 3 runs, the output should be 3 x Nsub x contrast)
-
-2) Check that there are not errors in the logs (open report for all runs for a single participant): 
-
-          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/sub-001/run*.feat/report_log.html
+### STEP 6: QA 
+The first two steps are because we changed some of the feat input to skip registration since we used fMRIprep.
+1) check voxel intensities between level 1 stats/cope#.nii.gz and 2nd level reg_standard/stats/cope#.nii.gz (which is in the first-level analysis directory) should be exactly the same. Not with roundoff error, but exact. This ensures there was no extra smoothing to the data
+		
+		- fslstats <copefilename> -r  # make sure fsl is loaded, do this command for both cope files
+		
+2) data dimension (copes) and pixel size should be the same as mean_func (use fslinfo)
+3) check filtered-func data in fsleyes
+4) check output with QA_all_lev2s.py 
+- Sum of all input masks after transformation to standard space --> you want these all to show yellow brains. orange or red means one of the runs didn't have data for the brain and you won't get statistics for the missing voxels.
+- Unique missing-mask voxels --> you dont want any colors over the brain, just along the edges
+			
+         	 -   chmod +x QA_all_lev2s.py
+         	 -   ./QA_all_lev2s.py
+			
+5) In each lev 2 sub directory are cope*.feat files, one for each of the lower level contrasts (e.g. 3 cope files for gain, safe, and mean ev contrasts from level 1)
+- in each of those cope directories there is filtered_func data. check that, its the dependent variable (e.g. gain display). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
+- in the stats directory is one cope.feat file that will be fed to 3rd level analysis 
 	
-	
-3) Check that models are good and check for collinearity using QA_all_levs1.py in the scripts/firstLevel directory (this script will need to be updated for each GLM). 
-
-          -   chmod +x QA_all_levs1.py
-          -   ./QA_all_levs1.py
-	
-- This combines the models for each participant and run into a single html file that is stored in the FEAT_models_lev1 directory (lev1_QA.html)
-- ignoring registration because we already did that fmriprep
-
 
 ## Scripts
 - These scripts are for examples purposes (using the model with choice display and no modulation). The rest of the scripts live on the RDAC and are updated to reflect each model/GLM.
-1. [makeFSFlev1_choiceDispNoMod.py](./exampleScripts/makeFSFlev1_choiceDispNoMod.py)
-2. [runLev1_choiceDispNoMod.sh](./exampleScripts/runLev1_choiceDispNoMod.sh)
-3. [runLev1_run1_choiceDispNoMod.sh](./exampleScripts/runLev1_run1_choiceDispNoMod.sh)
-4. [runLev1_run2_choiceDispNoMod.sh](./exampleScripts/runLev1_run2_choiceDispNoMod.sh)
-5. [runLev1_run3_choiceDispNoMod.sh](./exampleScripts/runLev1_run3_choiceDispNoMod.sh)
-6. [QA_all_lev1s.py](./exampleScripts/QA_all_lev1s.py)
+1. [makeFSFlev2_choiceDispNoMod.py](./exampleScripts/makeFSFlev2_choiceDispNoMod.py)
+2. [runLev2_choiceDispNoMod.sh](./exampleScripts/runLev2_choiceDispNoMod.sh)
+6. [QA_all_lev2s.py](./exampleScripts/QA_all_lev2s.py)
 
 ## Some resources
 1. Mumford Brain Stats [youtube](https://www.youtube.com/channel/UCZ7gF0zm35FwrFpDND6DWeA)
