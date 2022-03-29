@@ -1,6 +1,6 @@
 # Running first level analysis using FSL
 - In FSL, first-level analyses involves each functional run for each participant. There is an option to run all all runs together in FSL but only if you want to do identical things to each run which doesn't work for us because each run has unique onset files.
-- The following steps need to be done for EACH analysis (i.e. GLM) that we are interested in and it is important to name materials for each analysis accordingly. For the sake of providing an example for this document, I will refer to a simple analysis where we looked at BOLD signal during the display of choice options with no parametric modulation (i.e. we didn't consider the dollar amounts on each trial). The name used throughoutthis analysis is choiceDispNoMod.
+- The following steps need to be done for EACH analysis (i.e. GLM) that we are interested in and it is important to name materials for each analysis accordingly. For the sake of providing an example for this document, I will refer to a simple analysis where we looked at BOLD signal during the display of choice options with no parametric modulation (i.e. we didn't consider the dollar amounts on each trial). The name for this analysis is choiceDispNoMod.
 
 ## Overview of steps
 ### STEP 1: Generate a first-level analysis template file (.fsf) using the FSL FEAT GUI starting with a single participant (e.g. sub-001) and run (e.g. run 1).
