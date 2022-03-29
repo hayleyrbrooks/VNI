@@ -156,9 +156,10 @@ The first two steps are because we changed some of the feat input to skip regist
 
 ## Scripts
 - These scripts are for examples purposes (using the model with choice display and no modulation). The rest of the scripts live on the RDAC and are updated to reflect each model/GLM.
-1. [makeFSFlev2_choiceDispNoMod.py](./exampleScripts/makeFSFlev2_choiceDispNoMod.py)
-2. [runLev2_choiceDispNoMod.sh](./exampleScripts/runLev2_choiceDispNoMod.sh)
-6. [QA_all_lev2s.py](./exampleScripts/QA_all_lev2s.py)
+1. [highLevelSetUp_choiceDispNoMod.sh](./exampleScripts/highLevelSetUp_choiceDispNoMod.sh)
+2. [makeFSFlev2_choiceDispNoMod.py](./exampleScripts/makeFSFlev2_choiceDispNoMod.py)
+3. [runLev2_choiceDispNoMod.sh](./exampleScripts/runLev2_choiceDispNoMod.sh)
+4. [QA_all_lev2s.py](./exampleScripts/QA_all_lev2s.py)
 
 ## Some resources
 1. Mumford Brain Stats [youtube](https://www.youtube.com/channel/UCZ7gF0zm35FwrFpDND6DWeA)
