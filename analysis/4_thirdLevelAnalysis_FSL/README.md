@@ -1,6 +1,7 @@
 # Running third level analysis using FSL
 - In FSL, third-level analyses combines all functional runs across all participants
 - Similar to the first-level analysis, the following steps need to be done for EACH GLM that we are interested in and it is important to name materials for each analysis accordingly. For the sake of providing an example for this document, I will refer to a simple analysis where we looked at BOLD signal during the display of choice options with no parametric modulation (i.e. we didn't consider the dollar amounts on each trial). The name for this analysis is choiceDispNoMod.
+- For the third-level analysis, the number of analyses that get done (i.e. the number of times you need to do the step below) correspond with the number of contrasts in the first-level analysis.
 
 ## Overview of steps
 ### STEP 1: Run 3rd level analysis in FEAT GUI
