@@ -3,11 +3,11 @@
 import os
 import glob
 
-outfile = "/data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/lev2_QA.html"
+outfile = "/data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/nameOfModel/lev2_QA.html"
 
 os.system("rm %s"%(outfile))
 
-all_feats = glob.glob('/data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/sub-*.gfeat')
+all_feats = glob.glob('/data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/nameOfModel/sub-*.gfeat')
 
 f = open(outfile, "w")
 for file in list(all_feats):
