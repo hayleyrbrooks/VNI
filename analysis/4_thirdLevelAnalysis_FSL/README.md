@@ -17,6 +17,7 @@
 	- The images below show the settings that will _generally_ be used for this study. 
 
 Data Tab:load data and specify where you want the output (e.g. "/data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/choiceDispNoMod')
+- instead of selecting each participant by hand, do this instead (help from [Andy's Brain Book](https://andysbrainbook.readthedocs.io/en/latest/fMRI_Short_Course/fMRI_07_2ndLevelAnalysis.html)):
 
 ![FEATThirdLevelDataTab](https://user-images.githubusercontent.com/19710394/160905055-caadbb27-8f7c-49fb-8fa0-e381f1136d46.png)
 
