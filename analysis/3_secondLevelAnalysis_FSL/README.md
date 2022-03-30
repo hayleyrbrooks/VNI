@@ -82,6 +82,10 @@ Stats Tab:
 
 ![featSecLev_StatsTab](https://user-images.githubusercontent.com/19710394/160682946-a4ecb6fd-0e0e-45d0-a504-5d7974abbda5.png)
 
+**Notes about stats tab for 2nd level analysis** 
+- Fixed effects of 2nd level - assuming no variance between runs for each subject  (this was recommnded [by J Mumford](https://www.youtube.com/watch?v=ssFHvOPIyDg), also used by [Andy's brain book](https://andysbrainbook.readthedocs.io/en/latest/fMRI_Short_Course/fMRI_07_2ndLevelAnalysis.html)- this is recommended when you have 2-3 runs per participant. the variance we ignore gets reintroduced at the 3rd level between participants)
+- fixed effects right now but FLAME for first level: https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FEAT/UserGuide
+- 3rd level - dont use fixed effects. We'll want to use FLAME 1 or OLS with FLAME being the best
 
 Model Setup (not loading any timing files at this level):
 
@@ -96,6 +100,7 @@ Not changing anything on the Post-stats and Misc tabs
 
 - Once you have selected the options that you want for a given GLM, click "save". This will output the .fsf file along with other first-level model files that you can delete. Make sure that the template .fsf file is named for the analysis of interest (e.g. "choiceDispNoMod.fsf") on RDAC ("/data/psychology/sokol-hessnerlab/VNI/scripts/fsfs/lev2/choiceDispNoMod.fsf")
 - Then click "Exit". This will exit the FEAT window without running the model. 
+
 
 ### STEP 3: Make the .fsf files for each participant and each run (using our template .fsf file, e.g. choiceDispNoMod.fsf)
   - Open the template .fsf file. We want to replace the subject number (e.g.  '001') with SUBJECT. These are the replacement words that the python script below will look for to replace with the correct subject ID and run number.
