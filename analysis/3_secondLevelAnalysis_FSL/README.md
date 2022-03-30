@@ -156,18 +156,25 @@ The first two steps are because we changed some of the feat input to skip regist
 		- fslinfo reg_standard/stats/cope1.nii.gz
 		- fslinfo reg_standard/mean_func.nii.gz
 		
-4) check filtered-func data in fsleyes
-5) check output with QA_all_lev2s.py 
+3) In each lev 2 sub directory are cope*.feat files, one for each of the lower level contrasts (e.g. 1 cope for choice disp or 3 cope files for gain, safe, and mean ev contrasts from level 1)
+- in each of those cope directories there is filtered_func_data (located: 'FEAT_models_lev1/choiceDispNoMod/sub-001.gfeat/cope1.feat/'). check that, its the dependent variable (e.g. choice display or gain display depending on analysis). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
+
+		- module load apps/FSL/6.0.5
+		- cd ~/FEAT_models_lev1/choiceDispNoMod/sub-001.gfeat/cope1.feat/
+		- fsleyes filtered_func_data.nii.gz
+		
+- once the image is loaded in FSL, use the volumn button to switch between the runs		
+
+4) check output with QA_all_lev2s_nameOfModel.py 
 - Sum of all input masks after transformation to standard space --> you want these all to show yellow brains. orange or red means one of the runs didn't have data for the brain and you won't get statistics for the missing voxels.
 - Unique missing-mask voxels --> you dont want any colors over the brain, just along the edges
-			
-         	 -   chmod +x QA_all_lev2s.py
-         	 -   ./QA_all_lev2s.py
-			
-5) In each lev 2 sub directory are cope*.feat files, one for each of the lower level contrasts (e.g. 1 cope for choice disp or 3 cope files for gain, safe, and mean ev contrasts from level 1)
-- in each of those cope directories there is filtered_func data. check that, its the dependent variable (e.g. choice display or gain display depending on analysis). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
-- in the stats directory is one cope.feat file that will be fed to 3rd level analysis 
-	
+
+		 - cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
+		 - cp QA_all_lev2s.py QA_all_lev2s_choiceDispNoMod.py   # making a copy for the choice display analysis
+		 - vim QA_all_lev2s_choiceDispNoMod.py 	# open in a text editor (I am using Vim) and revise directory names for the appropriate analysis, save.
+         	 -   chmod +x QA_all_lev2s_choiceDispNoMod.py
+         	 -   ./QA_all_lev2s_choiceDispNoMod.py
+				
 
 ## Scripts
 - These scripts are for examples purposes (using the model with choice display and no modulation). The rest of the scripts live on the RDAC and are updated to reflect each model/GLM.
