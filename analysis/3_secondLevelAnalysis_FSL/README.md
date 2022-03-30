@@ -117,10 +117,10 @@ In the scripts/secondLevel directory, make a copy of the runLev2.sh script and a
 	-  cp runLev2.sh runLev2_choiceDispNoMod.sh   # makes a copy with a new name
 	-  vim runLev2_choiceDispNoMod.sh # open in vim and follow instructions in step 1 where we changed the MODELTYPE variable to be the directory where the correct fsf files live for the analysis we are interested in (for this example, its choiceDispNoMod)
 
-### STEP 5: Run the second-level analysis
+### STEP 5: Run the second-level analysis (this takes ~1 min per participant)
 
          -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
-         -  sbatch runLev2_nameOfModel.sh <three digit ID number, e.g. 001> (to run all runs)
+         -  sbatch runLev2_nameOfModel.sh <three digit ID number, e.g. 001> 
 	  
 	  
  - Output is saved in the directory that is specified in the .fsf files (e.g. ../VNI/FEAT_models_lev2/choiceDispNoMod/)
@@ -131,18 +131,33 @@ In the scripts/secondLevel directory, make a copy of the runLev2.sh script and a
           -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
           -  cat feat_lev2_<jobID#>_<run#>.log (e.g. feat_lev2_260132.log)
       #### another way:
-          -   firefox /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/sub-001/report_log.html
-      - this will open the FEAT log report and will give you more details including if it is still running and if an error ocurred
+          -   cd /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev2/choiceDispNoMod/sub-001.gfeat  (go to subject's folder)
+          -   firefox report.log
+      - this will open the FEAT log report and will give you more details including if it is still running, if an error ocurred, and any output generated so far.
 
 ### STEP 6: QA 
 The first two steps are because we changed some of the feat input to skip registration since we used fMRIprep.
-1) check voxel intensities between level 1 stats/cope#.nii.gz and 2nd level reg_standard/stats/cope#.nii.gz (which is in the first-level analysis directory) should be exactly the same. Not with roundoff error, but exact. This ensures there was no extra smoothing to the data
+1) check voxel intensities between level 1 stats/cope#.nii.gz and 2nd level reg_standard/stats/cope#.nii.gz (which is actually put in the first-level analysis directory) should be exactly the same. Not with roundoff error, but exact. This ensures there was no extra smoothing to the data
 		
 		- fslstats <copefilename> -r  # make sure fsl is loaded, do this command for both cope files
 		
+		For example:
+		- cd /data/psychology/sokol-hessnerlab/VNI/FEAT_models_lev1/choiceDispNoMod/sub-001/run1.feat
+		- fslstats stats/cope1.nii.gz -r
+		- fslstats reg_standard/stats/cope1.nii.gz -r
+		# the two values for each command should be identical - no roundoff error!
+
+		
 2) data dimension and pixel size of cope file(s) should be the same as mean_func (use fslinfo)
-3) check filtered-func data in fsleyes
-4) check output with QA_all_lev2s.py 
+
+		# assuming you're in a subject's run directory 
+		- fslinfo mean_func.nii.gz
+		- fslinfo stats/cope1.nii.gz
+		- fslinfo reg_standard/stats/cope1.nii.gz
+		- fslinfo reg_standard/mean_func.nii.gz
+		
+4) check filtered-func data in fsleyes
+5) check output with QA_all_lev2s.py 
 - Sum of all input masks after transformation to standard space --> you want these all to show yellow brains. orange or red means one of the runs didn't have data for the brain and you won't get statistics for the missing voxels.
 - Unique missing-mask voxels --> you dont want any colors over the brain, just along the edges
 			
