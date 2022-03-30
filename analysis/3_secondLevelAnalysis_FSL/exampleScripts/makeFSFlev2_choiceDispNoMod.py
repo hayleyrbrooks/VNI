@@ -8,7 +8,7 @@ import glob
 studydir = '/data/psychology/sokol-hessnerlab/VNI' # study directory
 fsfdir = '%s/scripts/fsfs/lev2/choiceDispNoMod'%(studydir) # where the .fsf will live
 
-# set directory to include ALL subject runs 
+# set directory to include ALL subject runs (first-level output folders) 
 subdirs = glob.glob('%s/FEAT_models_lev1/choiceDispNoMod/sub-0[0-9][0-9]'%(studydir))
 
 
@@ -22,8 +22,8 @@ for dir in list(subdirs):
    	if len(subfeats)==3:
      	  print(subnum)
      	  replacements = {'SUBJECT':subnum}
-     	  with open('%s/template_lev2.fsf'%(fsfdir)) as infile:
-      	    with open('%s/lev2/design_sub-%s.fsf'%(fsfdir,subnum),'w') as outfile:
+     	  with open('%s/choiceDispNoMod.fsf'%(fsfdir)) as infile:
+      	    with open('%s/sub-%s.fsf'%(fsfdir,subnum),'w') as outfile:
 	  	  for line in infile: 
 	    	   for src, target in replacements.iteritems():
 	      		  line = line.replace(src, target)
