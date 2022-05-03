@@ -500,6 +500,14 @@ for (s in 1:nSubWhoMissed) {  # for participants with missed trials
     # save files
     write.table(choiceNoModulationMissT, file=choiceNOMODmissTfileName, row.names = F, col.names = F, sep="\t");
     
+    
+    
+  }# endfor (r in 1:nRun)
+} # end for (s in 1:nSubRaw)
+
+
+# For participants who did not miss any trials, we previously made will make 3-column zero timing files. We also made 3-column text files for participants who did miss trials but in the first column, we put 1 for missed trials. we aren't going to use those files for participants who did miss trials but they are still in the missedTrials folder on rdac (missedTrials_run1.txt for all participants). Eventually, we should probably organize those text files so that there is only the ones for runs for participants who missed trials.
+
     ###   OUTCOME    ###
     
     #outcomeInd = which(eventrun$eventType=="outcome");# index start of outcome display for all outcomes
@@ -555,8 +563,7 @@ for (s in 1:nSubWhoMissed) {  # for participants with missed trials
     # write.table(run2_3col, file=missTrun2fileName, row.names = F, col.names = F, sep="\t");
     # write.table(run3_3col, file=missTrun3fileName, row.names = F, col.names = F, sep="\t");
     
-  }# endfor (r in 1:nRun)
-} # end for (s in 1:nSubRaw)
+
 
 ```
 
