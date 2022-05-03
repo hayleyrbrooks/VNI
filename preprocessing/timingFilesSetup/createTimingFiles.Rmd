@@ -447,10 +447,58 @@ nTblock = 73;
 nRun = 3;
 offset = .6087;
 
-# index sub IDs who missed trials
+
+# FIRST: let's make missed trial timing files for participants' runs that did not have any missed trials.
+
+# index sub IDs who missed trials 
 subsWhoMissed = unique(RDMraw$subjectIndex[is.na(RDMraw$choice)]); # list sub IDs who missed at least one trial
 nSubWhoMissed = length(subsWhoMissed);
 
+for (s in 1:nSubRaw) {
+  # the way we are indexing for this loop is slightly different from above
+
+  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+  
+  # determine which runs have missed trials
+  runsWithMissT = unique(RDMsub$block[is.na(RDMsub$choice)]);
+  
+  # if participant did not miss any trials across any runs:
+  if (length(runsWithMissT)==0){
+    noMissT = matrix(data=0, nrow=nTblock,ncol=3)
+    
+    missTrun1fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"noMissedTrials_run1");
+    missTrun2fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"noMissedTrials_run2");
+    missTrun3fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"noMissedTrials_run3");
+    
+    write.table(noMissT, file=missTrun1fileName, row.names = F, col.names = F, sep="\t");
+    write.table(noMissT, file=missTrun2fileName, row.names = F, col.names = F, sep="\t");
+    write.table(noMissT, file=missTrun3fileName, row.names = F, col.names = F, sep="\t");
+    
+  } else {
+    
+    runs = c(1,2,3);
+    noMissRuns = runs[-c(runsWithMissT)]; # runs that have no missed trials
+    
+    if (length(noMissRuns)>0){
+      for (m in 1:length(noMissRuns)){ # for all runs without a missed trial, make the 3-column zero timing files
+        noMissT = matrix(data=0, nrow=nTblock, ncol=3)  
+        missTrunFilename = sprintf("%s/sub-%s/noMissedTrials_run%s.txt", config$path$data$missedTrials_files,subID_bids[s], noMissRuns[m]);
+        
+        write.table(noMissT, file=missTrunFilename, row.names = F, col.names = F, sep="\t");
+        
+      } # for (m in 1:length(noMissRuns))
+      
+    }# if (length(noMissRuns)>0)
+    
+  } # if(length(runsWith...))
+} # end for (s in 1:nSubRaw)
+
+
+
+# Then for the TIMING FILES WHERE WE NEED TO ACCOUNT FOR MISSED TRIALS: we will make them based on the analysis we are interested in.
+
+# CHOICE DISPLAY NO MODULATION:
 for (s in 1:nSubWhoMissed) {  # for participants with missed trials
   
   # the way we are indexing for this loop is slightly different from above
@@ -501,69 +549,8 @@ for (s in 1:nSubWhoMissed) {  # for participants with missed trials
     write.table(choiceNoModulationMissT, file=choiceNOMODmissTfileName, row.names = F, col.names = F, sep="\t");
     
     
-    
   }# endfor (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
-
-
-# For participants who did not miss any trials, we previously made will make 3-column zero timing files. We also made 3-column text files for participants who did miss trials but in the first column, we put 1 for missed trials. we aren't going to use those files for participants who did miss trials but they are still in the missedTrials folder on rdac (missedTrials_run1.txt for all participants). Eventually, we should probably organize those text files so that there is only the ones for runs for participants who missed trials.
-
-    ###   OUTCOME    ###
-    
-    #outcomeInd = which(eventrun$eventType=="outcome");# index start of outcome display for all outcomes
-         
-     # get the onset and duration for all outcomes
-    #onsetAllotc = eventrun$onset[outcomeInd]; # onset is outcome onset
-    #durationAllotc = eventrun$duration[outcomeInd]; # duration is outcome duration
-    
-    #onsetAllotc = onsetAllotc + offset; # offset duration by .6087s
-
-
-    # note the missed trials - first set everything to 0 
-    # missedTrialsRun = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-    # missedTrialsRun1 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-    # missedTrialsRun2 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-    # missedTrialsRun3 = matrix(data=0, nrow = nTblock, ncol=1); # all zeroes
-    
-    # pull out each run  
-    # run1 = RDMsub[RDMsub$block==r,];
-    # run1 = RDMsub[RDMsub$block==1,]; 
-    # run2 = RDMsub[RDMsub$block==2,]; 
-    # run3 = RDMsub[RDMsub$block==3,]; 
-    
-    # index the missed trials
-    #missTrunInd = which(is.na(run1$choice)); 
-    # missTrun1ind = which(is.na(run1$choice)); 
-    # missTrun2ind = which(is.na(run2$choice)); 
-    # missTrun3ind = which(is.na(run3$choice)); 
-    
-    # change missed trials to 1 in our complementary dummy EV files (as FSL calls it)
-    #missedTrialsRun[missTrunInd] = 1
-    #missedTrialsRun1[missTrun1ind] =1
-    #missedTrialsRun2[missTrun2ind] =1
-    #missedTrialsRun3[missTrun3ind] =1
-    
-    # make the 3 column matrices
-    #run1_3col = cbind(onsetAllotc, durationAllotc, missedTrialsRun)
-    
-    #copy the vectors above 2x to make 3 columns
-    # run1_3col = cbind(missedTrialsRun1, 0, 0);
-    # run2_3col = cbind(missedTrialsRun2, 0, 0);
-    # run3_3col = cbind(missedTrialsRun3, 0, 0);
-    
-    # create files names and save vectors as txt files
-    #missTrunfileName = sprintf("%s/sub-%s/missedTrials_run%s.txt", config$path$data$missedTrials_files,subID_bids[s],r);
-    
-    # missTrun1fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run1");
-    # missTrun2fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run2");
-    # missTrun3fileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],"missedTrials_run3");
-    
-    #write.table(run1_3col, file=missTrunfileName, row.names = F, col.names = F, sep="\t");
-    # write.table(run1_3col, file=missTrun1fileName, row.names = F, col.names = F, sep="\t");
-    # write.table(run2_3col, file=missTrun2fileName, row.names = F, col.names = F, sep="\t");
-    # write.table(run3_3col, file=missTrun3fileName, row.names = F, col.names = F, sep="\t");
-    
-
 
 ```
 
