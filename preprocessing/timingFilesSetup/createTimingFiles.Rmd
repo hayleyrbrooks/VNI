@@ -543,7 +543,7 @@ for (s in 1:nSubWhoMissed) {  # for participants with missed trials
     # store onset, duration and modulation into a single data frame
     choiceNoModulationMissT = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
     
-     choiceNOMODmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,sub_id_bid_format,paste("missT_choiceDisp_noModulation_run",runsWithMissT[r],sep=""));
+     choiceNOMODmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,sub_id_bid_format,paste("missT_choiceDispNoMod_run",runsWithMissT[r],sep=""));
         
     # save files
     write.table(choiceNoModulationMissT, file=choiceNOMODmissTfileName, row.names = F, col.names = F, sep="\t");
