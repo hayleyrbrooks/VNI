@@ -163,10 +163,10 @@ The first two steps are because we changed some of the feat input to skip regist
 		- fslinfo reg_standard/mean_func.nii.gz
 		
 3) In each lev 2 sub directory are cope*.feat files, one for each of the lower level contrasts (e.g. 1 cope for choice disp or 3 cope files for gain, safe, and mean ev contrasts from level 1)
-- in each of those cope directories there is filtered_func_data (located: 'FEAT_models_lev1/choiceDispNoMod/sub-001.gfeat/cope1.feat/'). check that, its the dependent variable (e.g. choice display or gain display depending on analysis). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
+- in each of those cope directories there is filtered_func_data (located: 'FEAT_models_lev2/choiceDispNoMod/sub-001.gfeat/cope1.feat/'). check that, its the dependent variable (e.g. choice display or gain display depending on analysis). If its bad, the whole brain will be really dark or really light. This may be more important at the 3rd level analysis to look at everyone's (perhaps less so at this stage).
 
 		- module load apps/FSL/6.0.5
-		- cd ~/FEAT_models_lev1/choiceDispNoMod/sub-001.gfeat/cope1.feat/
+		- cd ~/FEAT_models_lev2/choiceDispNoMod/sub-001.gfeat/cope1.feat/
 		- fsleyes filtered_func_data.nii.gz
 		
 - once the image is loaded in FSL, use the volumn button to switch between the runs		
