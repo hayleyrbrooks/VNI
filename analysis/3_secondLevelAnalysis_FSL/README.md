@@ -24,6 +24,7 @@
 
 		- sbatch highLeveLSetUp_choiceDispNoMod.sh 001  # 001 is for sub-001
 		## logs for this output are in the ../scripts/secondLevel/ directory on the RDAC. 
+		## **If higher level analyses have not been ran you will get the message "run#.feat/reg_standard does not exists" which is just telling us that the higher level analyses have not been run.
 
 3. Check that things look right (let's look at sub-001 and first run - changes took place in the reg directory):
 
