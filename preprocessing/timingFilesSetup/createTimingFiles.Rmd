@@ -395,8 +395,7 @@ for (s in 1:nSubRaw) {
       GAINdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeGain); 
       SAFEdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeSafe);
     
-    # create file names
-    
+
     # create file names
     decisionAllNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllNoMod_run",r,sep=""));
     decisionAlltypefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllType_run",r,sep=""));
@@ -433,6 +432,122 @@ for (s in 1:nSubRaw) {
 } # end for (s in 1:nSubRaw)
 
 ```
+
+```{r decision-past-outcome-amt}
+# AT DECISION (I.E. ACTION), WHAT WAS PAST OUTCOME AMOUNT.
+
+# CREATING ONSET FILES FOR PAST OUTCOME MEANS THAT ALL PARTICIPANTS HAVE TRIALS THAT NEED TO BE EXCLUDED IN RUN 1 BECAUSE EVERYONE WILL HAVE ATLEAST THE FIRST TRIAL POC =NAN. FOLLOWING OUR BEHAVIORAL ANALYSIS, WE AREN'T PUTTING NAN FOR FIRST OUTCOME ON EACH RUN, JUST RUN1 AT THE BEGINNING OF THE TASK. THIS MEANS WE HAVE TO MAKE THEIR MISSED TRIALS TIMING FILES SLIGHTLY DIFFERENT THAN WE DO IN SECTION BELOW. 
+
+# create past outcome variable
+newMat = matrix(data=NA,nrow=nrow(RDMraw), ncol=2)
+newMat[,1] <- RDMraw$outcome; #take data from columns
+newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
+newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
+newMat[,2]<-c(0,diff(RDMraw$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
+newMat[newMat[,2]>0,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
+RDMraw$poc1 = newMat[,1];# add new vector to capData
+
+
+nTblock = 73;
+nEvents = 6;
+nRun = 3;
+offset = .6087;
+
+for (s in 1:nSubRaw) {
+  
+  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+   
+  for (r in 1:nRun){
+    
+    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+    
+    ###   DECISION/RT    ###
+  
+    decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
+    
+    onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
+    durationAllDecision = 0; # duration of decision will be 0
+     
+    modulationPOC = RDMsub$poc1[RDMsub$block==r] - mean(RDMsub$poc1[is.finite(RDMsub$poc1) & RDMsub$block==r],na.rm=T); #poc mean centered
+    modulationPOC = round(modulationPOC, digits=2)
+
+    # Offset the onset times by .6087s (see notes above)
+    onsetAllDecision = onsetAllDecision + offset
+    
+          
+    # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature of subsetting the gamble/safe choices)
+    missedTrialsPOConlyInd = RDMsub$triBlock[RDMsub$block==r & is.na(RDMsub$poc1)]# | is.na(RDMsub$choice)]; # index the missed trials for this run
+    if (length(missedTrialsPOConlyInd)>1){
+      missedTrials = c(missedTrialsPOConlyInd, missedTrialsPOConlyInd[2:length(missedTrialsPOConlyInd)]-1); # get indices of of where poc and choice =NaN
+      # only do this for participants who missed choices (all participants will at least have the first trial poc =NaN)    
+    } else {
+      missedTrials = missedTrialsPOConlyInd;
+    }; 
+    
+   #print(missedTrials)
+    
+     if(length(missedTrials>0)){
+      onsetAllDecision = onsetAllDecision[-c(missedTrials)]; # remove missed trials
+      modulationPOC = modulationPOC[-c(missedTrials)]; # remove missed trials
+    }
+    
+    decisionPOCnoMod = cbind(onsetAllDecision, durationAllDecision,1); # one for parametric modulation to account for main effects of past outcome (not sure if we will use this in the analysis - making just in case)
+    decisionPOCAmt = cbind(onsetAllDecision, durationAllDecision,modulationPOC); # modulated by outcome amount
+
+    
+    # create file names
+    decisionPOCNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCnoMod_run",r,sep=""));
+    decisionPOCAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCAmt_run",r,sep=""));
+
+     # save files
+    write.table(decisionPOCnoMod, file=decisionPOCNOMODfileName, row.names = F, col.names = F, sep="\t");
+    write.table(decisionPOCAmt, file=decisionPOCAmtfileName, row.names = F, col.names = F, sep="\t");
+    
+    
+    #MAKE MISSED TRIALS TIMING FILES:
+      # these amount of missed trials for these files will be more than others because here we are excluding trials where poc =NaN and choice=NaN
+      # this means every participant will have a missed trial file for decision poc amount for the run because poc on trial 1= NaN.
+    
+    if(length(missedTrials>0)){ # for participants/runs with a missing trial
+
+      # for missed trials in decision analyses, we want the choice display and response window
+      stimStartInd = which(eventrun$eventType=="stimulusStart");  # index start of stimulus display
+      stimStartInd = stimStartInd[missedTrials]; # just need index for missed trials
+      decWindowInd = which(eventrun$eventType=="decisionWindow"); # index start of decision window
+      decWindowInd = decWindowInd[missedTrials]; # just need index for missed trials
+  
+      # store events by onset, duration , and then modulation will =1
+      onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
+      duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
+  
+  
+       # Offset the onset times by .6087s (see notes above)
+      onset = onset + offset;
+  
+    # store onset, duration and modulation into a single data frame
+    decisionPOCnoModMissT = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
+    
+   decisionPOCnoModmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],paste("missT_decisionPOCnoMod_run",r,sep=""));
+        
+    # save files
+    write.table(decisionPOCnoModMissT, file=decisionPOCnoModmissTfileName, row.names = F, col.names = F, sep="\t");
+    } # end if(length(missedTrials>0))
+
+    
+        
+        
+    
+    } # end for (r in 1:nRun)
+} # end for (s in 1:nSubRaw)
+  
+
+
+
+```
+
+
+
 
 Create files for missed trials 
 --> missed trials means participants did not respond at all or in time and during the outcome display, the message was "you did not respond in time"
@@ -566,55 +681,55 @@ for (s in 1:nSubWhoMissed) {  # for participants with missed trials
 # DECISION WINDOW NO MODULATION: ACTUALLY MAY NOT BE USING THIS FOR MISSED DECISION TIMING FILES
 #   using choice display no mod missed trials made above because here we want to account for that 4s window to account for the visual information (and possible cognitive processing that just didn’t arrive at a choice in time)
 
-for (s in 1:nSubWhoMissed) {  # for participants with missed trials
-  
-  # the way we are indexing for this loop is slightly different from above
-  if (subsWhoMissed[s]>=10){
-      sub_id_bid_format = sprintf("0%s", subsWhoMissed[s])
-  } else {
-      sub_id_bid_format = sprintf("00%s", subsWhoMissed[s])
-  }
-  
-  
-  ind = grep(sprintf("sub-%s_run",sub_id_bid_format), eventFiles); # get indices of event files for participant 
-
-  #ind = grep(sub_id_bid_format,eventFiles)
-  
-  RDMsub = RDMraw[RDMraw$subjectIndex==subsWhoMissed[s],]; # load risky decision-making data
-  
-  # determine which runs have missed trials
-  runsWithMissT = unique(RDMsub$block[is.na(RDMsub$choice)]);
-  
-  for (r in 1:length(runsWithMissT)){
-    
-    # determine which trials were missed within run
-    missTind = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==runsWithMissT[r]]
-    
-    eventrun = read.csv(eventFiles[ind[runsWithMissT[r]]]); # load event file for one run
-
-    
-    decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
-    decisionInd = decisionInd[missTind]; # index just missed trials
-
-    # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
-    # mean center modulation within each functional run for each participant
-      # all decision types
-        onsetAllDecision = eventrun$onset[decisionInd] + eventrun$duration[decisionInd]  # start of decision window for missed trials does not include RT so we mark the onset by the end of the decision window
-        duration = 0; # duration of decision will be 0
-    
-      # Offset the onset times by .6087s (see notes above)
-        onset = onsetAllDecision + offset
-    
-        decisionAllNoMod = cbind(onset,duration,1); # parametric modulation = 1
-        
-    # file name for decision    
-    decisionWindNOMODmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,sub_id_bid_format,paste("missT_decisionAllNoMod_run",runsWithMissT[r],sep=""));
-        
-    # save files
-    write.table(decisionAllNoMod, file=decisionWindNOMODmissTfileName, row.names = F, col.names = F, sep="\t");
-        
-  }# end for (r in 1:length(runsWithMissT)
-} # end (s in 1:nSubWhoMissed)
+# for (s in 1:nSubWhoMissed) {  # for participants with missed trials
+#   
+#   # the way we are indexing for this loop is slightly different from above
+#   if (subsWhoMissed[s]>=10){
+#       sub_id_bid_format = sprintf("0%s", subsWhoMissed[s])
+#   } else {
+#       sub_id_bid_format = sprintf("00%s", subsWhoMissed[s])
+#   }
+#   
+#   
+#   ind = grep(sprintf("sub-%s_run",sub_id_bid_format), eventFiles); # get indices of event files for participant 
+# 
+#   #ind = grep(sub_id_bid_format,eventFiles)
+#   
+#   RDMsub = RDMraw[RDMraw$subjectIndex==subsWhoMissed[s],]; # load risky decision-making data
+#   
+#   # determine which runs have missed trials
+#   runsWithMissT = unique(RDMsub$block[is.na(RDMsub$choice)]);
+#   
+#   for (r in 1:length(runsWithMissT)){
+#     
+#     # determine which trials were missed within run
+#     missTind = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==runsWithMissT[r]]
+#     
+#     eventrun = read.csv(eventFiles[ind[runsWithMissT[r]]]); # load event file for one run
+# 
+#     
+#     decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
+#     decisionInd = decisionInd[missTind]; # index just missed trials
+# 
+#     # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+#     # mean center modulation within each functional run for each participant
+#       # all decision types
+#         onsetAllDecision = eventrun$onset[decisionInd] + eventrun$duration[decisionInd]  # start of decision window for missed trials does not include RT so we mark the onset by the end of the decision window
+#         duration = 0; # duration of decision will be 0
+#     
+#       # Offset the onset times by .6087s (see notes above)
+#         onset = onsetAllDecision + offset
+#     
+#         decisionAllNoMod = cbind(onset,duration,1); # parametric modulation = 1
+#         
+#     # file name for decision    
+#     decisionWindNOMODmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,sub_id_bid_format,paste("missT_decisionAllNoMod_run",runsWithMissT[r],sep=""));
+#         
+#     # save files
+#     write.table(decisionAllNoMod, file=decisionWindNOMODmissTfileName, row.names = F, col.names = F, sep="\t");
+#         
+#   }# end for (r in 1:length(runsWithMissT)
+# } # end (s in 1:nSubWhoMissed)
 
 
 
