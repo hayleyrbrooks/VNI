@@ -97,7 +97,11 @@ Model Setup (not loading any timing files at this level):
 ![featSecLev_constrasts](https://user-images.githubusercontent.com/19710394/160683168-0d3c7828-383a-457a-998c-498f54784da6.png)
 
 
-Not changing anything on the Post-stats and Misc tabs
+Turning thresholding and time-series plots off:
+
+![featSecLev_postStats](https://user-images.githubusercontent.com/19710394/167486066-8bd58bc1-ebd1-4779-9772-8022486d8e99.png)
+
+
 
 - Once you have selected the options that you want for a given GLM, click "save". This will output the .fsf file along with other first-level model files that you can delete. Make sure that the template .fsf file is named for the analysis of interest (e.g. "choiceDispNoMod.fsf") on RDAC ("/data/psychology/sokol-hessnerlab/VNI/scripts/fsfs/lev2/choiceDispNoMod.fsf")
 - Then click "Exit". This will exit the FEAT window without running the model. 
