@@ -433,10 +433,12 @@ for (s in 1:nSubRaw) {
 
 ```
 
-```{r decision-past-outcome-amt}
-# AT DECISION (I.E. ACTION), WHAT WAS PAST OUTCOME AMOUNT.
 
-# These timing files are a little different from others in that we have to account for past outcomes that = NaN because the participant missed the trial. The way we are doing this is to set those past outcomes = 0 (versus doing something like making them missed trials)
+# Onset files for decision modulated by previous outcome amount
+```{r decision-past-outcome-amt}
+# AT DECISION (I.E. ACTION), WHAT WAS PAST OUTCOME AMOUNT?
+
+# In these timing files, we will exclude missed choices as well as choices that followed missed trials (i.e. there is no past outcome). We will be using these timing files with the timing file for decision + no modulation which will account for those trials where the previous trial was missed.
 
 # create past outcome variable
 newMat = matrix(data=NA,nrow=nrow(RDMraw), ncol=2)
@@ -480,27 +482,27 @@ for (s in 1:nSubRaw) {
     # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature of subsetting the gamble/safe choices)
 
     missedPOC = RDMsub$triBlock[is.na(RDMsub$poc1) & RDMsub$block==r] # index NaN poc for this run
-    if (length(missedPOC)>0){ # if a participant missed a trial
-      modulationPOC[missedPOC]=0-pocmean; # set the modulation of NAN poc trials to 0, mean center
-    }; 
-    
+    # if (length(missedPOC)>0){ # if a participant missed a trial
+    #   modulationPOC[missedPOC]=0-pocmean; # set the modulation of NAN poc trials to 0, mean center
+    # }; 
+    # 
 
-    missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r] # index missed trials for this run
+    missedTrials = c(missedPOC, RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]) # index missed trials for this run, combine with trials with no POC
      if(length(missedTrials>0)){
       onsetAllDecision = onsetAllDecision[-c(missedTrials)]; # remove missed trials
       modulationPOC = modulationPOC[-c(missedTrials)]; # remove missed trials
     }
     
-    decisionPOCnoMod = cbind(onsetAllDecision, durationAllDecision,1); # one for parametric modulation to account for main effects of past outcome (not sure if we will use this in the analysis - making just in case)
+
     decisionPOCAmt = cbind(onsetAllDecision, durationAllDecision,modulationPOC); # modulated by outcome amount
 
     
     # create file names
-    decisionPOCNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCnoMod_run",r,sep=""));
+    #decisionPOCNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCnoMod_run",r,sep=""));
     decisionPOCAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCAmt_run",r,sep=""));
 
      # save files
-    write.table(decisionPOCnoMod, file=decisionPOCNOMODfileName, row.names = F, col.names = F, sep="\t");
+    #write.table(decisionPOCnoMod, file=decisionPOCNOMODfileName, row.names = F, col.names = F, sep="\t");
     write.table(decisionPOCAmt, file=decisionPOCAmtfileName, row.names = F, col.names = F, sep="\t");
     
     #MISSED TRIALS ARE THE SAME HERE AS SECTION BELOW (PREVIOUSLY THOUGHT THEY WERE DIFFERENT) - COMMENTING OUT
