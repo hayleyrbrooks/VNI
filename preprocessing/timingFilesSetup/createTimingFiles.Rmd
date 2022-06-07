@@ -90,6 +90,7 @@ nTblock = 73;
 nEvents = 6;
 nRun = 3;
 offset = .6087;
+scaleby = max(RDMraw$riskyGain, na.rm=T);
 
 for (s in 1:nSubRaw) {
   
@@ -124,10 +125,10 @@ for (s in 1:nSubRaw) {
     modulationGain = RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r]-mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky gain amount
     modulationSafe = RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r]-mean(RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # safe amount
     
-   # round modulators
-    modulationEV = round(modulationEV, digits =2);
-    modulationGain = round(modulationGain, digits =2);
-    modulationSafe = round(modulationSafe, digits =2);
+   # round and scale modulators
+    modulationEV = round(modulationEV/scaleby, digits =2);
+    modulationGain = round(modulationGain/scaleby, digits =2);
+    modulationSafe = round(modulationSafe/scaleby, digits =2);
     
     
     # Offset the onset times by .6087s (see notes above)
@@ -176,6 +177,7 @@ nTblock = 73;
 nEvents = 6;
 nRun = 3;
 offset = .6087;
+scaleby = max(RDMraw$riskyGain, na.rm=T);
 
 for (s in 1:nSubRaw) {
   
@@ -231,10 +233,10 @@ for (s in 1:nSubRaw) {
         durationSafeotc = durationAllotc[safeOutcomeTrial]; 
         modulationSafeotc = modulationAllotc[safeOutcomeTrial]; # modulationAllotc is already mean-centered
         
-        # round the modulators
-        modulationGainotc = round(modulationGainotc, digits=2);
-        modulationSafeotc = round(modulationSafeotc, digits=2);
-        modulationAllotc = round(modulationAllotc, digits =2)
+        # round and scale the modulators
+        modulationGainotc = round(modulationGainotc/scaleby, digits=2);
+        modulationSafeotc = round(modulationSafeotc/scaleby, digits=2);
+        modulationAllotc = round(modulationAllotc/scaleby, digits =2)
           
     # Offset the onset times by .6087s (see notes above)
     onsetAllotc = onsetAllotc + offset;
@@ -297,6 +299,7 @@ nTblock = 73;
 nEvents = 6;
 nRun = 3;
 offset = .6087;
+scaleby = max(RDMraw$riskyGain, na.rm=T);
 
 for (s in 1:nSubRaw) {
   
@@ -351,16 +354,16 @@ for (s in 1:nSubRaw) {
         modulateSafeEV = modulationEV[safeTrial]; # modulationEV is already mean-centered
         
         
-        # round the modulators
-         modulationEV = round(modulationEV, digits=2)
-         modulationGain= round(modulationGain, digits=2)
-         modulationSafe= round(modulationSafe, digits=2)
-         modulateGambleEV= round(modulateGambleEV, digits=2)
-         modulateGambleGain= round(modulateGambleGain, digits=2)
-         modulateGambleSafe= round(modulateGambleSafe, digits=2)
-         modulateSafeEV= round(modulateSafeEV, digits=2)
-         modulateSafeGain= round(modulateSafeGain, digits=2)
-         modulateSafeSafe= round(modulateSafeSafe, digits=2)
+        # round and scale the modulators
+         modulationEV = round(modulationEV/scaleby, digits=2)
+         modulationGain= round(modulationGain/scaleby, digits=2)
+         modulationSafe= round(modulationSafe/scaleby, digits=2)
+         modulateGambleEV= round(modulateGambleEV/scaleby, digits=2)
+         modulateGambleGain= round(modulateGambleGain/scaleby, digits=2)
+         modulateGambleSafe= round(modulateGambleSafe/scaleby, digits=2)
+         modulateSafeEV= round(modulateSafeEV/scaleby, digits=2)
+         modulateSafeGain= round(modulateSafeGain/scaleby, digits=2)
+         modulateSafeSafe= round(modulateSafeSafe/scaleby, digits=2)
          
     # Offset the onset times by .6087s (see notes above)
       onsetAllDecision = onsetAllDecision + offset
@@ -454,6 +457,7 @@ nTblock = 73;
 nEvents = 6;
 nRun = 3;
 offset = .6087;
+scaleby = max(RDMraw$riskyGain, na.rm=T);
 
 for (s in 1:nSubRaw) {
   
@@ -473,7 +477,7 @@ for (s in 1:nSubRaw) {
      
     pocmean = mean(RDMsub$poc1[is.finite(RDMsub$poc1) & RDMsub$block==r],na.rm=T); 
     modulationPOC = RDMsub$poc1[RDMsub$block==r] -pocmean #poc mean centered
-    modulationPOC = round(modulationPOC, digits=2)
+    modulationPOC = round(modulationPOC/scaleby, digits=2); # round and scale modulator
 
     # Offset the onset times by .6087s (see notes above)
     onsetAllDecision = onsetAllDecision + offset
@@ -555,25 +559,16 @@ Create files for missed trials
 --> missed trials means participants did not respond at all or in time and during the outcome display, the message was "you did not respond in time"
 --> depending on what GLM we are running, these missed trial files will be slightly different because we are going to use 3-column format that specifies the timing based on the event we are interestd in (e..g outcome vs. choice display)
 
-Missed trial files will be 3 column like our other EVs. We will skip participants who don't have missed trials (this may change)
+Missed trial files will be 3 column like our other EVs. Participants who don't miss any trials will still have a 3-column EV file but it will be all zeroes.
 
-For now, create missed trial files for choice onset display - no parametric modulation
 
-NEED TO UPDATE: Missed trial dummy EV files will need to be used for the following:
-1) valuation period modulated by mean EV 
-2) valuation period modulated by risky gain 
-3) valuation period modulated by safe 
-4) outcome modulated by all outcome amounts 
-5) all decisions modulated by mean EV 
-6) all decisions modulated by gain amount  
-7) all decisions modulated by safe amount  
 
 ```{r}
 
 nTblock = 73;
 nRun = 3;
 offset = .6087;
-
+scaleby = max(RDMraw$riskyGain, na.rm=T);
 
 # FIRST: let's make missed trial timing files for participants' runs that did not have any missed trials.
 
