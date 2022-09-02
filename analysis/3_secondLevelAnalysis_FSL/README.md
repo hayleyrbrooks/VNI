@@ -146,9 +146,13 @@ In the scripts/secondLevel directory, make a copy of the runLev2.sh script and a
       - this will open the FEAT log report and will give you more details including if it is still running, if an error ocurred, and any output generated so far.
 
 ### STEP 6: QA 
-The first two steps are because we changed some of the feat input to skip registration since we used fMRIprep.
-1) check voxel intensities between level 1 stats/cope#.nii.gz and 2nd level reg_standard/stats/cope#.nii.gz (which is actually put in the first-level analysis directory) should be exactly the same. Not with roundoff error, but exact. This ensures there was no extra smoothing to the data
-		
+The first two steps are because we changed some of the feat input to skip registration since we used fMRIprep. 
+
+These first two steps are described below but can all be done using the script lev2qaCheckReg_template.sh in the directory: /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel/. Similar to processes above, make a copy of the template script, change the 'template' to the name of the model and in the file, and change the model name variable for the appropriate analysis within the document. Depending on how many contrast you have in the analysis, you may need to edit the file to print output for each cope. Then in the terminal, type:
+	
+		- ./lev2qaCheckReg_choiceDispNoMod.sh 001 (or whatever the 3 digit subID is).
+
+1) check voxel intensities between level 1 stats/cope#.nii.gz and 2nd level reg_standard/stats/cope#.nii.gz (which is actually put in the first-level analysis directory) should be exactly the same. Not with roundoff error, but exact. This ensures there was no extra smoothing to the data. 
 		- fslstats <copefilename> -r  # make sure fsl is loaded, do this command for both cope files
 		
 		For example:
@@ -156,7 +160,6 @@ The first two steps are because we changed some of the feat input to skip regist
 		- fslstats stats/cope1.nii.gz -r
 		- fslstats reg_standard/stats/cope1.nii.gz -r
 		# the two values for each command should be identical - no roundoff error!
-
 		
 2) data dimension and pixel size of cope file(s) should be the same as mean_func (use fslinfo)
 
