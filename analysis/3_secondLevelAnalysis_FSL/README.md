@@ -148,7 +148,7 @@ In the scripts/secondLevel directory, make a copy of the runLev2.sh script and a
 ### STEP 6: QA 
 The first two steps are because we changed some of the feat input to skip registration since we used fMRIprep. 
 
-These first two steps are described below but can all be done using the script lev2qaCheckReg_template.sh in the directory: /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel/. The script is also located here: lev2qaCheckReg_template.sh](./lev2qaCheckReg_template.sh) Similar to processes above, make a copy of the template script, change the 'template' to the name of the model and in the file, and change the model name variable for the appropriate analysis within the document. Depending on how many contrast you have in the analysis, you may need to edit the file to print output for each cope. Then in the terminal, type:
+These first two steps are described below but can all be done using the script lev2qaCheckReg_template.sh in the directory: /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel/. The script is also located here: [lev2qaCheckReg_template.sh](./exampleScripts/lev2qaCheckReg_template.sh) Similar to processes above, make a copy of the template script, change the 'template' to the name of the model and in the file, and change the model name variable for the appropriate analysis within the document. Depending on how many contrast you have in the analysis, you may need to edit the file to print output for each cope. Then in the terminal, type:
 	
 		- ./lev2qaCheckReg_choiceDispNoMod.sh 001 (or whatever the 3 digit subID is).
 
@@ -195,7 +195,7 @@ These first two steps are described below but can all be done using the script l
 2. [makeFSFlev2_choiceDispNoMod.py](./exampleScripts/makeFSFlev2_choiceDispNoMod.py)
 3. [runLev2_choiceDispNoMod.sh](./exampleScripts/runLev2_choiceDispNoMod.sh)
 4. [QA_all_lev2s.py](./exampleScripts/QA_all_lev2s.py)
-5. [lev2qaCheckReg_template.sh](./lev2qaCheckReg_template.sh)
+5. [lev2qaCheckReg_template.sh](./exampleScripts/lev2qaCheckReg_template.sh)
 
 ## Some resources
 1. Mumford Brain Stats [youtube](https://www.youtube.com/channel/UCZ7gF0zm35FwrFpDND6DWeA)
