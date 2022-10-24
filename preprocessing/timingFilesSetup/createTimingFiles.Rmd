@@ -74,8 +74,8 @@ When done, add these timing files to RDAC.
 #### Create onset files for CHOICE DISPLAY
 
 - choiceDisp_meanEV_run#.txt: choice display modulated by mean expected value
-- choiceDisp_gainAmt_run#.txt: choice display modulated by gain amount (mean center?)
-- choiceDisp_safeAmt_run#.txt: choice display modulated by safe amount (mean center?)
+- choiceDisp_EVGAmt_run#.txt: choice display modulated by ev gamble amount (mean center)
+- choiceDisp_safeAmt_run#.txt: choice display modulated by safe amount (mean center)
 
 
 ```{r choice-display} 
@@ -122,12 +122,14 @@ for (s in 1:nSubRaw) {
     duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration (which is basically RT)
     
     modulationEV = RDMsub$meanEV[is.finite(RDMsub$choice) & RDMsub$block==r]- mean(RDMsub$meanEV[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # mean EV
-    modulationGain = RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r]-mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky gain amount
+    #modulationGain = RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r]-mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky gain amount
+    modulationEVG = (RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r]*.5)-(mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T)*.5); # ev gamble
     modulationSafe = RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r]-mean(RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # safe amount
     
    # round and scale modulators
     modulationEV = round(modulationEV/scaleby, digits =2);
-    modulationGain = round(modulationGain/scaleby, digits =2);
+    #modulationGain = round(modulationGain/scaleby, digits =2);
+    modulationEVG = round(modulationEVG/scaleby, digits =2);
     modulationSafe = round(modulationSafe/scaleby, digits =2);
     
     
@@ -137,20 +139,23 @@ for (s in 1:nSubRaw) {
     
     # store onset, duration and modulation into a single data frame
     choiceMeanEV = cbind(onset, duration, modulationEV);
-    choiceGain = cbind(onset, duration, modulationGain);
+    #choiceGain = cbind(onset, duration, modulationGain);
+    choiceEVG = cbind(onset, duration, modulationEVG);
     choiceSafe = cbind(onset, duration, modulationSafe);
     choiceNoModulation = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
     
     # create file names
     choiceMEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispMeanEV_run",r,sep=""));
-    choiceGAINfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispGainAmt_run",r,sep=""));
+    #choiceGAINfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispGainAmt_run",r,sep=""));
+    choiceEVGfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispEVGAmt_run",r,sep=""));
     choiceSAFEfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispSafeAmt_run",r,sep=""));
     
     choiceNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispNoMod_run",r,sep=""));
         
     # save files
     write.table(choiceMeanEV, file=choiceMEVfileName, row.names = F, col.names = F, sep="\t");
-    write.table(choiceGain, file=choiceGAINfileName, row.names = F, col.names = F, sep="\t");
+    #write.table(choiceGain, file=choiceGAINfileName, row.names = F, col.names = F, sep="\t");
+    write.table(choiceEVG, file=choiceEVGfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceSafe, file=choiceSAFEfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceNoModulation, file=choiceNOMODfileName, row.names = F, col.names = F, sep="\t");
     
