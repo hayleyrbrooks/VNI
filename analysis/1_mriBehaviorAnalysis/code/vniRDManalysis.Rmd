@@ -240,12 +240,18 @@ PgamSub4EarnTrial =1/(1+exp(-1*( (triCoef*sub4$trialSC) + (earnCoef*sub4$earning
 sub5 = mriBehClean[mriBehClean$subjectIndex==28,];
 PgamSub5EarnTrial =1/(1+exp(-1*( (triCoef*sub5$trialSC) + (earnCoef*sub5$earningsNormalized) )))
 
-plot(PgamSub1EarnTrial, type="l", col="darkgreen", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings")
+pdf("/Users/hayley/Desktop/shenhavLabTalk/vniEarningsExpectations.pdf")
+plot(PgamSub1EarnTrial, type="l", col="darkgreen", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings", axes = F)
+abline(a=.5, b=0, lty="dashed", col="darkgrey", lwd=2)
+
+axis(1, at=c(1,110,219), lwd=5)
+axis(2, lwd=5)
 lines(PgamSub2EarnTrial, col="darkred", lwd=3);
 lines(PgamSub3EarnTrial, col="darkblue", lwd=3);
 lines(PgamSub4EarnTrial, col="darkorange", lwd=3);
 lines(PgamSub5EarnTrial, col="goldenrod", lwd=3);
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
+dev.off()
 
 plot(sub1$earningsNormalized,type="l", col="darkgreen", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task")
 lines(sub2$earningsNormalized, col="darkred", lwd=3)
@@ -492,19 +498,19 @@ dev.off();
 
 
 ```{r plot-past-outcome}
+poc = seq(from=0, to = 1, by = .2); # values are scaled here
 
 vniPOCgam = 1/(1+exp(-1*(contextResults$coefficients[2]*poc)))  # from the model where past outcome is alone 
-poc = seq(from=0, to = 1, by = .2); # values are scaled here
 
 png("../pastOutcomeEffectSize.png")
 par(mar=c(5,6,6,3));#change margin so ylab is not cut off
-plot(vniPOCgam, type = "l",axes = FALSE, xaxt="n", ann=F, lwd = 4, cex.lab=1, ylim=c(.3,.6))
+plot(vniPOCgam, type = "l",axes = FALSE, xaxt="n", ann=F, lwd = 4, cex.lab=1, ylim=c(.25,.75))
 title(ylab = "p(gamble)", line = 3.75, cex.lab=1.35)
 title(xlab = "Past outcome", line = 2.5, cex.lab=1.35)
 title(main = sprintf("Risk-taking following outcomes \npast outcome: %.2f(%.2f), p=%.2f", contextResults$coefficients[2],contextResults$coefficients[8] ,contextResults$coefficients[20]))
 poclab = round(seq(from=0, to =61, length.out = 6), digits=0);
 axis(1, at = c(1:6), labels =poclab, tick =T, cex.axis = 1.25, cex=2, lwd = 4)
-axis(2, at = c(.3,round(vniPOCgam[2],digits=2),round(vniPOCgam[5], digits=2),.6), tick = T, las =2, cex.axis = 1.25, cex=2, lwd=4)
+axis(2, at = c(.25,round(vniPOCgam[2],digits=2),round(vniPOCgam[5], digits=2),.75), tick = T, las =2, cex.axis = 1.25, cex=2, lwd=4)
 abline(a=.5,b=0, col="grey", lty=1, lwd=3)
 lines(c(2,2), c(0,vniPOCgam[2]), lty = 4, col="red", lwd = 4);#vertical line at poc $14
 lines(c(1,2),c(vniPOCgam[2],vniPOCgam[2]), lty=4, col="red", lwd =4); #horizontal line 
