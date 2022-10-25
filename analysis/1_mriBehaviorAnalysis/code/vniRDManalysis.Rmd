@@ -215,7 +215,7 @@ summary(model3_posShift_potc_intxn); #all betas ns
 ```{r earnings-trial}
 
 # First looking at earnings and trial in a model (no past outcome, shift variable)
-model4_earnings_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+model4_earnings_trial = glmer(choice~0 + earningsSC + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
 
 
@@ -226,19 +226,19 @@ triCoef = m4_coef_trial_Earn[2];
 
 # plot a couple of subs' earnings and pgamble over the task as a function of earnings and trial
 sub1 = mriBehClean[mriBehClean$subjectIndex==7,];
-PgamSub1EarnTrial =1/(1+exp(-1*( (triCoef*sub1$trialSC) + (earnCoef*sub1$earningsNormalized) )));
+PgamSub1EarnTrial =1/(1+exp(-1*( (triCoef*sub1$trialSC) + (earnCoef*sub1$earningsSC) )));
 
 sub2 = mriBehClean[mriBehClean$subjectIndex==35,];
-PgamSub2EarnTrial =1/(1+exp(-1*( (triCoef*sub2$trialSC) + (earnCoef*sub2$earningsNormalized) )))
+PgamSub2EarnTrial =1/(1+exp(-1*( (triCoef*sub2$trialSC) + (earnCoef*sub2$earningsSC) )))
 
 sub3 = mriBehClean[mriBehClean$subjectIndex==52,];
-PgamSub3EarnTrial =1/(1+exp(-1*( (triCoef*sub3$trialSC) + (earnCoef*sub3$earningsNormalized) )))
+PgamSub3EarnTrial =1/(1+exp(-1*( (triCoef*sub3$trialSC) + (earnCoef*sub3$earningsSC) )))
 
 sub4 = mriBehClean[mriBehClean$subjectIndex==15,];
-PgamSub4EarnTrial =1/(1+exp(-1*( (triCoef*sub4$trialSC) + (earnCoef*sub4$earningsNormalized) )))
+PgamSub4EarnTrial =1/(1+exp(-1*( (triCoef*sub4$trialSC) + (earnCoef*sub4$earningsSC) )))
 
 sub5 = mriBehClean[mriBehClean$subjectIndex==28,];
-PgamSub5EarnTrial =1/(1+exp(-1*( (triCoef*sub5$trialSC) + (earnCoef*sub5$earningsNormalized) )))
+PgamSub5EarnTrial =1/(1+exp(-1*( (triCoef*sub5$trialSC) + (earnCoef*sub5$earningsSC) )))
 
 pdf("/Users/hayley/Desktop/shenhavLabTalk/vniEarningsExpectations.pdf")
 plot(PgamSub1EarnTrial, type="l", col="darkgreen", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings", axes = F)
@@ -253,11 +253,11 @@ lines(PgamSub5EarnTrial, col="goldenrod", lwd=3);
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
 dev.off()
 
-plot(sub1$earningsNormalized,type="l", col="darkgreen", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task")
-lines(sub2$earningsNormalized, col="darkred", lwd=3)
-lines(sub3$earningsNormalized, col="darkblue", lwd=3)
-lines(sub4$earningsNormalized, col="darkorange", lwd=3)
-lines(sub5$earningsNormalized, col="goldenrod", lwd=3)
+plot(sub1$earningsSC,type="l", col="darkgreen", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task", ylim=c(0,1))
+lines(sub2$earningsSC, col="darkred", lwd=3)
+lines(sub3$earningsSC, col="darkblue", lwd=3)
+lines(sub4$earningsSC, col="darkorange", lwd=3)
+lines(sub5$earningsSC, col="goldenrod", lwd=3)
 
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
 

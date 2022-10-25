@@ -180,7 +180,7 @@ for(s in 1:nSub){
 
 mriBehClean$trialSC = trialsc # store scaled trial in mriBehClean
 mriBehClean$earnings = allEarnings; #store earnings in mriBehClean
-mriBehClean$earningsSC = mriBehClean$earnings/scaleby ; #create scaled earnings variable and store it
+mriBehClean$earningsSC = mriBehClean$earnings/max(mriBehClean$earnings) ; #create scaled earnings variable and store it
 mriBehClean$earningsNormalized = earningsNormalized # store normalized earnings in mriBehClean
 
 
