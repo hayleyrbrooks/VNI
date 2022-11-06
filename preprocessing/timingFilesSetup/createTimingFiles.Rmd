@@ -78,11 +78,18 @@ When done, add these timing files to RDAC.
 - choiceDisp_safeAmt_run#.txt: choice display modulated by safe amount (mean center)
 
 
+
+
 ```{r choice-display} 
 
 # Onset file names (will dynamically add run number once files are created)
 #outcomeOnsetFileNames = c("outcomeDisp_otcAmt_run","outcomeDisp_otcWinAmt_run", "outcomeDisp_otcLossAmt_run", "outcomeDisp_otcSafeAmt_run");
 #decisionOnsetFileNames = c("decision_run", "decisionGamble_run", "decisionSafe_run");
+
+# create a choice variable that is code -1 and 1
+RDMraw$choiceRecode = RDMraw$choice
+RDMraw$choiceRecode[RDMraw$choiceRecode==0] = -1
+
 
 # each participant has three event files, one for each run
 # each event file has 438 rows (73 trials x 6 events)
@@ -126,6 +133,10 @@ for (s in 1:nSubRaw) {
     modulationEVG = (RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r]*.5)-(mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T)*.5); # ev gamble
     modulationSafe = RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r]-mean(RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # safe amount
     
+    # LEFT OFF HERE - need to subset the EVG and modulation safe to only include the chosen vs unchosen options
+    modulationChosen = RDMsub$choiceRecode[RDMsub$choiceRecode==1 & RDMsub$block==r]*modulationEVG-modulationSafe 
+    modulationUnchosen = RDMsub$choiceRecode[RDMsub$choiceRecode==-1 & RDMsub$block==r]*modulationEVG-modulationSafe
+    
    # round and scale modulators
     modulationEV = round(modulationEV/scaleby, digits =2);
     #modulationGain = round(modulationGain/scaleby, digits =2);
@@ -143,14 +154,17 @@ for (s in 1:nSubRaw) {
     choiceEVG = cbind(onset, duration, modulationEVG);
     choiceSafe = cbind(onset, duration, modulationSafe);
     choiceNoModulation = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
+    choiceChosen = cbind(onset, duration, modulationChosen)
+    choiceUnchosen = cbind(onset, duration, modulationUnchosen)
     
     # create file names
     choiceMEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispMeanEV_run",r,sep=""));
     #choiceGAINfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispGainAmt_run",r,sep=""));
     choiceEVGfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispEVGAmt_run",r,sep=""));
     choiceSAFEfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispSafeAmt_run",r,sep=""));
-    
     choiceNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispNoMod_run",r,sep=""));
+    choiceChosenfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispChosen_run",r,sep=""))
+    choiceUnchosenfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispUnchosen_run",r,sep=""))
         
     # save files
     write.table(choiceMeanEV, file=choiceMEVfileName, row.names = F, col.names = F, sep="\t");
