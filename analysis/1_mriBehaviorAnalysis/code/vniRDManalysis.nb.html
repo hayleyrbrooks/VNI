@@ -2323,44 +2323,13 @@ dev.off()
 <!-- rnb-text-begin -->
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNb2RlbCBhbmQgcGxvdCB3aXRoIGludGVyYWN0aW9uIHRlcm0gYmV0d2VlbiBlYXJuaW5ncyBhbmQgdHJpYWxcbiAgICAjIEludGVyYWN0aW9uIHdhcyB0cmVuZGluZyBoZXJlLCBzbyBJIGFtIG5vdCBzdXJlIGhvdyBtdWNoIHRvIGZvY3VzIG9uIHRoaXMuIFRoZSBhYm92ZSBtb2RlbCBhbmQgcGxvdHMgc2VlbSBtb3JlIGluZm9ybWF0aXZlLlxubW9kZWw0X2Vhcm5pbmdzX3RyaWFsX2ludHhuID0gZ2xtZXIoY2hvaWNlfjAgKyBlYXJuaW5nc05vcm1hbGl6ZWQqdHJpYWxTQyArICgxfHN1YmplY3RJbmRleCksIGRhdGE9bXJpQmVoQ2xlYW4sIGZhbWlseT1cImJpbm9taWFsXCIsIG9mZnNldD1wcmVkKTtcbnN1bW1hcnkobW9kZWw0X2Vhcm5pbmdzX3RyaWFsX2ludHhuKTsgIyBpbnRlcmFjdGlvbiB0cmVuZGluZywgZWZmZWN0cyBvZiB0cmlhbCBhbmQgZWFybmluZ3Mgc2ltaWxhciBhcyBwcmV2aW91cyBtb2RlbHMgZXhjZXB0IHRoYXQgZWFybmluZ3MgYmV0YSBpcyBzbGlnaHRseSBzbWFsbGVyIG5vdyBBSUMgPSA3NjU1LjVcbmBgYCJ9 -->
+<!-- rnb-source-begin eyJkYXRhIjoiYGBgclxuIyBNb2RlbCBhbmQgcGxvdCB3aXRoIGludGVyYWN0aW9uIHRlcm0gYmV0d2VlbiBlYXJuaW5ncyBhbmQgdHJpYWxcbiAgICAjIEludGVyYWN0aW9uIHdhcyB0cmVuZGluZyBoZXJlLCBzbyBJIGFtIG5vdCBzdXJlIGhvdyBtdWNoIHRvIGZvY3VzIG9uIHRoaXMuIFRoZSBhYm92ZSBtb2RlbCBhbmQgcGxvdHMgc2VlbSBtb3JlIGluZm9ybWF0aXZlLlxubW9kZWw0X2Vhcm5pbmdzX3RyaWFsX2ludHhuID0gZ2xtZXIoY2hvaWNlfjAgKyBlYXJuaW5nc05vcm1hbGl6ZWQqdHJpYWxTQyArICgxfHN1YmplY3RJbmRleCksIGRhdGE9bXJpQmVoQ2xlYW4sIGZhbWlseT1cImJpbm9taWFsXCIsIG9mZnNldD1wcmVkKTtcbnN1bW1hcnkobW9kZWw0X2Vhcm5pbmdzX3RyaWFsX2ludHhuKTsgIyBpbnRlcmFjdGlvbiB0cmVuZGluZywgZWZmZWN0cyBvZiB0cmlhbCBhbmQgZWFybmluZ3Mgc2ltaWxhciBhcyBwcmV2aW91cyBtb2RlbHMgZXhjZXB0IHRoYXQgZWFybmluZ3MgYmV0YSBpcyBzbGlnaHRseSBzbWFsbGVyIG5vdyBBSUMgPSA3NjU1LjVcblxuYGBgIn0= -->
 <pre class="r"><code># Model and plot with interaction term between earnings and trial
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
 model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family=&quot;binomial&quot;, offset=pred);
-summary(model4_earnings_trial_intxn); # interaction trending, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7655.5</code></pre>
+summary(model4_earnings_trial_intxn); # interaction trending, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7655.5
+</code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiR2VuZXJhbGl6ZWQgbGluZWFyIG1peGVkIG1vZGVsIGZpdCBieSBtYXhpbXVtIGxpa2VsaWhvb2QgKExhcGxhY2UgQXBwcm94aW1hdGlvbikgWydnbG1lck1vZCddXG4gRmFtaWx5OiBiaW5vbWlhbCAgKCBsb2dpdCApXG5Gb3JtdWxhOiBjaG9pY2UgfiAwICsgZWFybmluZ3NOb3JtYWxpemVkICogdHJpYWxTQyArICgxIHwgc3ViamVjdEluZGV4KVxuICAgRGF0YTogbXJpQmVoQ2xlYW5cbiBPZmZzZXQ6IHByZWRcblxuICAgICBBSUMgICAgICBCSUMgICBsb2dMaWsgZGV2aWFuY2UgZGYucmVzaWQgXG4gIDc2NTUuNSAgIDc2ODQuNSAgLTM4MjMuOCAgIDc2NDcuNSAgICAxMDQyNCBcblxuU2NhbGVkIHJlc2lkdWFsczogXG4gICAgTWluICAgICAgMVEgIE1lZGlhbiAgICAgIDNRICAgICBNYXggXG4tMzUuNTQ4ICAtMC40NDEgIC0wLjA2MiAgIDAuMzkzIDExMC40ODUgXG5cblJhbmRvbSBlZmZlY3RzOlxuIEdyb3VwcyAgICAgICBOYW1lICAgICAgICBWYXJpYW5jZSBTdGQuRGV2LlxuIHN1YmplY3RJbmRleCAoSW50ZXJjZXB0KSAwLjAwMjE5MSAwLjA0NjgxIFxuTnVtYmVyIG9mIG9iczogMTA0MjgsIGdyb3VwczogIHN1YmplY3RJbmRleCwgNDhcblxuRml4ZWQgZWZmZWN0czpcbiAgICAgICAgICAgICAgICAgICAgICAgICAgIEVzdGltYXRlIFN0ZC4gRXJyb3IgeiB2YWx1ZSBQcig+fHp8KSAgIFxuZWFybmluZ3NOb3JtYWxpemVkICAgICAgICAgICAxLjk0MDkgICAgIDAuODI0NCAgIDIuMzU0ICAwLjAxODU2ICogXG50cmlhbFNDICAgICAgICAgICAgICAgICAgICAgLTIuMjMxOCAgICAgMC43ODczICAtMi44MzUgIDAuMDA0NTkgKipcbmVhcm5pbmdzTm9ybWFsaXplZDp0cmlhbFNDICAgMC40ODgxICAgICAwLjI1NjAgICAxLjkwNiAgMC4wNTY2MyAuIFxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG5cbkNvcnJlbGF0aW9uIG9mIEZpeGVkIEVmZmVjdHM6XG4gICAgICAgICAgICBlcm5uZ04gdHJpbFNDXG50cmlhbFNDICAgICAtMC45NzAgICAgICAgXG5lcm5uZ3NOcjpTQyAtMC4yNTkgIDAuMDI1XG4ifQ== -->
-<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) [&#39;glmerMod&#39;]
- Family: binomial  ( logit )
-Formula: choice ~ 0 + earningsNormalized * trialSC + (1 | subjectIndex)
-   Data: mriBehClean
- Offset: pred
-
-     AIC      BIC   logLik deviance df.resid 
-  7655.5   7684.5  -3823.8   7647.5    10424 
-
-Scaled residuals: 
-    Min      1Q  Median      3Q     Max 
--35.548  -0.441  -0.062   0.393 110.485 
-
-Random effects:
- Groups       Name        Variance Std.Dev.
- subjectIndex (Intercept) 0.002191 0.04681 
-Number of obs: 10428, groups:  subjectIndex, 48
-
-Fixed effects:
-                           Estimate Std. Error z value Pr(&gt;|z|)   
-earningsNormalized           1.9409     0.8244   2.354  0.01856 * 
-trialSC                     -2.2318     0.7873  -2.835  0.00459 **
-earningsNormalized:trialSC   0.4881     0.2560   1.906  0.05663 . 
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Correlation of Fixed Effects:
-            ernngN trilSC
-trialSC     -0.970       
-ernngsNr:SC -0.259  0.025</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <p>Plot cumulative earnings for all participants across the task</p>
@@ -2509,42 +2478,6 @@ shift effect.</h4>
 
 summary(model5_potc_posshift_earn_trial); # everything significant, AIC = 7553.0 </code></pre>
 <!-- rnb-source-end -->
-<!-- rnb-output-begin eyJkYXRhIjoiR2VuZXJhbGl6ZWQgbGluZWFyIG1peGVkIG1vZGVsIGZpdCBieSBtYXhpbXVtIGxpa2VsaWhvb2QgKExhcGxhY2UgQXBwcm94aW1hdGlvbikgWydnbG1lck1vZCddXG4gRmFtaWx5OiBiaW5vbWlhbCAgKCBsb2dpdCApXG5Gb3JtdWxhOiBjaG9pY2UgfiAwICsgcG9jMXNjYWxlZCAqIGVhcm5pbmdzTm9ybWFsaXplZCArIHNoaWZ0RGlmZnNjUE9TICsgICAgICB0cmlhbFNDICsgKDEgfCBzdWJqZWN0SW5kZXgpXG4gICBEYXRhOiBtcmlCZWhDbGVhblxuIE9mZnNldDogcHJlZFxuXG4gICAgIEFJQyAgICAgIEJJQyAgIGxvZ0xpayBkZXZpYW5jZSBkZi5yZXNpZCBcbiAgNzU1My4wICAgNzU5Ni40ICAtMzc3MC41ICAgNzU0MS4wICAgIDEwMzc3IFxuXG5TY2FsZWQgcmVzaWR1YWxzOiBcbiAgICBNaW4gICAgICAxUSAgTWVkaWFuICAgICAgM1EgICAgIE1heCBcbi0yNS43NTkgIC0wLjQzNiAgLTAuMDYxICAgMC4zOTkgMTI2LjQ3NCBcblxuUmFuZG9tIGVmZmVjdHM6XG4gR3JvdXBzICAgICAgIE5hbWUgICAgICAgIFZhcmlhbmNlIFN0ZC5EZXYuXG4gc3ViamVjdEluZGV4IChJbnRlcmNlcHQpIDAuMDAyNzczIDAuMDUyNjYgXG5OdW1iZXIgb2Ygb2JzOiAxMDM4MywgZ3JvdXBzOiAgc3ViamVjdEluZGV4LCA0OFxuXG5GaXhlZCBlZmZlY3RzOlxuICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgRXN0aW1hdGUgU3RkLiBFcnJvciB6IHZhbHVlIFByKD58enwpICAgIFxucG9jMXNjYWxlZCAgICAgICAgICAgICAgICAgICAgIC0wLjc4NTEgICAgIDAuMTY5MSAgLTQuNjQ0IDMuNDJlLTA2ICoqKlxuZWFybmluZ3NOb3JtYWxpemVkICAgICAgICAgICAgICAyLjA3ODAgICAgIDAuODExOSAgIDIuNTU5ICAwLjAxMDQ4ICogIFxuc2hpZnREaWZmc2NQT1MgICAgICAgICAgICAgICAgICAyLjQwODIgICAgIDAuNzQ3OSAgIDMuMjIwICAwLjAwMTI4ICoqIFxudHJpYWxTQyAgICAgICAgICAgICAgICAgICAgICAgIC0yLjE5NTIgICAgIDAuODAxNSAgLTIuNzM5ICAwLjAwNjE2ICoqIFxucG9jMXNjYWxlZDplYXJuaW5nc05vcm1hbGl6ZWQgICAxLjc5ODcgICAgIDAuMzMyNCAgIDUuNDExIDYuMjhlLTA4ICoqKlxuLS0tXG5TaWduaWYuIGNvZGVzOiAgMCDigJgqKirigJkgMC4wMDEg4oCYKirigJkgMC4wMSDigJgq4oCZIDAuMDUg4oCYLuKAmSAwLjEg4oCYIOKAmSAxXG5cbkNvcnJlbGF0aW9uIG9mIEZpeGVkIEVmZmVjdHM6XG4gICAgICAgICAgICBwYzFzY2wgZXJubmdOIHNoRFBPUyB0cmlsU0NcbmVybm5nc05ybWx6ICAwLjA3NSAgICAgICAgICAgICAgICAgICAgIFxuc2hmdERmZnNQT1MgLTAuMDUwICAwLjA5MSAgICAgICAgICAgICAgXG50cmlhbFNDICAgICAtMC4wNzQgLTAuOTk1IC0wLjEwNiAgICAgICBcbnBjMXNjbGQ6cm5OIC0wLjc2MCAtMC4xMTggIDAuMDgzICAwLjA3MFxuIn0= -->
-<pre><code>Generalized linear mixed model fit by maximum likelihood (Laplace Approximation) [&#39;glmerMod&#39;]
- Family: binomial  ( logit )
-Formula: choice ~ 0 + poc1scaled * earningsNormalized + shiftDiffscPOS +      trialSC + (1 | subjectIndex)
-   Data: mriBehClean
- Offset: pred
-
-     AIC      BIC   logLik deviance df.resid 
-  7553.0   7596.4  -3770.5   7541.0    10377 
-
-Scaled residuals: 
-    Min      1Q  Median      3Q     Max 
--25.759  -0.436  -0.061   0.399 126.474 
-
-Random effects:
- Groups       Name        Variance Std.Dev.
- subjectIndex (Intercept) 0.002773 0.05266 
-Number of obs: 10383, groups:  subjectIndex, 48
-
-Fixed effects:
-                              Estimate Std. Error z value Pr(&gt;|z|)    
-poc1scaled                     -0.7851     0.1691  -4.644 3.42e-06 ***
-earningsNormalized              2.0780     0.8119   2.559  0.01048 *  
-shiftDiffscPOS                  2.4082     0.7479   3.220  0.00128 ** 
-trialSC                        -2.1952     0.8015  -2.739  0.00616 ** 
-poc1scaled:earningsNormalized   1.7987     0.3324   5.411 6.28e-08 ***
----
-Signif. codes:  0 ‘***’ 0.001 ‘**’ 0.01 ‘*’ 0.05 ‘.’ 0.1 ‘ ’ 1
-
-Correlation of Fixed Effects:
-            pc1scl ernngN shDPOS trilSC
-ernngsNrmlz  0.075                     
-shftDffsPOS -0.050  0.091              
-trialSC     -0.074 -0.995 -0.106       
-pc1scld:rnN -0.760 -0.118  0.083  0.070</code></pre>
-<!-- rnb-output-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 <div id="plot-earnings-x-outcome-effect-using-the-model-above-the-interaction-term-is-much-smaller-than-in-m4_earning_potc_intxn-model-so-wed-expect-the-switching-of-the-past-outcome-effect-to-be-less-intense" class="section level5">

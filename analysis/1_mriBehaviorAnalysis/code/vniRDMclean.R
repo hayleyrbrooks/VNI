@@ -96,13 +96,15 @@ mriBehClean$shiftDiff = c(0,diff(mriBehClean$groundEV)); # pulling out the diffe
 # * THIS VARIABLE CAPTURES THE FIRST TRIAL IMMEDIATELY FOLLOWING A SHIFT (THE FIRST TRIAL IN A NEW RUN)
 
 # REPLACE THE FIRST TRIAL FOR EACH SUB WITH 0 (OTHERWISE THIS VARIABLE TRACKS SHIFTS ACROSS PEOPLE)
-newmtx = matrix(data=NA,nrow = nrow(mriBehClean), ncol = 2); # create new matrix
-newmtx[,1] = mriBehClean$shiftDiff ; # store shift diff variable
-newmtx[1,1] <- 0 #put 0 in for first row (first trial for subject 1, bc there is no past trial)
-newvec <-diff(mriBehClean$subjectIndex); # differenecs between new subject index
-newmtx[,2]<-c(0,newvec); # store new vec in newmatx
-newmtx[newmtx[,2] > 0,1] = 0; #when difference in sub # is more than 0 (at the start of a new sub), put a zero for the shift diff
-mriBehClean$shiftDiff = newmtx[,1]; #put the vector back into mriBehClean
+
+mriBehClean$shiftDiff[mriBehClean$trial==1]=0
+# newmtx = matrix(data=NA,nrow = nrow(mriBehClean), ncol = 2); # create new matrix
+# newmtx[,1] = mriBehClean$shiftDiff ; # store shift diff variable
+# newmtx[1,1] <- 0 #put 0 in for first row (first trial for subject 1, bc there is no past trial)
+# newvec <-diff(mriBehClean$subjectIndex); # differenecs between new subject index
+# newmtx[,2]<-c(0,newvec); # store new vec in newmatx
+# newmtx[newmtx[,2] > 0,1] = 0; #when difference in sub # is more than 0 (at the start of a new sub), put a zero for the shift diff
+# mriBehClean$shiftDiff = newmtx[,1]; #put the vector back into mriBehClean
 
 scaleby = max(mriBehClean$riskyGain); # scale the shift diff variable - then the following shift-related variables will be scaled
 
