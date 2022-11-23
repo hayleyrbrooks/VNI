@@ -216,7 +216,7 @@ summary(model3_posShift_potc_intxn); #all betas ns
 
 # First looking at earnings and trial in a model (no past outcome, shift variable)
 model4_earnings_trial = glmer(choice~0 + earningsSC + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1 
+summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7649.2 
 
 
 # pull and store coefficients
@@ -240,7 +240,7 @@ PgamSub4EarnTrial =1/(1+exp(-1*( (triCoef*sub4$trialSC) + (earnCoef*sub4$earning
 sub5 = mriBehClean[mriBehClean$subjectIndex==28,];
 PgamSub5EarnTrial =1/(1+exp(-1*( (triCoef*sub5$trialSC) + (earnCoef*sub5$earningsSC) )))
 
-pdf("/Users/hayley/Desktop/shenhavLabTalk/vniEarningsExpectations.pdf")
+#pdf("/Users/hayley/Desktop/shenhavLabTalk/vniEarningsExpectations.pdf")
 plot(PgamSub1EarnTrial, type="l", col="darkgreen", lwd=3, ylim=c(.4,.6), ylab="p(gamble)", xlab="trial", main="risk taking as a function\n of trial and earnings", axes = F)
 abline(a=.5, b=0, lty="dashed", col="darkgrey", lwd=2)
 
@@ -251,7 +251,7 @@ lines(PgamSub3EarnTrial, col="darkblue", lwd=3);
 lines(PgamSub4EarnTrial, col="darkorange", lwd=3);
 lines(PgamSub5EarnTrial, col="goldenrod", lwd=3);
 legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), lty = 1, lwd=3, bty="n", col=c("darkgreen", "darkorange", "goldenrod", "darkred","darkblue"), cex=.75)
-dev.off()
+#dev.off()
 
 plot(sub1$earningsSC,type="l", col="darkgreen", lwd=3, xlab="trial", ylab="earnings (normalized)", main="earnings across the task", ylim=c(0,1))
 lines(sub2$earningsSC, col="darkred", lwd=3)
@@ -269,8 +269,8 @@ legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), 
 ```{r plot-intxn-earnings-trial}
 # Model and plot with interaction term between earnings and trial
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
-model4_earnings_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_earnings_trial_intxn); # interaction trending, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7655.5
+model4_earnings_trial_intxn = glmer(choice~0 + earningsSC*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_trial_intxn); # interaction significant, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7647.1
 
 ```
 
@@ -290,11 +290,10 @@ for(s in 2:nSub){
 ##### Do earnings interact with outcome? 
 ```{r earnings-intxn-poc}
 # Earnings interact with past outcome in previous datasets, does that happen here?
-model4_earnings_potc_intxn = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_earnings_potc_intxn); # AIC = 7560.0 
+model4_earnings_potc_intxn = glmer(choice~0 + earningsSC*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_potc_intxn); # AIC = 7554.7 
 # past outcome negative effect
-# interaction between outcomes and earnings are significant. 
-# interaction between outcomes and trial are trending at p=.09 
+# interaction between outcomes and earnings is trending 
 # Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). 
 
 # shift is not in this model, but when we do add shift, there is a similar pattern in behavior, interaction between outcome and trial is a little weaker (p=.1) and trial and earnings not significant.Strong effect of positive shift AIC =  7552.4 - including shift improves model fit.
@@ -351,9 +350,9 @@ legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=
 ### Each timescale in a single model:
 #### Summary: Similar effects that we have noted prior: negative past outcome effect that interacts with cumulative earnings and positive shift effect. 
 ```{r all-timescales}
-model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsNormalized + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsSC + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 
-summary(model5_potc_posshift_earn_trial); # everything significant, AIC = 7553.0 
+summary(model5_potc_posshift_earn_trial); # everything significant, AIC = 7546.3 
 ```
 
 ##### Plot earnings x outcome effect using the model above (the interaction term is much smaller than in m4_earning_potc_intxn model), so we'd expect the switching of the past outcome effect to be less intense:
@@ -393,15 +392,15 @@ legend("bottomleft", legend=c("zero", "small", "medium", "medium-large", "large"
 
 
 # trial, level tracking, earnings, poc, positive shift, earnings*poc. 
-model4_expectedEarn = glmer(choice~0 + trialSC + earningsNormalized*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+model4_expectedEarn = glmer(choice~0 + trialSC + earningsSC*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 # AIC = 7554.5
-#                              Estimate Std. Error z value Pr(>|z|)    
-#trialSC                        -2.4437     0.8837  -2.765  0.00569 ** 
-#earningsNormalized              1.3481     1.3463   1.001  0.31666    
-#poc1scaled                     -0.7936     0.1696  -4.681 2.86e-06 ***
-#levelTrackingNorm               0.9764     1.4523   0.672  0.50139    
-#shiftDiffscPOS                  2.4201     0.7479   3.236  0.00121 ** 
-#earningsNormalized:poc1scaled   1.8089     0.3328   5.436 5.46e-08 ***
+#                         Estimate Std. Error z value Pr(>|z|)    
+# trialSC                -2.6802     0.8902  -3.011  0.00260 ** 
+# earningsSC              2.0048     0.8904   2.251  0.02436 *  
+# poc1scaled             -0.7889     0.1689  -4.671 3.00e-06 ***
+# levelTrackingNorm       0.8284     1.0434   0.794  0.42726    
+# shiftDiffscPOS          2.4173     0.7483   3.230  0.00124 ** 
+# earningsSC:poc1scaled   2.0059     0.3777   5.310 1.09e-07 ***
 
 # larger AIC than model without level tracking and effect of earnings goes away and level tracking variable is not significant
 
@@ -412,8 +411,9 @@ model4_expectedEarn_noCumulativeEarn = glmer(choice~0 + trialSC + levelTrackingN
 # replacing cumulative earnings with level tracking variable  - results resemble the model when using cumulative earnings but model fails to converge. The beta estimates for trial and level tracking are similar but opposite direction and the interaction between poc and level tracking estimate/p value are similar to cumulatve earnings and poc scaled in previous model. Is level tracking and cumulative earnings too similar?
 
 # take out trial 
-model4_expectedEarn_noTrial = glmer(choice~0 + earningsNormalized*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_expectedEarn_noTrial); # AIC = 7560.5 - this has larger AIC than our original model (AIC = 7553.0)
+model4_expectedEarn_noTrial = glmer(choice~0 + earningsSC*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+
+summary(model4_expectedEarn_noTrial); # AIC = 7555.2 - this has larger AIC than our original model 
 
 
 # The best model includes trial and cumulative earnings (not level tracking). This seems like expectations are not changing level-wise. It looks like people are not significantly adjusting their expectations (in Khaw (2017) people are adjusting after hundreds of trials). If it is the case that people are not adjusting their expectations, are they not adjusting their reference point?
@@ -429,46 +429,46 @@ A few things seem to be happening: (model5_potc_posshift_earn_trial).
 
 # Model results from model5_potc_posshift_earn_trial
 #                               Estimate Std. Error z value Pr(>|z|)    
-# poc1scaled                     -0.7851     0.1691  -4.644 3.42e-06 ***
-# earningsNormalized              2.0781     0.8126   2.557  0.01055 *  
-# shiftDiffscPOS                  2.4082     0.7488   3.216  0.00130 ** 
-# trialSC                        -2.1953     0.8022  -2.737  0.00621 ** 
-# poc1scaled:earningsNormalized   1.7987     0.3325   5.410 6.31e-08 ***
-# AIC = 7553 
+# poc1scaled             -0.7804     0.1684  -4.635 3.57e-06 ***
+# earningsSC              2.3959     0.7464   3.210 0.001327 ** 
+# shiftDiffscPOS          2.3774     0.7463   3.186 0.001444 ** 
+# trialSC                -2.1927     0.6397  -3.428 0.000609 ***
+# poc1scaled:earningsSC   1.9885     0.3768   5.277 1.31e-07 ***
+# AIC = 7546.3 
 
 # Add and interaction between trial and poc
 
-model5_potc_posshift_earn_trial_intxns = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model5_potc_posshift_earn_trial_intxns); # AIC =  7552.4 - slightly better AIC than model above
+model5_potc_posshift_earn_trial_intxns = glmer(choice~0 + earningsSC*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model5_potc_posshift_earn_trial_intxns); # AIC =  7547.1  - slightly worse AIC than above above
 
 #                               Estimate Std. Error z value Pr(>|z|)    
-# earningsNormalized              0.6839     1.1742   0.582   0.5603    
-# poc1scaled                     -0.7891     0.1689  -4.671    3e-06 ***
-# trialSC                        -0.8086     1.1637  -0.695   0.4871    
-# shiftDiffscPOS                  2.3355     0.7484   3.121   0.0018 ** 
-# earningsNormalized:poc1scaled   7.3235     3.4204   2.141   0.0323 *  
-# poc1scaled:trialSC             -5.4923     3.3842  -1.623   0.1046  
+#                       Estimate Std. Error z value Pr(>|z|)    
+# earningsSC              1.5493     1.0629   1.458  0.14495    
+# poc1scaled             -0.7730     0.1685  -4.589 4.46e-06 ***
+# trialSC                -1.4531     0.9200  -1.579  0.11424    
+# shiftDiffscPOS          2.3304     0.7469   3.120  0.00181 ** 
+# earningsSC:poc1scaled   5.2010     2.9242   1.779  0.07530 .  
+# poc1scaled:trialSC     -2.8280     2.5552  -1.107  0.26839   
 
 # The interaction between past outcome and trial is trending p=.1. Past outcome, shift, and interaction between past outcome and earnings still there. Now the main effect of earnings and trial not there.
 
 # Can we create a variable that makes this model more interpretable??? What about a relative earnings variable that captures the difference between earnings and trial? The thing here is that we still have to add trial or earnings because the relative earnings variable gives earnings and trial the same weight and adding one of those variables to the model lets us figure out the weighting.
 # Create a relative earnings variable (cumulative earnings - trial SC)
-mriBehClean$relativeEarnings = mriBehClean$earningsNormalized - mriBehClean$trialSC;
+mriBehClean$relativeEarnings = mriBehClean$earningsSC - mriBehClean$trialSC;
 # positive values = earnings more than expected
 # negative values = earnings less than expected
 
 m5_potc_shift_relativeEarn_trial = glmer(choice~ 0 + relativeEarnings*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS+ (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 
-# AIC = 7552.4 - same as model directly above (with trial*poc, earning*poc, shift) as expected
-#                             Estimate Std. Error z value Pr(>|z|)    
-# relativeEarnings             0.68397    1.17365   0.583  0.56004    
-# poc1scaled                  -0.78909    0.16889  -4.672 2.98e-06 ***
-# trialSC                     -0.12468    0.07814  -1.596  0.11056    
-# shiftDiffscPOS               2.33551    0.74855   3.120  0.00181 ** 
-# relativeEarnings:poc1scaled  7.32342    3.40095   2.153  0.03129 *  
-# poc1scaled:trialSC           1.83117    0.33270   5.504 3.71e-08 ***
+# AIC = 7547.1 - same as model directly above (with trial*poc, earning*poc, shift) as expected
+# relativeEarnings             1.54925    1.10266   1.405  0.16002    
+# poc1scaled                  -0.77303    0.16850  -4.588 4.48e-06 ***
+# trialSC                      0.09615    0.16953   0.567  0.57060    
+# shiftDiffscPOS               2.33036    0.74848   3.113  0.00185 ** 
+# relativeEarnings:poc1scaled  5.20103    3.10764   1.674  0.09420 .  
+# poc1scaled:trialSC           2.37298    0.52849   4.490 7.12e-06 ***
 
-# What this model means: negative past outcome effect (cool - expected), positive shift effect (also cool - expected), interaction between relative earnings and past outcome, and interaction bewteen trial and past outcome
+# What this model means: negative past outcome effect (cool - expected), positive shift effect (also cool - expected), trending interaction between relative earnings and past outcome, and interaction bewteen trial and past outcome
 
 
 
