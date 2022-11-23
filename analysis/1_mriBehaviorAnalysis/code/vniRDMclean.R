@@ -15,6 +15,7 @@ rm(list = ls());
 
 library("config")
 config <- config::get();
+library(readxl)
 
 # load data
 mriBehCleanCSV = file.path(config$path$data$raw_group, config$csvs$RDM_group_raw_csv)
@@ -249,7 +250,7 @@ summary(indivMaxEarn); # range = 3270 - 4071; mean = 3565; median = 3506
 
 # add age and gender to the dataset
 ageGenPath=file.path(config$path$data$clean, 'vni_age_gender.xlsx'); # set file path
-ageGen = read_xlsx(ageGenPath, col_names = TRUE); # import file
+ageGen = read_excel(ageGenPath, col_names = TRUE); # import file
 ageGen = as.data.frame(ageGen); # change to dataframe
 colnames(ageGen) = c("subID", "age", "gender"); #change column names
 ageGen = ageGen[ageGen$subID %in% subNum,]; # remove subs that we are excluding
