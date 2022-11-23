@@ -32,8 +32,10 @@ eventFiles = list.files(eventFilePath, pattern= "*_event.csv", full.names = T); 
 RDMgroupCSVpath = file.path(config$path$data$raw_group,config$csvs$RDM_group_raw_csv);
 RDMraw = read.csv(RDMgroupCSVpath); 
 
-# Remove participant 13 (did not start risky decision-making task)
-RDMraw = RDMraw[RDMraw$subjectIndex!=13,]
+# remove participants we excluded
+excludeSub = c(13,16,42,43)
+RDMraw = RDMraw[!RDMraw$subjectIndex %in% excludeSub,]
+
 ```
 
 #### Subject Information
@@ -118,6 +120,48 @@ newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this re
 RDMraw$poc1 = newMat[,1];# add new vector to RDMraw
 
 
+# create earnings and expectation variables
+# earnings are 0 to 1 across the entire task (not within runs or starting over at the beginning of each run)
+# expectations are scaled across individuals (i.e. by the single largest cumulative earnings)
+# earnings scaled by max earnings across participants beta =  2.3959 
+# expectations beta = -2.1927 
+# from model: model5_potc_posshift_earn_trial 
+# LEFT OFF MAKING EARNINGS - EXPECTATIONS - models in vni beh previously used earnings normalized by each individual but should we do that or use earnings scaled? After sorting this out, continue below making the earnings-expectations timing files.
+
+expectations = vector();
+earnings=vector(); 
+earningsScaledBySub = vector();
+
+subIDs = unique(RDMraw$subjectIndex)
+nSub = length(subIDs)
+
+for (s in 1:nSub) {
+  sub = RDMraw[RDMraw$subjectIndex==subIDs[s],]
+  earningsSub = vector(); # reset earnings vector for each participant
+  expScaled = vector(); # reset trial vector for each participant
+  earningsSubScaled = vector(); # reset scaled earnings vector for each participant
+  
+  # cumsum function can't handle nans, so create a temp variable where the NaNs are 0s
+  tmpOutcomeVec = sub$outcome
+  tmpOutcomeVec[is.na(tmpOutcomeVec)]=0
+  
+  earningsSub = cumsum(tmpOutcomeVec);
+  expScaled = sub$trial/max(sub$trial)
+  
+  earningsSubScaled =cumsum(tmpOutcomeVec)/max(cumsum(tmpOutcomeVec)) # this normalizes earnings within each participant
+  
+  earnings = c(earnings,earningsSub);
+  expectations = c(expectations,expScaled);
+  earningsScaledBySub = c(earningsScaledBySub,earningsSubScaled)
+  
+}
+
+RDMraw$expectations = expectations # store linear expectation
+RDMraw$earnings = earnings; #store earnings 
+RDMraw$earningsSC = RDMraw$earnings/max(RDMraw$earnings) ; #create scaled earnings variable and store it
+RDMraw$earningsNormalized = earningsScaledBySub # store normalized earnings 
+
+
 
 for (s in 1:nSubRaw) {
 #for (s in 1) {  
@@ -141,8 +185,8 @@ for (s in 1:nSubRaw) {
     choiceDispDuration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration (which is basically RT)
     
     # add to RDM data
-    RDMsubRun$onset = choiceDispOnset
-    RDMsubRun$duration = choiceDispDuration
+    RDMsubRun$choiceDispOnset = choiceDispOnset
+    RDMsubRun$choiceDispDuration = choiceDispDuration
     
     #remove missed trials (for these timing files we are only accounting for choice display when choice was made - missed trials are accounted for down below)
     missedTrials = RDMsubRun$triBlock[is.na(RDMsubRun$choice)]; # index the missed trials for this run
@@ -177,37 +221,34 @@ for (s in 1:nSubRaw) {
     modulationSafe = round(modulationSafe/scaleby, digits =2);
     modulationChoseUnchosen = round(modulationChoseUnchosen/scaleby, digits = 2);
     
-    #LEFT OFF HERE! I COMBINED THE RDM WITH ONSET/DURATION - NOW THIS SHOULD MAKE SUBSETTING MORE STRAIGHTFORWARD
     # setting up shift and outcome timing files is a little different from above - 
     # we want to look at these AT the time of  choice display but we just want the trials were a positive shift and where there is a previous outcome
-    RDMsubClean = RDMsub[is.finite(RDMsub$choice),] # remove the missed trial (this will make sure the indices are same for our onset/duration variables)
-    shiftTrials = RDMsubClean$triBlock[RDMsubClean$positiveShiftSC>0 & RDMsubClean$block==r] # get trial were positive shift occurred
-    onsetShift = onset[shiftTrials] # subset onset when shift occurred
-    durationShift = duration[shiftTrials] # subset duration when shift occurred
-    meanShiftAmt = mean(RDMsub$positiveShiftSC[is.finite(RDMsub$choice) & RDMsub$positiveShiftSC>0 & RDMsub$block==r])  # calculate mean positive shift amount
-    modulationShift = RDMsub$positiveShiftSC[is.finite(RDMsub$choice) & RDMsub$positiveShiftSC>0 & RDMsub$block==r] - meanShiftAmt # mean center the modulator
+    
+    onsetShift = RDMsubRun$choiceDispOnset[RDMsubRun$positiveShiftSC>0] # subset onset when shift occurred
+    durationShift = RDMsubRun$choiceDispDuration[RDMsubRun$positiveShiftSC>0] # subset duration when shift occurred
+    meanShiftAmt = mean(RDMsubRun$positiveShiftSC[RDMsubRun$positiveShiftSC>0])  # calculate mean positive shift amount
+    modulationShift = RDMsubRun$positiveShiftSC[RDMsubRun$positiveShiftSC>0] - meanShiftAmt # mean center the modulator
     modulationShift = round(modulationShift, digits=2) # round to 2 decimals (this variable is already scaled)
     
-    pocTrials = RDMsub$triBlock[is.finite(RDMsub$choice) & is.finite(RDMsub$poc1) & RDMsub$block==r] # get trials where there was a past outcome
-    onsetPOC = onset[pocTrials] # subset onset where there was a past outcome
-    durationPOC = onset[pocTrials] # subset duration where there was a past outcome
-    meanPOCAmt = mean(RDMsub$poc1[is.finite(RDMsub$choice) & is.finite(RDMsub$poc1) & RDMsub$block==r]) # calculate mean poc
-    modulationPOC = RDMsub$poc[is.finite(RDMsub$choice) & is.finite(RDMsub$poc1) & RDMsub$block==r] - meanPOCAmt # mean center the modulator
+    onsetPOC = RDMsubRun$choiceDispOnset[is.finite(RDMsubRun$poc1)] # subset onset where there was a past outcome
+    durationPOC = RDMsubRun$choiceDispDuration[is.finite(RDMsubRun$poc1)] # subset duration where there was a past outcome
+    meanPOCAmt = mean(RDMsubRun$poc1[is.finite(RDMsubRun$poc1)]) # calculate mean poc
+    modulationPOC = RDMsubRun$poc1[is.finite(RDMsubRun$poc1)] - meanPOCAmt # mean center the modulator
     modulationPOC = round(modulationPOC/scaleby, digits = 2); # scale and round to 2 decimals
     # note: for the past outcome timing files, we are not including trials where there was not a past outcome (this is always the first trial in run 1 and any trials following a missed choice). These NAN past outcomes are accounted for by other timing files where other things were happening so we don't treat the non-poc trials as missed trials like we do actual missed trials.
     
     # Offset the onset times by .6087s (see notes above)
-    onset = onset + offset;
+    onset = RDMsubRun$choiceDispOnset + offset;
     onsetShift = onsetShift + offset
     onsetPOC = onsetPOC + offset
     
     # store onset, duration and modulation into a single data frame
-    choiceMeanEV = cbind(onset, duration, modulationEV);
+    choiceMeanEV = cbind(onset, RDMsubRun$choiceDispDuration, modulationEV);
     #choiceGain = cbind(onset, duration, modulationGain);
-    choiceEVG = cbind(onset, duration, modulationEVG);
-    choiceSafe = cbind(onset, duration, modulationSafe);
-    choiceNoModulation = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
-    choiceChosenUnchosen = cbind(onset, duration, modulationChoseUnchosen)
+    choiceEVG = cbind(onset, RDMsubRun$choiceDispDuration, modulationEVG);
+    choiceSafe = cbind(onset, RDMsubRun$choiceDispDuration, modulationSafe);
+    choiceNoModulation = cbind(onset, RDMsubRun$choiceDispDuration, 1); # gets a 1 for "weight" column since not using modulation here
+    choiceChosenUnchosen = cbind(onset, RDMsubRun$choiceDispDuration, modulationChoseUnchosen)
     choiceShiftNoModulation = cbind(onsetShift, durationShift, 1)
     choiceShiftAmt = cbind(onsetShift, durationShift, modulationShift)
     choicePOCAmt = cbind(onsetPOC, durationPOC, modulationPOC)
