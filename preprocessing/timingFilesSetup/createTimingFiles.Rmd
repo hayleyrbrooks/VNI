@@ -121,15 +121,18 @@ RDMraw$poc1 = newMat[,1];# add new vector to RDMraw
 
 
 # create earnings and expectation variables
-# earnings are 0 to 1 across the entire task (not within runs or starting over at the beginning of each run)
+# earnings are 0 to 1 across the entire task (not within runs or starting over at the beginning of each run) but are scaled across individuals (not everyone ends at 1)
 # expectations are scaled across individuals (i.e. by the single largest cumulative earnings)
-# earnings scaled by max earnings across participants beta =  2.3959 
-# expectations beta = -2.1927 
+# EARNINGS BETA = 2.3959
+earningsBeta = 2.3959
+# EXPECTATIONS BETA = -2.1927
+expectationsBeta = -2.1927
 # from model: model5_potc_posshift_earn_trial 
-# LEFT OFF MAKING EARNINGS - EXPECTATIONS - models in vni beh previously used earnings normalized by each individual but should we do that or use earnings scaled? After sorting this out, continue below making the earnings-expectations timing files.
+
 
 expectations = vector();
 earnings=vector(); 
+earningsTrialT = vector();
 earningsScaledBySub = vector();
 
 subIDs = unique(RDMraw$subjectIndex)
@@ -137,7 +140,8 @@ nSub = length(subIDs)
 
 for (s in 1:nSub) {
   sub = RDMraw[RDMraw$subjectIndex==subIDs[s],]
-  earningsSub = vector(); # reset earnings vector for each participant
+  earningsSubTrialT = vector(); # reset earnings vector for each participant
+  earningsSub = vector(); 
   expScaled = vector(); # reset trial vector for each participant
   earningsSubScaled = vector(); # reset scaled earnings vector for each participant
   
@@ -145,23 +149,27 @@ for (s in 1:nSub) {
   tmpOutcomeVec = sub$outcome
   tmpOutcomeVec[is.na(tmpOutcomeVec)]=0
   
-  earningsSub = cumsum(tmpOutcomeVec);
+  earningsSubTrialT = cumsum(tmpOutcomeVec); # this creates a variable where outcome on a given trial is reflected in the earnings including outcome on the same trial. we will use this variable for when we want to test WHEN earnings are updating, for example, at outcome display
+  earningsSub = c(0,earningsSubTrialT[1:length(earningsSubTrialT)-1]); # add zero for first trial and get rid of last trial earnings. This variable includes earnings up until trial t (so only including earnings from previous trial and earlier). this is the variable we use in our behavioral analysis and will be used for modulations during choice display (i.e. before participants gets another outcome and updates earnings).
   expScaled = sub$trial/max(sub$trial)
   
-  earningsSubScaled =cumsum(tmpOutcomeVec)/max(cumsum(tmpOutcomeVec)) # this normalizes earnings within each participant
+  earningsSubScaled = earningsSub/max(earningsSub) # this normalizes earnings within each participant
   
-  earnings = c(earnings,earningsSub);
+  earnings = c(earnings,earningsSub); # all earning prior to trial t
+  earningsTrialT = c(earningsTrialT, earningsSubTrialT); # all earnings including trial t
   expectations = c(expectations,expScaled);
   earningsScaledBySub = c(earningsScaledBySub,earningsSubScaled)
   
 }
 
-RDMraw$expectations = expectations # store linear expectation
+RDMraw$expectations = expectations # store linear expectation (scaled)
 RDMraw$earnings = earnings; #store earnings 
-RDMraw$earningsSC = RDMraw$earnings/max(RDMraw$earnings) ; #create scaled earnings variable and store it
+RDMraw$earningsSC = RDMraw$earnings/max(RDMraw$earnings); #create scaled earnings variable and store it
 RDMraw$earningsNormalized = earningsScaledBySub # store normalized earnings 
+RDMraw$earningsTrialT = earningsTrialT/max(earningsTrialT) # store earnings that include current trial outcome
 
-
+RDMraw$relativeEarnings = (earningsBeta*RDMraw$earningsSC) + (expectationsBeta*RDMraw$expectations)
+# using earnings up until trial t for relative earnings
 
 for (s in 1:nSubRaw) {
 #for (s in 1) {  
@@ -184,11 +192,11 @@ for (s in 1:nSubRaw) {
     choiceDispOnset = eventrun$onset[stimStartInd]
     choiceDispDuration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration (which is basically RT)
     
-    # add to RDM data
+    # add onset and duration to RDM data
     RDMsubRun$choiceDispOnset = choiceDispOnset
     RDMsubRun$choiceDispDuration = choiceDispDuration
     
-    #remove missed trials (for these timing files we are only accounting for choice display when choice was made - missed trials are accounted for down below)
+    #remove missed trials (for these timing files we are only accounting for choice display when choice was made - missed trials are accounted for down below in missed trial timing files)
     missedTrials = RDMsubRun$triBlock[is.na(RDMsubRun$choice)]; # index the missed trials for this run
     if(length(missedTrials>0)){
       RDMsubRun =RDMsubRun[-c(missedTrials),] # remove missed trials
@@ -201,7 +209,7 @@ for (s in 1:nSubRaw) {
     modulationEV = RDMsubRun$meanEV- mean(RDMsubRun$meanEV); # mean EV
     modulationEVG = (RDMsubRun$riskyGain*.5)-mean(RDMsubRun$riskyGain*.5); # ev gamble
     modulationSafe = RDMsubRun$alternative-mean(RDMsubRun$alternative); # safe amount
-    
+    modulationRelEarnings = RDMsubRun$relativeEarnings - mean(RDMsubRun$relativeEarnings) # relative earnings
     
     # create modulation for chosen vs unchosen
     # chosen = 1 * EVG-EVS (so this is trials where choice = 1 and the EV diff on those trials)
@@ -220,6 +228,8 @@ for (s in 1:nSubRaw) {
     modulationEVG = round(modulationEVG/scaleby, digits =2);
     modulationSafe = round(modulationSafe/scaleby, digits =2);
     modulationChoseUnchosen = round(modulationChoseUnchosen/scaleby, digits = 2);
+    #modulationRelEarnings = round(modulationRelEarnings/scaleby, digits = 2); earnings are already scaled and doing this make the values super super small. same for earningsTrialT
+    
     
     # setting up shift and outcome timing files is a little different from above - 
     # we want to look at these AT the time of  choice display but we just want the trials were a positive shift and where there is a previous outcome
@@ -252,7 +262,7 @@ for (s in 1:nSubRaw) {
     choiceShiftNoModulation = cbind(onsetShift, durationShift, 1)
     choiceShiftAmt = cbind(onsetShift, durationShift, modulationShift)
     choicePOCAmt = cbind(onsetPOC, durationPOC, modulationPOC)
-    # the chosen v unchosen onset and duration is a little different than above because we are accounting for choice
+    choiceRelEarnings = cbind(onset, RDMsubRun$choiceDispDuration, modulationRelEarnings)
 
 
     # create file names
@@ -263,7 +273,10 @@ for (s in 1:nSubRaw) {
     choiceNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispNoMod_run",r,sep=""));
     choiceChosenUnchosenfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispChosenUnchosen_run",r,sep=""))
     choiceShiftNoModfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftNoMod_run",r,sep=""))
-    choiceShiftAmtNoModfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftAmtNoMod_run",r,sep=""))
+    choiceShiftAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftAmt_run",r,sep=""))
+    choiceRelEarningsfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceRelEarnings_run",r,sep=""))
+    
+    
     
     # save files
     write.table(choiceMeanEV, file=choiceMEVfileName, row.names = F, col.names = F, sep="\t");
@@ -273,8 +286,9 @@ for (s in 1:nSubRaw) {
     write.table(choiceNoModulation, file=choiceNOMODfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceChosenUnchosen, file=choiceChosenUnchosenfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceShiftNoModulation, file=choiceShiftNoModfileName, row.names = F, col.names = F, sep="\t");
-    write.table(choiceShiftAmt, file=choiceShiftAmtNoModfileName, row.names = F, col.names = F, sep="\t");
-    
+    write.table(choiceShiftAmt, file=choiceShiftAmtfileName, row.names = F, col.names = F, sep="\t");
+    write.table(choiceRelEarnings, file=choiceRelEarningsfileName, row.names = F, col.names = F, sep="\t");
+
   } # end for (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
 
@@ -300,6 +314,8 @@ nRun = 3;
 offset = .6087;
 scaleby = max(RDMraw$riskyGain, na.rm=T);
 
+
+
 for (s in 1:nSubRaw) {
   
   ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
@@ -307,6 +323,7 @@ for (s in 1:nSubRaw) {
    
   for (r in 1:nRun){
     
+    RDMsubRun = RDMsub[RDMsub$block==r,] # just get sub RDM data for this run
     eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
     
    
@@ -315,71 +332,88 @@ for (s in 1:nSubRaw) {
     outcomeInd = which(eventrun$eventType=="outcome");  # index start of outcome display for all outcomes
     
     
-    #we want only non-missed trials to be accounted for in these timing files
-    #missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]; # index the missed trials for this run
-    #if(length(missedTrials>0)){
-    #  outcomeInd = outcomeInd[-c(missedTrials)]; # remove missed trials
-    #}
-
+    # set up onset and duration variables (still include missed trials at this point)
+    outcomeDispOnset = eventrun$onset[outcomeInd]; # onset
+    outcomeDispDuration = eventrun$duration[outcomeInd] # duration 
+    
+    # add onset and duration to RDM data
+    RDMsubRun$outcomeDispOnset = outcomeDispOnset
+    RDMsubRun$outcomeDispDuration = outcomeDispDuration
 
     
-    gainOutcomeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$outcome) & RDMsub$choice==1 & RDMsub$outcome==RDMsub$riskyGain];   # RDM trial number of gain outcome for block r
-    lossOutcomeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$outcome) & RDMsub$choice==1 & RDMsub$outcome==RDMsub$riskyLoss];   # RDM trial number of loss outcome for block r
-    safeOutcomeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$outcome) & RDMsub$choice==0 & RDMsub$outcome==RDMsub$alternative]; # RDM trial number of safe outcome for block r
+        #remove missed trials (for these timing files we are only accounting for choice display when choice was made - missed trials are accounted for down below in missed trial timing files)
+    missedTrials = RDMsubRun$triBlock[is.na(RDMsubRun$choice)]; # index the missed trials for this run
+    if(length(missedTrials>0)){
+      RDMsubRun =RDMsubRun[-c(missedTrials),] # remove missed trials
+      modulationAllotc = modulationAllotc[-c(missedTrials)]
+    }
+
+# for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature the gain/loss/safe outcome EVs)  
+    # missedTrials = RDMsubRun$triBlock[is.na(RDMsubRun$choice)]; # index the missed trials for this run
+    # if(length(missedTrials>0)){
+    #   onsetAllotc = onsetAllotc[-c(missedTrials)]; # remove missed trials
+    #   durationAllotc = durationAllotc[-c(missedTrials)]; # remove missed trials
+    #   modulationAllotc = modulationAllotc[-c(missedTrials)]; # remove missed trials
+    # }
+    # 
+    # index gain, loss and safe outcome trials
+    gainOutcomeTrial = which(is.finite(RDMsubRun$outcome) & RDMsubRun$choice==1 & RDMsubRun$outcome==RDMsubRun$riskyGain);   # RDM trial number of gain outcome for block r
+    lossOutcomeTrial = which(is.finite(RDMsubRun$outcome) & RDMsubRun$choice==1 & RDMsubRun$outcome==RDMsubRun$riskyLoss);   # RDM trial number of loss outcome for block r
+    safeOutcomeTrial = which(is.finite(RDMsubRun$outcome) & RDMsubRun$choice==0 & RDMsubRun$outcome==RDMsubRun$alternative); # RDM trial number of safe outcome for block r
     # Used "is.finite()" above because otherwise its includes missed trials for each of these variables.
     # also added in RDMsub$choice==1 and 0 because some trials have safe and loss amounts that were both 0 on the same trial
     
     
-    # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+        
+ 
     # modulations are mean-centered for each functional run for each participant
-      # all outcomes
-        onsetAllotc = eventrun$onset[outcomeInd]; # onset is outcome onset
-        durationAllotc = eventrun$duration[outcomeInd]; # duration is outcome duration
-        modulationAllotc = RDMsub$outcome[outcomeInd & RDMsub$block==r] - mean(RDMsub$outcome[is.finite(RDMsub$choice) & RDMsub$block==r]); # outcome amount
-      
+    # all outcomes
+        modulationAllotc = RDMsubRun$outcome - mean(RDMsubRun$outcome); # outcome amount, mean centered
+  
+    
       # gain outcomes
-        onsetGainotc = onsetAllotc[gainOutcomeTrial]; 
-        durationGainotc = durationAllotc[gainOutcomeTrial]; 
+        onsetGainotc = RDMsubRun$outcomeDispOnset[gainOutcomeTrial]; 
+        durationGainotc = RDMsubRun$outcomeDispDuration[gainOutcomeTrial]; 
         modulationGainotc = modulationAllotc[gainOutcomeTrial]; # modulationAllotc is already mean-centered
         
         
       # loss outcomes
-        onsetLossotc = onsetAllotc[lossOutcomeTrial]; 
-        durationLossotc = durationAllotc[lossOutcomeTrial]; 
+        onsetLossotc = RDMsubRun$outcomeDispOnset[lossOutcomeTrial]; 
+        durationLossotc = RDMsubRun$outcomeDispDuration[lossOutcomeTrial]; 
         modulationLossotc = 1; # because this is always 0 in this task, we want to make this 1 for FSL timing files
         
         
       # safe outcomes
-        onsetSafeotc = onsetAllotc[safeOutcomeTrial]; 
-        durationSafeotc = durationAllotc[safeOutcomeTrial]; 
+        onsetSafeotc = RDMsubRun$outcomeDispOnset[safeOutcomeTrial]; 
+        durationSafeotc = RDMsubRun$outcomeDispDuration[safeOutcomeTrial]; 
         modulationSafeotc = modulationAllotc[safeOutcomeTrial]; # modulationAllotc is already mean-centered
         
+    
+      # earnings 
+        modulationEarningsTrialT = RDMsubRun$earningsTrialT - mean(RDMsubRun$earningsTrialT) # earnings including outcome on current trial
+
         # round and scale the modulators
         modulationGainotc = round(modulationGainotc/scaleby, digits=2);
         modulationSafeotc = round(modulationSafeotc/scaleby, digits=2);
         modulationAllotc = round(modulationAllotc/scaleby, digits =2)
+        modulationEarningsTrialT = round(modulationEarningsTrialT, digits =2) # value already scaled 
           
     # Offset the onset times by .6087s (see notes above)
-    onsetAllotc = onsetAllotc + offset;
+    onsetAllotc = RDMsubRun$outcomeDispOnset + offset;
     onsetGainotc = onsetGainotc + offset;
     onsetLossotc = onsetLossotc + offset;
     onsetSafeotc = onsetSafeotc + offset;
     
     
-    # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature the gain/loss/safe outcome EVs)  
-    missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]; # index the missed trials for this run
-    if(length(missedTrials>0)){
-      onsetAllotc = onsetAllotc[-c(missedTrials)]; # remove missed trials
-      durationAllotc = durationAllotc[-c(missedTrials)]; # remove missed trials
-      modulationAllotc = modulationAllotc[-c(missedTrials)]; # remove missed trials
-    }
+
     
     # store onset, duration and modulation into a single data frame
-    outcomeAmt = cbind(onsetAllotc, durationAllotc, modulationAllotc);
+    outcomeAmt = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, modulationAllotc);
     GAINoutcomeAmt = cbind(onsetGainotc, durationGainotc, modulationGainotc);
     LOSSoutcomeAmt = cbind(onsetLossotc, durationLossotc, modulationLossotc);
     SAFEoutcomeAmt = cbind(onsetSafeotc, durationSafeotc, modulationSafeotc);
-    NOMODoutcomeAmt = cbind(onsetAllotc, durationAllotc, 1);
+    NOMODoutcomeAmt = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, 1);
+    outcomeDispEarnings = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, modulationEarningsTrialT)
     
     # create file names
     outcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispOCAmt_run",r,sep=""));
@@ -387,13 +421,14 @@ for (s in 1:nSubRaw) {
     LOSSoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispOCLossAmt_run",r,sep=""));
     SAFEoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispOCSafeAmt_run",r,sep=""));
     NOMODoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispNoMod_run",r,sep=""));
-
+    outcomeDispEarningsfileName =sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispEarnings_run",r,sep=""));
     # save files
     write.table(outcomeAmt, file=outcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(GAINoutcomeAmt, file=GAINoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(LOSSoutcomeAmt, file=LOSSoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(SAFEoutcomeAmt, file=SAFEoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(NOMODoutcomeAmt, file=NOMODoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
+    write.table(outcomeDispEarnings, file = outcomeDispEarningsfileName, row.names = F, col.names = F, sep="\t")
     
   } # end for (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
@@ -410,265 +445,262 @@ for (s in 1:nSubRaw) {
 
 - ***big thing here is how to incorporate reaction time and does the timing add up between the event files (when the decision window ends) and reaction time in the choice set dataframe. For the decision time series, the onset of the choice will be the onset of the decision window + reaction time. The duration will be 0 seconds.
 
-
-
 ```{r decision}
-
-# each participant has three event files, one for each run
-# each event file has 438 rows (73 trials x 6 events)
-nTblock = 73;
-nEvents = 6;
-nRun = 3;
-offset = .6087;
-scaleby = max(RDMraw$riskyGain, na.rm=T);
-
-for (s in 1:nSubRaw) {
-  
-  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
-  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
-   
-  for (r in 1:nRun){
-    
-    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
-    
-    ###   DECISION/RT    ###
-  
-    decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
-    
-    
-        #we want only non-missed trials to be accounted for in these timing files
-    #missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]; # index the missed trials for this run
-    #if(length(missedTrials>0)){
-    #  decisionInd = decisionInd[-c(missedTrials)]; # remove missed trials
-    #}
-
-    
-    
-    gambleTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$choice) & RDMsub$choice==1];   # RDM trial number of gamble choice for block r
-    safeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$choice) & RDMsub$choice==0]; # RDM trial number of safe choice for block r    
-    
-    
-    # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
-    # mean center modulation within each functional run for each participant
-      # all decision types
-        onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
-        durationAllDecision = 0; # duration of decision will be 0
-        modulationEV = RDMsub$meanEV[RDMsub$block==r]- mean(RDMsub$meanEV[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # mean EV
-        modulationGain = RDMsub$riskyGain[RDMsub$block==r]- mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky gain amount
-        modulationSafe = RDMsub$alternative[RDMsub$block==r] - mean(RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky safe amount
-        modulationDecisionType = RDMsub$choice[RDMsub$block==r];
-        modulationDecisionType[modulationDecisionType==0] =-1; #change losses to be coded -1
-            
-      # gamble decision trials
-        onsetGambleDecision = onsetAllDecision[gambleTrial]; 
-        durationGambleDecision = 0; 
-        modulateGambleGain = modulationGain[gambleTrial]; # modulationGain is already mean-centered
-        modulateGambleSafe = modulationSafe[gambleTrial]; # modulationSafe is already mean-centered
-        modulateGambleEV = modulationEV[gambleTrial]; # modulcationEV is already mean centered
-        
-
-      # safe decision trials
-        onsetSafeDecision = onsetAllDecision[safeTrial]; 
-        durationSafeDecision = 0; 
-        modulateSafeGain = modulationGain[safeTrial]; # modulationGain is already mean-centered
-        modulateSafeSafe = modulationSafe[safeTrial]; # modulationsafe is already mean-centered
-        modulateSafeEV = modulationEV[safeTrial]; # modulationEV is already mean-centered
-        
-        
-        # round and scale the modulators
-         modulationEV = round(modulationEV/scaleby, digits=2)
-         modulationGain= round(modulationGain/scaleby, digits=2)
-         modulationSafe= round(modulationSafe/scaleby, digits=2)
-         modulateGambleEV= round(modulateGambleEV/scaleby, digits=2)
-         modulateGambleGain= round(modulateGambleGain/scaleby, digits=2)
-         modulateGambleSafe= round(modulateGambleSafe/scaleby, digits=2)
-         modulateSafeEV= round(modulateSafeEV/scaleby, digits=2)
-         modulateSafeGain= round(modulateSafeGain/scaleby, digits=2)
-         modulateSafeSafe= round(modulateSafeSafe/scaleby, digits=2)
-         
-    # Offset the onset times by .6087s (see notes above)
-      onsetAllDecision = onsetAllDecision + offset
-      onsetGambleDecision = onsetGambleDecision + offset
-      onsetSafeDecision = onsetSafeDecision + offset
-      
-      
-    # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature of subsetting the gamble/safe choices)
-    missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]; # index the missed trials for this run
-    if(length(missedTrials>0)){
-      onsetAllDecision = onsetAllDecision[-c(missedTrials)]; # remove missed trials
-      durationAllDecision = durationAllDecision[-c(missedTrials)]; # remove missed trials
-      modulationEV = modulationEV[-c(missedTrials)]; # remove missed trials
-      modulationGain = modulationGain[-c(missedTrials)]; # remove missed trials
-      modulationSafe = modulationSafe[-c(missedTrials)]; # remove missed trials on
-      modulationDecisionType = modulationDecisionType[-c(missedTrials)]
-    }
-    
-    # store onset, duration and modulation into a single data frame
-      decisionAllNoMod = cbind(onsetAllDecision, durationAllDecision,1); # 1 for parametric modulation
-      decisionAllType = cbind(onsetAllDecision, durationAllDecision,modulationDecisionType)
-      
-      EVdecisionAll   = cbind(onsetAllDecision, durationAllDecision, modulationEV);
-      GAINdecisionAll = cbind(onsetAllDecision, durationAllDecision, modulationGain);
-      SAFEdecisionAll = cbind(onsetAllDecision, durationAllDecision, modulationSafe);
-      
-      EVdecisionGamble =   cbind(onsetGambleDecision, durationGambleDecision, modulateGambleEV);
-      GAINdecisionGamble = cbind(onsetGambleDecision, durationGambleDecision, modulateGambleGain);
-      SAFEdecisionGamble = cbind(onsetGambleDecision, durationGambleDecision, modulateGambleSafe);
-      
-      EVdecisionSafe =  cbind(onsetSafeDecision, durationSafeDecision, modulateSafeEV);
-      GAINdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeGain); 
-      SAFEdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeSafe);
-    
-
-    # create file names
-    decisionAllNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllNoMod_run",r,sep=""));
-    decisionAlltypefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllType_run",r,sep=""));
-    decisionAllmeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllMeanEVamt_run",r,sep=""));
-    decisionAllGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllGainAmt_run",r,sep=""));
-    decisionAllSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllSafeAmt_run",r,sep=""));  
-      
-    decisionGamblemeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGambleMeanEVamt_run",r,sep=""));
-    decisionGambleGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGambleGainAmt_run",r,sep=""));
-    decisionGambleSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGambleSafeAmt_run",r,sep="")); 
-      
-    decisionSafemeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafeMeanEVamt_run",r,sep=""));
-    decisionSafeGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafeGainAmt_run",r,sep=""));
-    decisionSafeSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafeSafeAmt_run",r,sep=""));
-      
-      
-    # save files
-    write.table(decisionAllNoMod, file=decisionAllNOMODfileName, row.names = F, col.names = F, sep="\t");
-    write.table(decisionAllType, file=decisionAlltypefileName, row.names = F, col.names = F, sep="\t");
-    write.table(EVdecisionAll, file=decisionAllmeanEVfileName, row.names = F, col.names = F, sep="\t");
-    write.table(GAINdecisionAll, file=decisionAllGainfileName, row.names = F, col.names = F, sep="\t");
-    write.table(SAFEdecisionAll, file=decisionAllSafefileName, row.names = F, col.names = F, sep="\t");
-    
-    write.table(EVdecisionGamble, file=decisionGamblemeanEVfileName, row.names = F, col.names = F, sep="\t");
-    write.table(GAINdecisionGamble, file=decisionGambleGainfileName, row.names = F, col.names = F, sep="\t");
-    write.table(SAFEdecisionGamble, file=decisionGambleSafefileName, row.names = F, col.names = F, sep="\t");
-      
-    write.table(EVdecisionSafe, file=decisionSafemeanEVfileName, row.names = F, col.names = F, sep="\t");
-    write.table(GAINdecisionSafe, file=decisionSafeGainfileName, row.names = F, col.names = F, sep="\t");
-    write.table(SAFEdecisionSafe, file=decisionSafeSafefileName, row.names = F, col.names = F, sep="\t");
-
-    
-  } # end for (r in 1:nRun)
-} # end for (s in 1:nSubRaw)
+# 
+# # each participant has three event files, one for each run
+# # each event file has 438 rows (73 trials x 6 events)
+# nTblock = 73;
+# nEvents = 6;
+# nRun = 3;
+# offset = .6087;
+# scaleby = max(RDMraw$riskyGain, na.rm=T);
+# 
+# for (s in 1:nSubRaw) {
+#   
+#   ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+#   RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+#    
+#   for (r in 1:nRun){
+#     
+#     eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+#     
+#     ###   DECISION/RT    ###
+#   
+#     decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
+#     
+#     
+#         #we want only non-missed trials to be accounted for in these timing files
+#     #missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]; # index the missed trials for this run
+#     #if(length(missedTrials>0)){
+#     #  decisionInd = decisionInd[-c(missedTrials)]; # remove missed trials
+#     #}
+# 
+#     
+#     
+#     gambleTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$choice) & RDMsub$choice==1];   # RDM trial number of gamble choice for block r
+#     safeTrial = RDMsub$triBlock[RDMsub$block==r & is.finite(RDMsub$choice) & RDMsub$choice==0]; # RDM trial number of safe choice for block r    
+#     
+#     
+#     # Store events by onset, duration and modulation (this looks a little different for each outcome onset file)
+#     # mean center modulation within each functional run for each participant
+#       # all decision types
+#         onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
+#         durationAllDecision = 0; # duration of decision will be 0
+#         modulationEV = RDMsub$meanEV[RDMsub$block==r]- mean(RDMsub$meanEV[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # mean EV
+#         modulationGain = RDMsub$riskyGain[RDMsub$block==r]- mean(RDMsub$riskyGain[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky gain amount
+#         modulationSafe = RDMsub$alternative[RDMsub$block==r] - mean(RDMsub$alternative[is.finite(RDMsub$choice) & RDMsub$block==r], na.rm=T); # risky safe amount
+#         modulationDecisionType = RDMsub$choice[RDMsub$block==r];
+#         modulationDecisionType[modulationDecisionType==0] =-1; #change losses to be coded -1
+#             
+#       # gamble decision trials
+#         onsetGambleDecision = onsetAllDecision[gambleTrial]; 
+#         durationGambleDecision = 0; 
+#         modulateGambleGain = modulationGain[gambleTrial]; # modulationGain is already mean-centered
+#         modulateGambleSafe = modulationSafe[gambleTrial]; # modulationSafe is already mean-centered
+#         modulateGambleEV = modulationEV[gambleTrial]; # modulcationEV is already mean centered
+#         
+# 
+#       # safe decision trials
+#         onsetSafeDecision = onsetAllDecision[safeTrial]; 
+#         durationSafeDecision = 0; 
+#         modulateSafeGain = modulationGain[safeTrial]; # modulationGain is already mean-centered
+#         modulateSafeSafe = modulationSafe[safeTrial]; # modulationsafe is already mean-centered
+#         modulateSafeEV = modulationEV[safeTrial]; # modulationEV is already mean-centered
+#         
+#         
+#         # round and scale the modulators
+#          modulationEV = round(modulationEV/scaleby, digits=2)
+#          modulationGain= round(modulationGain/scaleby, digits=2)
+#          modulationSafe= round(modulationSafe/scaleby, digits=2)
+#          modulateGambleEV= round(modulateGambleEV/scaleby, digits=2)
+#          modulateGambleGain= round(modulateGambleGain/scaleby, digits=2)
+#          modulateGambleSafe= round(modulateGambleSafe/scaleby, digits=2)
+#          modulateSafeEV= round(modulateSafeEV/scaleby, digits=2)
+#          modulateSafeGain= round(modulateSafeGain/scaleby, digits=2)
+#          modulateSafeSafe= round(modulateSafeSafe/scaleby, digits=2)
+#          
+#     # Offset the onset times by .6087s (see notes above)
+#       onsetAllDecision = onsetAllDecision + offset
+#       onsetGambleDecision = onsetGambleDecision + offset
+#       onsetSafeDecision = onsetSafeDecision + offset
+#       
+#       
+#     # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature of subsetting the gamble/safe choices)
+#     missedTrials = RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]; # index the missed trials for this run
+#     if(length(missedTrials>0)){
+#       onsetAllDecision = onsetAllDecision[-c(missedTrials)]; # remove missed trials
+#       durationAllDecision = durationAllDecision[-c(missedTrials)]; # remove missed trials
+#       modulationEV = modulationEV[-c(missedTrials)]; # remove missed trials
+#       modulationGain = modulationGain[-c(missedTrials)]; # remove missed trials
+#       modulationSafe = modulationSafe[-c(missedTrials)]; # remove missed trials on
+#       modulationDecisionType = modulationDecisionType[-c(missedTrials)]
+#     }
+#     
+#     # store onset, duration and modulation into a single data frame
+#       decisionAllNoMod = cbind(onsetAllDecision, durationAllDecision,1); # 1 for parametric modulation
+#       decisionAllType = cbind(onsetAllDecision, durationAllDecision,modulationDecisionType)
+#       
+#       EVdecisionAll   = cbind(onsetAllDecision, durationAllDecision, modulationEV);
+#       GAINdecisionAll = cbind(onsetAllDecision, durationAllDecision, modulationGain);
+#       SAFEdecisionAll = cbind(onsetAllDecision, durationAllDecision, modulationSafe);
+#       
+#       EVdecisionGamble =   cbind(onsetGambleDecision, durationGambleDecision, modulateGambleEV);
+#       GAINdecisionGamble = cbind(onsetGambleDecision, durationGambleDecision, modulateGambleGain);
+#       SAFEdecisionGamble = cbind(onsetGambleDecision, durationGambleDecision, modulateGambleSafe);
+#       
+#       EVdecisionSafe =  cbind(onsetSafeDecision, durationSafeDecision, modulateSafeEV);
+#       GAINdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeGain); 
+#       SAFEdecisionSafe = cbind(onsetSafeDecision, durationSafeDecision, modulateSafeSafe);
+#     
+# 
+#     # create file names
+#     decisionAllNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllNoMod_run",r,sep=""));
+#     decisionAlltypefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllType_run",r,sep=""));
+#     decisionAllmeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllMeanEVamt_run",r,sep=""));
+#     decisionAllGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllGainAmt_run",r,sep=""));
+#     decisionAllSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionAllSafeAmt_run",r,sep=""));  
+#       
+#     decisionGamblemeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGambleMeanEVamt_run",r,sep=""));
+#     decisionGambleGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGambleGainAmt_run",r,sep=""));
+#     decisionGambleSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionGambleSafeAmt_run",r,sep="")); 
+#       
+#     decisionSafemeanEVfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafeMeanEVamt_run",r,sep=""));
+#     decisionSafeGainfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafeGainAmt_run",r,sep=""));
+#     decisionSafeSafefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionSafeSafeAmt_run",r,sep=""));
+#       
+#       
+#     # save files
+#     write.table(decisionAllNoMod, file=decisionAllNOMODfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(decisionAllType, file=decisionAlltypefileName, row.names = F, col.names = F, sep="\t");
+#     write.table(EVdecisionAll, file=decisionAllmeanEVfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(GAINdecisionAll, file=decisionAllGainfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(SAFEdecisionAll, file=decisionAllSafefileName, row.names = F, col.names = F, sep="\t");
+#     
+#     write.table(EVdecisionGamble, file=decisionGamblemeanEVfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(GAINdecisionGamble, file=decisionGambleGainfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(SAFEdecisionGamble, file=decisionGambleSafefileName, row.names = F, col.names = F, sep="\t");
+#       
+#     write.table(EVdecisionSafe, file=decisionSafemeanEVfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(GAINdecisionSafe, file=decisionSafeGainfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(SAFEdecisionSafe, file=decisionSafeSafefileName, row.names = F, col.names = F, sep="\t");
+# 
+#     
+#   } # end for (r in 1:nRun)
+# } # end for (s in 1:nSubRaw)
 
 ```
 
-
 # Onset files for decision modulated by previous outcome amount
 ```{r decision-past-outcome-amt}
-# AT DECISION (I.E. ACTION), WHAT WAS PAST OUTCOME AMOUNT?
-
-# In these timing files, we will exclude missed choices as well as choices that followed missed trials (i.e. there is no past outcome). We will be using these timing files with the timing file for decision + no modulation which will account for those trials where the previous trial was missed.
-
-# create past outcome variable
-newMat = matrix(data=NA,nrow=nrow(RDMraw), ncol=2)
-newMat[,1] <- RDMraw$outcome; #take data from columns
-newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
-newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
-newMat[,2]<-c(0,diff(RDMraw$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
-newMat[newMat[,2]>0,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
-RDMraw$poc1 = newMat[,1];# add new vector to capData
-
-
-nTblock = 73;
-nEvents = 6;
-nRun = 3;
-offset = .6087;
-scaleby = max(RDMraw$riskyGain, na.rm=T);
-
-for (s in 1:nSubRaw) {
-  
-  ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
-  RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
-   
-  for (r in 1:nRun){
-    
-    eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
-    
-    ###   DECISION/RT    ###
-  
-    decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
-    
-    onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
-    durationAllDecision = 0; # duration of decision will be 0
-     
-    pocmean = mean(RDMsub$poc1[is.finite(RDMsub$poc1) & RDMsub$block==r],na.rm=T); 
-    modulationPOC = RDMsub$poc1[RDMsub$block==r] -pocmean #poc mean centered
-    modulationPOC = round(modulationPOC/scaleby, digits=2); # round and scale modulator
-
-    # Offset the onset times by .6087s (see notes above)
-    onsetAllDecision = onsetAllDecision + offset
-    
-          
-    # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature of subsetting the gamble/safe choices)
-
-    missedPOC = RDMsub$triBlock[is.na(RDMsub$poc1) & RDMsub$block==r] # index NaN poc for this run
-    # if (length(missedPOC)>0){ # if a participant missed a trial
-    #   modulationPOC[missedPOC]=0-pocmean; # set the modulation of NAN poc trials to 0, mean center
-    # }; 
-    # 
-
-    missedTrials = c(missedPOC, RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]) # index missed trials for this run, combine with trials with no POC
-     if(length(missedTrials>0)){
-      onsetAllDecision = onsetAllDecision[-c(missedTrials)]; # remove missed trials
-      modulationPOC = modulationPOC[-c(missedTrials)]; # remove missed trials
-    }
-    
-
-    decisionPOCAmt = cbind(onsetAllDecision, durationAllDecision,modulationPOC); # modulated by outcome amount
-
-    
-    # create file names
-    #decisionPOCNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCnoMod_run",r,sep=""));
-    decisionPOCAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCAmt_run",r,sep=""));
-
-     # save files
-    #write.table(decisionPOCnoMod, file=decisionPOCNOMODfileName, row.names = F, col.names = F, sep="\t");
-    write.table(decisionPOCAmt, file=decisionPOCAmtfileName, row.names = F, col.names = F, sep="\t");
-    
-    #MISSED TRIALS ARE THE SAME HERE AS SECTION BELOW (PREVIOUSLY THOUGHT THEY WERE DIFFERENT) - COMMENTING OUT
-   #  #MAKE MISSED TRIALS TIMING FILES: 
-   #    # these amount of missed trials for these files will be more than others because here we are excluding trials where poc =NaN and choice=NaN
-   #    # this means every participant will have a missed trial file for decision poc amount for the run because poc on trial 1= NaN.
-   #  
-   #  if(length(missedTrials>0)){ # for participants/runs with a missing trial
-   # 
-   #    # for missed trials in decision analyses, we want the choice display and response window
-   #    stimStartInd = which(eventrun$eventType=="stimulusStart");  # index start of stimulus display
-   #    stimStartInd = stimStartInd[missedTrials]; # just need index for missed trials
-   #    decWindowInd = which(eventrun$eventType=="decisionWindow"); # index start of decision window
-   #    decWindowInd = decWindowInd[missedTrials]; # just need index for missed trials
-   # 
-   #    # store events by onset, duration , and then modulation will =1
-   #    onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
-   #    duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
-   # 
-   # 
-   #     # Offset the onset times by .6087s (see notes above)
-   #    onset = onset + offset;
-   # 
-   #  # store onset, duration and modulation into a single data frame
-   #  decisionPOCnoModMissT = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
-   #  
-   # decisionPOCnoModmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],paste("missT_decisionPOCnoMod_run",r,sep=""));
-   #      
-   #  # save files
-   #  write.table(decisionPOCnoModMissT, file=decisionPOCnoModmissTfileName, row.names = F, col.names = F, sep="\t");
-    
-    #} # end if(length(missedTrials>0))
-
-    
-        
-        
-    
-    } # end for (r in 1:nRun)
-} # end for (s in 1:nSubRaw)
-  
-
+# # AT DECISION (I.E. ACTION), WHAT WAS PAST OUTCOME AMOUNT?
+# 
+# # In these timing files, we will exclude missed choices as well as choices that followed missed trials (i.e. there is no past outcome). We will be using these timing files with the timing file for decision + no modulation which will account for those trials where the previous trial was missed.
+# 
+# # create past outcome variable
+# newMat = matrix(data=NA,nrow=nrow(RDMraw), ncol=2)
+# newMat[,1] <- RDMraw$outcome; #take data from columns
+# newMat[2:nrow(newMat),1] <- newMat[1:(nrow(newMat)-1),1]; # removes first row, shifts everything up
+# newMat[1,1] <- NaN #put Nan in for first row (first trial for subject 1, bc there is no past trial)
+# newMat[,2]<-c(0,diff(RDMraw$subjectIndex)); #put differences between NewSubjectIndex into newvector, 1s show up when subject changes
+# newMat[newMat[,2]>0,]=NaN; #in newmtx, when diff = 1, replace with NaN, this replaces first trial with nan
+# RDMraw$poc1 = newMat[,1];# add new vector to capData
+# 
+# 
+# nTblock = 73;
+# nEvents = 6;
+# nRun = 3;
+# offset = .6087;
+# scaleby = max(RDMraw$riskyGain, na.rm=T);
+# 
+# for (s in 1:nSubRaw) {
+#   
+#   ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
+#   RDMsub = RDMraw[RDMraw$subjectIndex==subNum[s],]; # load risky decision-making data
+#    
+#   for (r in 1:nRun){
+#     
+#     eventrun = read.csv(eventFiles[ind[r]]); # load file for one run
+#     
+#     ###   DECISION/RT    ###
+#   
+#     decisionInd = which(eventrun$eventType=="decisionWindow");  # index start of decision window
+#     
+#     onsetAllDecision = eventrun$onset[decisionInd] + RDMsub$RTs[RDMsub$block==r]; # onset is decision window onset + RTs
+#     durationAllDecision = 0; # duration of decision will be 0
+#      
+#     pocmean = mean(RDMsub$poc1[is.finite(RDMsub$poc1) & RDMsub$block==r],na.rm=T); 
+#     modulationPOC = RDMsub$poc1[RDMsub$block==r] -pocmean #poc mean centered
+#     modulationPOC = round(modulationPOC/scaleby, digits=2); # round and scale modulator
+# 
+#     # Offset the onset times by .6087s (see notes above)
+#     onsetAllDecision = onsetAllDecision + offset
+#     
+#           
+#     # for the EV that includes all trial types, we need to remove missed trials (missed Ts are already dealt with by the nature of subsetting the gamble/safe choices)
+# 
+#     missedPOC = RDMsub$triBlock[is.na(RDMsub$poc1) & RDMsub$block==r] # index NaN poc for this run
+#     # if (length(missedPOC)>0){ # if a participant missed a trial
+#     #   modulationPOC[missedPOC]=0-pocmean; # set the modulation of NAN poc trials to 0, mean center
+#     # }; 
+#     # 
+# 
+#     missedTrials = c(missedPOC, RDMsub$triBlock[is.na(RDMsub$choice) & RDMsub$block==r]) # index missed trials for this run, combine with trials with no POC
+#      if(length(missedTrials>0)){
+#       onsetAllDecision = onsetAllDecision[-c(missedTrials)]; # remove missed trials
+#       modulationPOC = modulationPOC[-c(missedTrials)]; # remove missed trials
+#     }
+#     
+# 
+#     decisionPOCAmt = cbind(onsetAllDecision, durationAllDecision,modulationPOC); # modulated by outcome amount
+# 
+#     
+#     # create file names
+#     #decisionPOCNOMODfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCnoMod_run",r,sep=""));
+#     decisionPOCAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("decisionPOCAmt_run",r,sep=""));
+# 
+#      # save files
+#     #write.table(decisionPOCnoMod, file=decisionPOCNOMODfileName, row.names = F, col.names = F, sep="\t");
+#     write.table(decisionPOCAmt, file=decisionPOCAmtfileName, row.names = F, col.names = F, sep="\t");
+#     
+#     #MISSED TRIALS ARE THE SAME HERE AS SECTION BELOW (PREVIOUSLY THOUGHT THEY WERE DIFFERENT) - COMMENTING OUT
+#    #  #MAKE MISSED TRIALS TIMING FILES: 
+#    #    # these amount of missed trials for these files will be more than others because here we are excluding trials where poc =NaN and choice=NaN
+#    #    # this means every participant will have a missed trial file for decision poc amount for the run because poc on trial 1= NaN.
+#    #  
+#    #  if(length(missedTrials>0)){ # for participants/runs with a missing trial
+#    # 
+#    #    # for missed trials in decision analyses, we want the choice display and response window
+#    #    stimStartInd = which(eventrun$eventType=="stimulusStart");  # index start of stimulus display
+#    #    stimStartInd = stimStartInd[missedTrials]; # just need index for missed trials
+#    #    decWindowInd = which(eventrun$eventType=="decisionWindow"); # index start of decision window
+#    #    decWindowInd = decWindowInd[missedTrials]; # just need index for missed trials
+#    # 
+#    #    # store events by onset, duration , and then modulation will =1
+#    #    onset = eventrun$onset[stimStartInd]; # onset is stimStart onset
+#    #    duration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration
+#    # 
+#    # 
+#    #     # Offset the onset times by .6087s (see notes above)
+#    #    onset = onset + offset;
+#    # 
+#    #  # store onset, duration and modulation into a single data frame
+#    #  decisionPOCnoModMissT = cbind(onset, duration, 1); # gets a 1 for "weight" column since not using modulation here
+#    #  
+#    # decisionPOCnoModmissTfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$missedTrials_files,subID_bids[s],paste("missT_decisionPOCnoMod_run",r,sep=""));
+#    #      
+#    #  # save files
+#    #  write.table(decisionPOCnoModMissT, file=decisionPOCnoModmissTfileName, row.names = F, col.names = F, sep="\t");
+#     
+#     #} # end if(length(missedTrials>0))
+# 
+#     
+#         
+#         
+#     
+#     } # end for (r in 1:nRun)
+# } # end for (s in 1:nSubRaw)
+#   
+# 
 
 
 ```
