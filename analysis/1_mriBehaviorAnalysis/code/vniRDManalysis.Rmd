@@ -219,6 +219,13 @@ model4_earnings_trial = glmer(choice~0 + earningsSC + trialSC + (1|subjectIndex)
 summary(model4_earnings_trial); # both significant, betas similar size but opposite valence, AIC = 7649.2 
 
 
+model4_earningsNorm_trial = glmer(choice~0 + earningsNormalized + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earningsNorm_trial); # both significant, betas similar size but opposite valence, AIC = 7657.1
+
+# model earning scaled fits better than earnings normalized - allowing individuals to vary does a little better than them all ending at the same place (i.e. at 1)
+
+
+
 # pull and store coefficients
 m4_coef_trial_Earn = fixef(model4_earnings_trial);
 earnCoef = m4_coef_trial_Earn[1];
@@ -271,6 +278,12 @@ legend("bottomright", legend=c("sub 7","sub 15", "sub 28" ,"sub 35", "sub 52"), 
     # Interaction was trending here, so I am not sure how much to focus on this. The above model and plots seem more informative.
 model4_earnings_trial_intxn = glmer(choice~0 + earningsSC*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
 summary(model4_earnings_trial_intxn); # interaction significant, effects of trial and earnings similar as previous models except that earnings beta is slightly smaller now AIC = 7647.1
+
+
+model4_earningsNorm_trial_intxn = glmer(choice~0 + earningsNormalized*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earningsNorm_trial_intxn); # no interaction but earnings and trial significant as above AIC = 7655.5
+
+
 
 ```
 
@@ -353,6 +366,23 @@ legend("right", legend=c("zero", "medium", "large"), bty="n", lty=1, lwd=3, col=
 model5_potc_posshift_earn_trial = glmer(choice ~ 0 + poc1scaled*earningsSC + shiftDiffscPOS + trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 
 summary(model5_potc_posshift_earn_trial); # everything significant, AIC = 7546.3 
+# FOR NOW, WILL USE THE BETA ESTIMATES FROM ABOVE MODEL TO CREATE TIMNING FILES FOR BOLD ANALYSIS
+# EARNINGS BETA = 2.3959
+# EXPECTATIONS BETA = -2.1927
+
+model5_potc_posshift_earnExpIntxn_trial = glmer(choice ~ 0 + poc1scaled*earningsSC + shiftDiffscPOS + earningsSC*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+
+summary(model5_potc_posshift_earnExpIntxn_trial); # everything significant bu tinteraction between expectations and earnings, AIC = 7547.9
+
+
+# What if we let expectations vary by individuals 
+model5_potc_posshift_earn_expRFX_trial = glmer(choice ~ 0 + poc1scaled*earningsSC + shiftDiffscPOS + (1 + trialSC + earningsSC|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
+summary(model5_potc_posshift_earn_expRFX_trial)
+# 7534.8
+# earnings no longer significant bu tinteraction bewteen earnings and past outcome is, past outcome effect significant and negative and positive shift is significant.
+#model doesn't converge and is singular but people do vary in expectations
+# this model is technically better than the one above
+
 ```
 
 ##### Plot earnings x outcome effect using the model above (the interaction term is much smaller than in m4_earning_potc_intxn model), so we'd expect the switching of the past outcome effect to be less intense:
@@ -450,7 +480,7 @@ summary(model5_potc_posshift_earn_trial_intxns); # AIC =  7547.1  - slightly wor
 # earningsSC:poc1scaled   5.2010     2.9242   1.779  0.07530 .  
 # poc1scaled:trialSC     -2.8280     2.5552  -1.107  0.26839   
 
-# The interaction between past outcome and trial is trending p=.1. Past outcome, shift, and interaction between past outcome and earnings still there. Now the main effect of earnings and trial not there.
+# no interaction between outcome and trial. Past outcome, shift, and interaction between past outcome and earnings trending. Now the main effect of earnings and trial not there.
 
 # Can we create a variable that makes this model more interpretable??? What about a relative earnings variable that captures the difference between earnings and trial? The thing here is that we still have to add trial or earnings because the relative earnings variable gives earnings and trial the same weight and adding one of those variables to the model lets us figure out the weighting.
 # Create a relative earnings variable (cumulative earnings - trial SC)
