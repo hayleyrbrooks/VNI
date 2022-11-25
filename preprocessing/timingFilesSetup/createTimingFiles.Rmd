@@ -275,7 +275,7 @@ for (s in 1:nSubRaw) {
     choiceShiftNoModfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftNoMod_run",r,sep=""))
     choiceShiftAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftAmt_run",r,sep=""))
     choiceRelEarningsfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceRelEarnings_run",r,sep=""))
-    
+    choicePastOutcomefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choicePastOutcome_run",r,sep=""))
     
     
     # save files
@@ -288,6 +288,9 @@ for (s in 1:nSubRaw) {
     write.table(choiceShiftNoModulation, file=choiceShiftNoModfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceShiftAmt, file=choiceShiftAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceRelEarnings, file=choiceRelEarningsfileName, row.names = F, col.names = F, sep="\t");
+    write.table(choicePOCAmt, file=choicePastOutcomefileName, row.names = F, col.names = F, sep="\t");
+    
+    
 
   } # end for (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
