@@ -274,6 +274,7 @@ for (s in 1:nSubRaw) {
     choiceChosenUnchosenfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispChosenUnchosen_run",r,sep=""))
     choiceShiftNoModfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftNoMod_run",r,sep=""))
     choiceShiftAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftAmt_run",r,sep=""))
+    
     choiceRelEarningsfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceRelEarnings_run",r,sep=""))
     choicePastOutcomefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choicePastOutcome_run",r,sep=""))
     
