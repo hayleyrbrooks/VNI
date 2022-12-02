@@ -81,7 +81,7 @@ When done, add these timing files to RDAC.
 - choiceDispChosenUnchosen_run#.txt: choice display modulated by chosen-unchosen
 - choiceDispNoModulation_run#.txt: choice display with no modulation
 - choiceDispShift_run#.txt: includes trials where shift occurred accounted for at choice display
-- choiceDispShiftAmt_run#.txt: includes trials where shift occurred modulated by shift amount (mean centered, scaled)
+- choiceDispShiftAmt_run#.txt: includes trials where shift occurred modulated by shift amount (NOT mean centered because they are mean-centered naturally and mean centering within runs creates issue with timing files that FSL doesn't like, scaled)
 - choiceDispPastOCAmt_run#.txt: choice display modulated by past outcome amount
 - choiceDispEarnExpAmt_run#.txt: choice display modulated by earnings - expectations (using beta weights from behavior)
 
@@ -236,8 +236,7 @@ for (s in 1:nSubRaw) {
     
     onsetShift = RDMsubRun$choiceDispOnset[RDMsubRun$positiveShiftSC>0] # subset onset when shift occurred
     durationShift = RDMsubRun$choiceDispDuration[RDMsubRun$positiveShiftSC>0] # subset duration when shift occurred
-    meanShiftAmt = mean(RDMsubRun$positiveShiftSC[RDMsubRun$positiveShiftSC>0])  # calculate mean positive shift amount
-    modulationShift = RDMsubRun$positiveShiftSC[RDMsubRun$positiveShiftSC>0] - meanShiftAmt # mean center the modulator
+    modulationShift = RDMsubRun$positiveShiftSC[RDMsubRun$positiveShiftSC>0] 
     modulationShift = round(modulationShift, digits=2) # round to 2 decimals (this variable is already scaled)
     
     onsetPOC = RDMsubRun$choiceDispOnset[is.finite(RDMsubRun$poc1)] # subset onset where there was a past outcome
