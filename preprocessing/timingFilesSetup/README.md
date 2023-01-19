@@ -1,4 +1,5 @@
 # Setting up timing files for VNI fMRI analysis (using FSL)
+# THIS NEEDS TO BE UPDATED
 
 ## Event files
 Onset files (fsl-specific) for the analysis are created from the event files. 
