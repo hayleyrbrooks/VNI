@@ -303,19 +303,19 @@ for(s in 2:nSub){
 ##### Do earnings interact with outcome? 
 ```{r earnings-intxn-poc}
 # Earnings interact with past outcome in previous datasets, does that happen here?
-model4_earnings_potc_intxn = glmer(choice~0 + earningsSC*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-summary(model4_earnings_potc_intxn); # AIC = 7554.7 
+#model4_earnings_potc_intxn = glmer(choice~0 + earningsSC*poc1scaled + trialSC*poc1scaled + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+#summary(model4_earnings_potc_intxn); # AIC = 7554.7 
 # past outcome negative effect
 # interaction between outcomes and earnings is trending 
 # Main effects of earnings and trial go away (consistent with previous datasets, eg. VIC). 
 
-# shift is not in this model, but when we do add shift, there is a similar pattern in behavior, interaction between outcome and trial is a little weaker (p=.1) and trial and earnings not significant.Strong effect of positive shift AIC =  7552.4 - including shift improves model fit.
-#model4_earnings_potc_intxn_shift = glmer(choice~0 + earningsNormalized*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
-#summary(model4_earnings_potc_intxn_shift);
+#shift is not in this model, but when we do add shift, there is a similar pattern in behavior, interaction between outcome and trial is trending p=.08 and trial and earnings not significant.Strong effect of positive shift AIC =  7552.4 - including shift improves model fit.
+model4_earnings_potc_intxn_shift = glmer(choice~0 + earningsSC*poc1scaled + trialSC*poc1scaled + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model4_earnings_potc_intxn_shift);
 
 
 # store model results
-m4_earnPOCintxn_coefs = fixef(model4_earnings_potc_intxn)
+m4_earnPOCintxn_coefs = fixef(model4_earnings_potc_intxn_shift)
 earnCoef_2 = m4_earnPOCintxn_coefs[1] 
 pocCoef = m4_earnPOCintxn_coefs[2];
 pocEarnCoef = m4_earnPOCintxn_coefs[4]
@@ -339,7 +339,7 @@ pocTrialCoef = m4_earnPOCintxn_coefs[5]
 # pocCoef + pocEarnCoef*.8 + pocTrialCoef*.8 = 0.6363558   # doing as expected 
 # pocCoef + pocEarnCoef*.9 + pocTrialCoef*.8 =  1.424612   # doing better than expected
 
-# Overall, when participants did worse than expected, they took less risks and when earnings are more than expected, they took more risks and this pattern is stronger following a large outcome relative to a small outcome. It is possible that past outcome is the vehicle for the interactio between earnings and outcome, and trial and outcome. Likely a discussion for the supplement as a possible "why" for the interaction between two timescales.
+# Overall, when participants did worse than expected, they took less risks and when earnings are more than expected, they took more risks and this pattern is stronger following a large outcome relative to a small outcome. It is possible that past outcome is the vehicle for the interaction between earnings and outcome, and trial and outcome. Likely a discussion for the supplement as a possible "why" for the interaction between two timescales.
 
 # Plot interaction between outcome and earnings
 
@@ -432,7 +432,7 @@ model4_expectedEarn = glmer(choice~0 + trialSC + earningsSC*poc1scaled + levelTr
 # shiftDiffscPOS          2.4173     0.7483   3.230  0.00124 ** 
 # earningsSC:poc1scaled   2.0059     0.3777   5.310 1.09e-07 ***
 
-# larger AIC than model without level tracking and effect of earnings goes away and level tracking variable is not significant
+# larger AIC than model without level tracking, level tracking variable is not significant
 
 # trial, level tracking, level tracking * poc, positive shift (no cumulative earnings).
 model4_expectedEarn_noCumulativeEarn = glmer(choice~0 + trialSC + levelTrackingNorm*poc1scaled + levelTrackingNorm + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);  
