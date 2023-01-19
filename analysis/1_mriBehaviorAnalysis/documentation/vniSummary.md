@@ -63,3 +63,48 @@ All three timescales (simultaneously):
 - see vniRDManalysis.Rmd
 
 ## BOLD ANALYSIS
+*each model described has 2x the number of variables that we are modeling because we modeled both positive and negative versions to capture both increases and decreases in activity associated with the variable (an FSL thing).
+### Base models
+First, we ran four "base" models accounting for basic task events including choice display, decision, and outcome display. The goal was to find a base model that we could complicate with adding recent event variables.
+
+In each of the base models, we model choice display with no modulation, decision with no modulation, and outcome display with both no modulation and modulation by outcome amount. The following base models vary by what is the modulator during choice display.
+
+**Base model 1**: choice display modulated by dollar amount of both the mean expected value of the risky gamble and safe options (i.e. what happens as values across choice options increase vs. decrease).
+
+**Base model 2**: choice display modulated by mean expected value of the risky gamble amount vs. safe amount (i.e. relative value of the risky option compared to the safe option).
+
+**Base model 3:** choice display modulated by relative choice (chosen vs unchosen: choice * (risky gain $ * .5) - safe (where choice is -1/1).
+
+Across these base models, we saw similar areas of activation across choice display (no modulation), decision and outcome display (with and without modulatio of outcome amount).
+  - choice display (no modulation): people were processing information and value; activity in areas including insula, occipital cortex, caudate, putamen, thalamus)
+  - outcome display (no modulation): areas like thalamus, insula and frontal areas. These results are very similar across the 3 models.
+  - decision period: results were less clear/promising with only some intracalcerine cortex and this is probably due to the task where choice display and decision are tightly coupled (decision ends choice display). Because of this, we have decided to not model decision in addition to choice display in subsequent models.
+  - outcome display (modulated by outcome amount): across the 3 base models, we saw similar results with increased activation in vmPFC and bilateral striatum with increaseed outcome amount.
+  - choice display with different modulators: The results were pretty different across the choice display modulators with no significant clusters of activity showing up for choice display modulated by EV amount across the options (model 1), some increased activity in cingulate gyrus and decreased activity in bilateral insula for EV gamble vs safe (model 2), and some increased activity in the angular gyrus and anterior dmPFC (although coordinates don't exactly line up with prev. work e.g. Jeuchems 2017) and a tiny bit of increased activity in the insula.
+
+We decided to stick with base model 3 because it appears most consistent with previous research that uses relative choice but will drop decision (base model 4).
+
+
+**Base model 4:** similar to model 3 with choice display modulated by relative choice but we no longer model decision. This is our main model that we are moving forward with to complicate by adding recent event variables!
+
+
+### Temporal context (adding recent eventa variables)
+
+**model 5: 3 timescales**
+This model is base model 4 with additional recent event variables including:
+1. positive shift (choice display) with no modulation: really nothing showing up here, very small clusters here and there
+2. positive shift (choice display) modulated by shift amount: only seeing activation for negative (decrease activity as shift increases) in the left putamen, some left insula, some superior frontal gyrus, cingulate gyrus, lateral pfc. Shift amount is important here which is consistent with our behavior.
+3. relative earnings (choice display): this variable uses the betas for earnings and expectations in the behavior analysis to calculate the difference between earnings and expectations. We see a lot of occipital activity (all red/increased activity with earnings), left thalamus and hippocampus, tiny bit of right thalamus, this could be that earnings are doing something (modulating the extent to which people are engaged on the trial, e.g. looking more intently, slowing down. Or it could be epiphenomenal wher it might be reflecting something else like time, people slowing down with time or getting tired.)
+4. past outcome amount (choice display): decrease in cingulate gyrus, not seeing meaningful increases in activity
+5. earnings (outcome display): this earnings variable includes the outcome displayed on the current trial. a whole bunch of decrease in activity across the brain - like a lot! with earning variables, there is so much activity it may mean that we are capturing something that tracking time and/or stuff we aren't interested it. It might make sense to put in linear term that is related to time to help us deal with this isssue. So we give the linear term a chance to account for this activity that might be confounded with earnings.
+
+
+To do: 
+1) relative earnings at choice display could be related to something like RT, so we’d expect an positive relationship between RT and relative earnings (so it would suggest slower responses as earnings increase and could suggest that there is more being processed at choice display when earnings>expectations). Need to follow up with this behaviorally.
+2) put in model 4 results above
+
+
+
+
+
+
