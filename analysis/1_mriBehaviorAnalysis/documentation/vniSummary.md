@@ -88,7 +88,7 @@ We decided to stick with base model 3 because it appears most consistent with pr
 **Base model 4:** similar to model 3 with choice display modulated by relative choice but we no longer model decision. This is our main model that we are moving forward with to complicate by adding recent event variables!
 
 
-### Temporal context (adding recent eventa variables)
+### Temporal context (adding recent event variables)
 
 **model 5: 3 timescales**
 This model is base model 4 with additional recent event variables including:
