@@ -372,14 +372,14 @@ summary(model5_potc_posshift_earn_trial); # everything significant, AIC = 7546.3
 
 model5_potc_posshift_earnExpIntxn_trial = glmer(choice ~ 0 + poc1scaled*earningsSC + shiftDiffscPOS + earningsSC*trialSC + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 
-summary(model5_potc_posshift_earnExpIntxn_trial); # everything significant bu tinteraction between expectations and earnings, AIC = 7547.9
+summary(model5_potc_posshift_earnExpIntxn_trial); # everything significant but interaction between expectations and earnings, AIC = 7547.9
 
 
 # What if we let expectations vary by individuals 
 model5_potc_posshift_earn_expRFX_trial = glmer(choice ~ 0 + poc1scaled*earningsSC + shiftDiffscPOS + (1 + trialSC + earningsSC|subjectIndex), data=mriBehClean, family="binomial", offset=pred)
 summary(model5_potc_posshift_earn_expRFX_trial)
 # 7534.8
-# earnings no longer significant bu tinteraction bewteen earnings and past outcome is, past outcome effect significant and negative and positive shift is significant.
+# earnings no longer significant but interaction between earnings and past outcome is, past outcome effect significant and negative and positive shift is significant.
 #model doesn't converge and is singular but people do vary in expectations
 # this model is technically better than the one above
 
@@ -579,7 +579,53 @@ lines(vniShiftgam, lwd=4); #plotting the line again so its on top.
 dev.off();
 ```
 
+```{r reaction-time-and-relative earnings}
 
+# In the BOLD analysis, relative earnings was showing massive amounts of activity in the occipital lobe and other areas which suggests that the regressor might be accounting for other things like task engagement/fatigue/boredom, or time. 
+
+# The model we used to create the relative earnings is model5_potc_posshift_earn_trial where earning betas = 2.3959 and expectations beta = -2.1927
+
+# 1) let's look for a potential relationship between reaction time (proxy for engagement) and relative earnings
+library(lmerTest)
+mriBehClean$relativeEarningsWeighted = 2.3959*mriBehClean$earningsSC + -2.1927*mriBehClean$trialSC;
+
+model_relEarnWeightedRTlmer = lmer(relativeEarningsWeighted~RTs+ (1|subjectIndex), data = mriBehClean);
+summary(model_relEarnWeightedRTlmer); 
+# positive relationship between reaction time and relative earnings. When earnings are more than expected (positive rel earn value), reaction times are slower (larger RTs); when earnings are less than expected (negative rel earn value), reaction times are faster (smaller RTs); This would suggest that at choice display, there is more being processed when earnings > expectations and why we see a BUNCH of activity for that regressor.
+
+
+
+# 2) Next, lets look at a context-focused analysis with regressing choice on past ouctcome, positive shift and time (linear expectation) without earnings to see if this model outperforms a model with earnings
+model_time = glmer(choice~0 + poc1scaled + trialSC + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model_time); # AIC =  7589.1; no main effect of trial
+
+model_earnings = glmer(choice~0 + poc1scaled + earningsSC + shiftDiffscPOS + (1|subjectIndex), data=mriBehClean, family="binomial", offset=pred);
+summary(model_earnings); # AIC =  7587.9 ; no main effect of earnings but AIC is better
+
+
+# 3) Do regressions on task stimuli so that the DV is risky gain or safe amount regressed on time so that we can say whether the task itself doesn't have anything that is correlated with time. Basically, we want to know if there is any indication that behavior shows some changes over time.
+
+model_gainTime = lm(gainSC ~ trialSC, data= mriBehClean)
+# risky gain values increase with time
+
+model_safeTime = lm(altSC ~ trialSC, data= mriBehClean)
+summary(model_safeTime)
+# trending positive relationship between time and safe amounts
+
+# plot average gain and safe values across the task for all participants
+tmpgain = vector()
+tmpsafe = vector()
+for (i in 1:219){
+  tmpgain[i]= mean(mriBehClean$gainSC[mriBehClean$trial==i])
+  tmpsafe[i]= mean(mriBehClean$altSC[mriBehClean$trial==i])
+}
+
+plot(tmpgain)
+plot(tmpsafe)
+
+
+```
+ 
 
 ```{r regression-for-rcs-parameter recovery}
 # we will use earningsSC instead of earning normalized
@@ -599,10 +645,6 @@ summary(modelRCS_potc_posshift_earn_trial_intxns); # AIC =  7547.1
 
 
 ```
-
-
-
-
 
 
 
