@@ -51,14 +51,12 @@ Global timescale:
 
 All three timescales (simultaneously):
 - In a model with past outcome, positive shift, earnings and expectations and an interaction between earnings and past outcome, all regressors are significant.(NOTE: THIS IS THE MODEL WE USE BETAS FROM TO MAKE TIMING FILES FOR EXPECTATIONS AND EARNINGS FOR FMRI BOLD ANALYSIS; model5_potc_posshift_earn_trial)
-      - outcome beta = -0.7804(0.1684), p = 3.57e-06 
-      - earnings beta = 2.3959(0.7464), p = 0.001327
-      - positive shift beta = 2.3774(0.7463), p=0.001444 
-      - expectations beta = -2.1927(0.6397), p= 0.000609
-      - outcome x earnings beta = 1.9885(0.3768), p = 1.31e-07
+  - outcome beta = -0.7804(0.1684), p = 3.57e-06 
+  - earnings beta = 2.3959(0.7464), p = 0.001327
+  - positive shift beta = 2.3774(0.7463), p=0.001444 
+  - expectations beta = -2.1927(0.6397), p= 0.000609
+  - outcome x earnings beta = 1.9885(0.3768), p = 1.31e-07  
 
-
-  
 ### Individual-level analysis
 - see vniRDManalysis.Rmd
 
@@ -106,5 +104,10 @@ To do:
 
 
 
+## Follow up analyses (both behavior and BOLD)
+In the results for relative earnings modeled at choice display in model 5, we see a bunch of activity all over the brain, but esp. occipital activity. This makes us wonder if relative earnings variable as in model in 4 and 5 (relative earnings = earnings beta * earnings(t) + expectations beta * expectations (t); its + because beta estimate for expectations is negative) is also capturing something else that is tracking time, task engagement or other epiphenomenal things that we aren't interested in for this analysis. 
 
-
+We checked looked for things potentially correlated with time in the behavior data in 3 ways:
+1. _Is there a relationship between relative earnings and reaction time?_ Note that our reaction times are somewhat restrictive because participants had a 2s forced viewing period. In a linear mixed effects model regression with relative earnings (weighted by betas as created in timing files for BOLD analysis) there is a positive relationship between relative earnings and reaction time. As earnings are more than expected
+2. Does a context-dependent model with trial (linear term) do better than a model with earnings. In these two models, we regress choice on past outcome, positive shift and trial or earnings. The model with earnings outperforms the model with trial, but neither have main effects.
+3. Does our task have any inherent features that change with time? In two separate models, we regressed risky gain and safe amounts on trial. There is a positive relationship between risky gain and trial (where risky gain values are, on average, increasing as the task progresses) and a trending, positive relationship between safe and trial. This suggests that there is some relationship between trial/time with the stimuli in the task (potentially unfortunate but also somewhat random that it happened this way?)
