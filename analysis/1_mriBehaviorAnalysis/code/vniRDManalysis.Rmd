@@ -626,6 +626,46 @@ plot(tmpsafe)
 
 ```
  
+```{r choice-difficulty}
+
+# In our BOLD analysis, it looks like outcome display (model 4 and 5) could be missing something
+# What if we take into consideration other things going on like hard vs. easy choice on the current trial (centered around their indifference point). 
+# Model 1: risky gain, safe and magnitude. Already have this
+# Model 2: Then account for previous outcome. Model 2 might be the only piece that I need.
+# The check is looking at predictions of model 1: what is the trial-by-trial prediction (indifference would be showing this prediction at .5)
+# Then looking at model 2: what is the trial-by-trial prediction
+# We could subtract these two predictions and we would see the change in action as a function of previous otucome. So this could show us that past outcome was enormous or it was a moderate one at the right time.
+
+summary(model1_trialLevel); # model with gain, safe and magnitude
+predictedValues = predict(model1_trialLevel,type="response"); # this gets predicted responses (p(gamble)) on each trial
+
+predictedValues[is.na(mriBehClean$poc1scaled)] = NA # index where the NAs occur poc variable
+predictedValuesMod1 = predictedValues[!is.na(predictedValues)] # remove NAs
+# the predicted values from the model above accounts for all trials but the predicted values from the model with past outcome has missing values for first trials for each participant, so let's get rid of those values so that the length of the predictedValues and predictedValuesOC vectors are the same.
+
+summary(model2_potc_amt); # model with outcome only
+predictedValuesOC = predict(model2_potc_amt,type="response"); # this gets predicted responses (p(gamble)) on each trial
+
+predictionDiff= predictedValuesMod1 - predictedValuesOC; 
+# unclear if the following is correct but:
+# positive difference -> negative change in action as a function of past outcome (because trial-level model predicted more gambling than past outcome model did) 
+# no difference -> there wasn't a change in action as a function of past outcome
+# negative difference -> positive change in action as a function of past outcome (because trial-level model predicted less gambling than past outcome model did)
+
+
+# just look at first participant
+sub1mod1 = predictedValuesMod1[1:218] # don't include first trial because of poc NA situation
+sub1mod2 = predictedValuesOC[1:218]
+sub1diff = predictionDiff[1:218]
+plot(sub1mod1, col=rgb(red=0, green=0, blue=1, alpha=.5), pch=16, cex=1.5)
+points(sub1mod2, col=rgb(red=1, green=0, blue=0, alpha=.5), pch=16, cex=1.5)
+# points are mostly overlapping and differences are very small
+
+plot(sub1diff, col=rgb(red=0, green=1, blue=0, alpha=.5), pch=16, cex=1.5)
+# for this participant there was a negative change in risk-taking as a function of past outcome (positive values mean model 1 over predicted gambling behavior)
+
+```
+ 
 
 ```{r regression-for-rcs-parameter recovery}
 # we will use earningsSC instead of earning normalized
