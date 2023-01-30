@@ -689,7 +689,7 @@ abline(h=.5)
 plot(predictedValuesOC, ylab="p(gamble)", xlab="trial", main="predicted risk-taking\npast outcome model", pch=16, col=rgb(red=0, blue=1, green=0, alpha=.5))
 abline(h=.5)
 
-plot(predictionDiff,ylab="p(gamble)", xlab="trial", main="Model differences\ntrial-level - past outcome", pch=16, col=rgb(red=0, blue=0, green=1, alpha=.5))
+plot(predictionDiff,ylab="diff in p(gamble)", xlab="trial", main="Model differences\ntrial-level - past outcome", pch=16, col=rgb(red=0, blue=0, green=1, alpha=.5))
 abline(h=0)
 
 
