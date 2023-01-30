@@ -637,32 +637,78 @@ plot(tmpsafe)
 # We could subtract these two predictions and we would see the change in action as a function of previous otucome. So this could show us that past outcome was enormous or it was a moderate one at the right time.
 
 summary(model1_trialLevel); # model with gain, safe and magnitude
-predictedValues = predict(model1_trialLevel,type="response"); # this gets predicted responses (p(gamble)) on each trial
+predictedValues = predict(model1_trialLevel,type="response"); # this gets predicted responses (p(gamble)) on each trial from model one
+mriBehClean$model1PredictedVals = predictedValues
 
-predictedValues[is.na(mriBehClean$poc1scaled)] = NA # index where the NAs occur poc variable
-predictedValuesMod1 = predictedValues[!is.na(predictedValues)] # remove NAs
-# the predicted values from the model above accounts for all trials but the predicted values from the model with past outcome has missing values for first trials for each participant, so let's get rid of those values so that the length of the predictedValues and predictedValuesOC vectors are the same.
+
 
 summary(model2_potc_amt); # model with outcome only
 predictedValuesOC = predict(model2_potc_amt,type="response"); # this gets predicted responses (p(gamble)) on each trial
 
-predictionDiff= predictedValuesMod1 - predictedValuesOC; 
+
+pocNAind = which(is.na(mriBehClean$poc1scaled)); # rows where there is NA (i.e. where we are missing data from in the past outcome model)
+
+# Let's add the past outcome predicted values to the mriBehClean data set (so we can see stuff easily by participant to get a better look at what's happening). This is a little tricky because the poc predicted values vector is shorter (because NAs are not included in the model). Below is a nasty loop to do that (I ~knowwww~ this is not sophisticated whatever bye!)
+tmpvector = vector(mode="numeric", length=nrow(mriBehClean))
+tmpvector[pocNAind] = NA
+
+pocStart = 1 # initialize
+for (t in 1:length(pocNAind)) {
+  if(t < length(pocNAind)){
+    start = pocNAind[t]+1
+    end = pocNAind[t+1]-1
+    len = end-start # number of trials between the NAs
+    pocEnd = pocStart + len
+    
+    tmpvector[start:end] = predictedValuesOC[pocStart:pocEnd]
+  
+    pocStart = pocEnd+1
+  } else {
+    tmpvector[(end+2):length(tmpvector)] = predictedValuesOC[pocStart:length(predictedValuesOC)]
+  }
+}
+
+
+mriBehClean$pocPredictedValues = tmpvector;
+
+mriBehClean$triLev_poc_modelDiff_predictedVals = mriBehClean$model1PredictedVals - mriBehClean$pocPredictedValues
 # unclear if the following is correct but:
 # positive difference -> negative change in action as a function of past outcome (because trial-level model predicted more gambling than past outcome model did) 
 # no difference -> there wasn't a change in action as a function of past outcome
 # negative difference -> positive change in action as a function of past outcome (because trial-level model predicted less gambling than past outcome model did)
 
 
-# just look at first participant
-sub1mod1 = predictedValuesMod1[1:218] # don't include first trial because of poc NA situation
-sub1mod2 = predictedValuesOC[1:218]
-sub1diff = predictionDiff[1:218]
-plot(sub1mod1, col=rgb(red=0, green=0, blue=1, alpha=.5), pch=16, cex=1.5)
-points(sub1mod2, col=rgb(red=1, green=0, blue=0, alpha=.5), pch=16, cex=1.5)
-# points are mostly overlapping and differences are very small
 
-plot(sub1diff, col=rgb(red=0, green=1, blue=0, alpha=.5), pch=16, cex=1.5)
-# for this participant there was a negative change in risk-taking as a function of past outcome (positive values mean model 1 over predicted gambling behavior)
+
+
+pdf("../figures/triLevModel_pocModel_predPgam_all.pdf") 
+par(mfrow=c(1,1), pty="s")
+plot(predictedValuesMod1, ylab="p(gamble)", xlab="trial", main="predicted risk-taking\ntrial-level model", pch=16, col=rgb(red=1, blue=0, green=0, alpha=.5))
+abline(h=.5)
+
+plot(predictedValuesOC, ylab="p(gamble)", xlab="trial", main="predicted risk-taking\npast outcome model", pch=16, col=rgb(red=0, blue=1, green=0, alpha=.5))
+abline(h=.5)
+
+plot(predictionDiff,ylab="p(gamble)", xlab="trial", main="Model differences\ntrial-level - past outcome", pch=16, col=rgb(red=0, blue=0, green=1, alpha=.5))
+abline(h=0)
+
+
+for (s in 1:nSub) {
+  par(mfrow = c(1,3), pty="s")
+  plot(mriBehClean$model1PredictedVals[mriBehClean$subjectIndex==subIDs[s]], ylab="p(gamble)", xlab="trial", main="trial-level model", pch=16, col=rgb(red=1, blue=0, green=0, alpha=.5))
+  abline(h=.5)
+  
+  plot(mriBehClean$pocPredictedValues[mriBehClean$subjectIndex==subIDs[s]], ylab="p(gamble)", xlab="trial", main="past outcome model", pch=16, col=rgb(red=0, blue=1, green=0, alpha=.5))
+  abline(h=.5)
+  
+  plot(mriBehClean$triLev_poc_modelDiff_predictedVals[mriBehClean$subjectIndex==subIDs[s]], ylab="diff in p(gamble)", xlab="trial", main="trial-poc predicted", pch=16, col=rgb(red=0, blue=0, green=1, alpha=.5))
+  abline(h=.0)
+  
+  mtext(sprintf("Predicted risk-taking: trial level vs. past outcome models, sub %.0f",subIDs[s]), side = 3, line = -2, outer = TRUE) 
+}
+
+
+dev.off()
 
 ```
  
