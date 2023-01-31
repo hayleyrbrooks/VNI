@@ -593,6 +593,35 @@ model_relEarnWeightedRTlmer = lmer(relativeEarningsWeighted~RTs+ (1|subjectIndex
 summary(model_relEarnWeightedRTlmer); 
 # positive relationship between reaction time and relative earnings. When earnings are more than expected (positive rel earn value), reaction times are slower (larger RTs); when earnings are less than expected (negative rel earn value), reaction times are faster (smaller RTs); This would suggest that at choice display, there is more being processed when earnings > expectations and why we see a BUNCH of activity for that regressor.
 
+# RTs have a tail where there are a few people with long RTs that could be giving us this relationship. Let's sqrt it and then run the regression
+mriBehClean$RTssqrt = sqrt(mriBehClean$RTs)
+
+model_relEarnWeightedRTsqrtlmer = lmer(relativeEarningsWeighted~ RTssqrt+ (1|subjectIndex), data = mriBehClean);
+summary(model_relEarnWeightedRTsqrtlmer); 
+
+# model below switched outcome variable
+model_relEarnWeightedRTsqrtlmer = lmer(RTssqrt~relativeEarningsWeighted+ (1|subjectIndex), data = mriBehClean);
+summary(model_relEarnWeightedRTsqrtlmer); 
+# still a positive relationship between RTs
+
+#this is something we might need to put in the supplement or in the paper somewhere
+
+# We aren't equipped to analyze RT here and figure out what exactly is going on. It looks like when earnings are more than expected, there is less variability in RTs (distribution is smaller) relative to when earnings are less than expected there is more variability. 
+# .034 * .015 = .0005 (fast RT)
+# .34 * 1.4 = .48 (slowest RT)
+
+# worst rel. earnings = -.37 * .2 = -.07
+# best rel. earnings = .30 *.2 = .06 
+
+# we can look at deviations from the median RT given best and worst relative earnings
+# .61-.07 = .54^2 = .29 (290ms)
+# .61 + .06 = .67^2 = .45 (450ms)
+# if RT is at median (.61^2 = 370ms) and if you're in the worst place you can be (relative earnings) then your RT will be a little faster (290ms) and if you're relative earnings are the best they could, RT will be a little slower (450ms)
+
+# is this something that we should account for hemodynamically? We do have temporal derivatives and the difference here is very small (160ms difference TOTAL from best to worst earnings or 1/6th of a second). This suggests that we dont' need to be worried that this is messing up our BOLD model fit?
+
+# it does mean that thinking about looking at relative earnings, there is potentially something going on with RTs. RCS is a good place to follow up (no forced viewing period) and our task here (forced viewing window) designs against potential relationship between earnings and RTs.
+
 
 
 # 2) Next, lets look at a context-focused analysis with regressing choice on past ouctcome, positive shift and time (linear expectation) without earnings to see if this model outperforms a model with earnings
@@ -606,6 +635,7 @@ summary(model_earnings); # AIC =  7587.9 ; no main effect of earnings but AIC is
 # 3) Do regressions on task stimuli so that the DV is risky gain or safe amount regressed on time so that we can say whether the task itself doesn't have anything that is correlated with time. Basically, we want to know if there is any indication that behavior shows some changes over time.
 
 model_gainTime = lm(gainSC ~ trialSC, data= mriBehClean)
+summary(model_gainTime)
 # risky gain values increase with time
 
 model_safeTime = lm(altSC ~ trialSC, data= mriBehClean)
@@ -623,6 +653,20 @@ for (i in 1:219){
 plot(tmpgain)
 plot(tmpsafe)
 
+
+# there seems to be a very small trend that values rise toward this end. This could be a result of randomization and the run lengths (e.g. long and short runs are more likely to be in certain places of the task). This could be a thing to put in the supplement.
+
+# calculate effect size for risky gain ~ trial:
+# .024*.005 = .00012 # first trial
+# .024*1 = .024 # last trial - there is a 2.4% shift in value (risky gain) over the course of the study
+
+#Max gain is $61. So $61 * 2.4% = $1.46 change over the entire task (219 trials). Behaviorally, this doesn't really present an issue but for imaging, we do have to consider how this could impact us as we looking for signals of value (and here signals of value are correlated with time on a small level)
+
+# calculate effect size for safe ~ trial:
+# .008*.005 = .00004 # first trial
+# .008*1 = .008 # last trial - less than 1% change in value (safe) over the course of the study or a chance of $0.49 in safe value.
+
+# Part of this is taken care of by accounting for risky gain and safe values on the current trial in our BOLD analysis.
 
 ```
  
