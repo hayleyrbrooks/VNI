@@ -13,19 +13,19 @@
 - Mean missed trials = 1.75 trials; range = 0-11; median = .5
 - None of the trials were consecutive missed trials
 - After removing 84 trials, we have 10,428 trials across 48 participants and participants have 208-219 trials.
-- p(gamble) = .44; range = .13-.71
+- mean p(gamble) = .44; range = .13-.71
 
 ### GLMER results
-- similar to previous studies with the temporal choice set, we use a conservative two step approach where we first regress choice onto trial-level variables (e.g. risky gain, safe, and EV on trial t). Then we use the residuals (offset function) to allow recent events to account for additional risk-taking behavior. 
+- similar to previous studies with the temporal choice set, we use a conservative two step approach where we first regressed choice onto trial-level variables (e.g. risky gain, safe, and EV on trial t). Then we use the residuals (offset function) to allow recent events to account for additional risk-taking behavior. 
 
 Trial-level variables have effects we'd expect with more risk-taking as gain amounts increase (beta = 16.118(1.92), p < 2e-16 ) and less risk-taking as safe amounts increase (beta = -41.078(3.798), p < 2e-16). No effect of magnitude (or ev level). AIC = 8058.9
 
 Immediate timescale:
-- in a model alone, past outcome amount is not significant but it does interact with past outcome type. The interaction is difficult to interpret because the difference is with a loss outcome but loss outcomes are $0, so we can't see how the loss outcome would change with outcome amount? We tested whether this could be explained by people treating losses as missed gains or received-not received and no effects of either regressor were present.
+- in a model alone, past outcome amount is not significant but it does interact with past outcome type. The interaction is difficult to interpret because the difference is with a loss outcome but loss outcomes are $0, so we can't measure how the loss outcome effect would change with outcome amount? We tested whether this could be explained by people treating losses as missed gains or received-not received and no effects of either regressor were present.
 
 Neighborhood timescale:
-- from previous work (VIC; Brooks & Sokol-Hessner, in revision), we found a short-lasting effect of positive shift.
-- In a model with positive and negative shift amount, there is only a significant effect of positive shift consistent with VIC where there is more risk-taking following a positive shift and this effect is brief only lasting on the trial immediately following a shift and then drops off quickly.
+- from previous work (VIC; Brooks & Sokol-Hessner, in revision), we found a short-lasting effect of positive shift amount ($).
+- In a model with positive and negative shift amount, there is only a significant effect of positive shift amount consistent with VIC where there is more risk-taking as positive shift amount increases (this is risk-taking immediately following a shift) and this effect is brief only lasting on the trial immediately following a shift and then drops off quickly.
 - The effect of positive shift amount does not interact with run size or past outcome (similar to VIC)
 
 
@@ -36,8 +36,8 @@ Global timescale:
 
 
 - Immediate x Global timescale:
-  - Because outcomes accumulate to make cumulative earnings, we checked for an interaction between the past outcome amount and earnings (in a model with expectations, expectations x outcome, and positive shift). In this model, there is a negative effect of past outcome (beta = -.7730(.17), p = 4.46e-06) and a positive effect of positive shift (beta = 2.3304(.75), p = .00181) and a trending interaction between earnings and outcome (beta = 5.201(2.9242), p = .07530). No main effects of earnings or expectations and no interaction bewteen past outcome and expectations.
-  - Working out the effects and potential interaction between outcome and earnings: Overall, when participants did worse than expected, they took less risks and when earnings are more than expected, they took more risks and this pattern is stronger following a large outcome relative to a small outcome. It is possible that past outcome is the vehicle for the interaction between earnings and outcome, and trial and outcome. Likely a discussion for the supplement as a possible "why" for the interaction between two timescales.
+  - Because outcomes accumulate to make earnings, we checked for an interaction between the past outcome amount and earnings (in a model with expectations, expectations x outcome, and positive shift). In this model, there is a negative effect of past outcome (beta = -.7730(.17), p = 4.46e-06) and a positive effect of positive shift (beta = 2.3304(.75), p = .00181) and a trending interaction between earnings and outcome (beta = 5.201(2.9242), p = .07530). No main effects of earnings or expectations and no interaction bewteen past outcome and expectations.
+  - Working out the effects and potential interaction between outcome and earnings: Overall, when participants did worse than expected, they took less risks and when earnings are more than expected, they took more risks and this pattern is stronger following a large outcome relative to a small outcome. It is possible that past outcome is the vehicle for the interaction between earnings and outcome, and trial and outcome. Likely a discussion for the supplement as a possible "why" for the interaction between two timescales. Could it be the other way around? Instead of past outcome being the driver, perhaps earnings relative to expectations is the driver for the past outcome effect (i.e. people treat each outcome differently depending on how they are doing overall)?
 
 - Level-tracking (vs. linear expectation)??
     - Because our task includes small --> large shifts up and down, this could add to how people may expect to be doing (are they adjusting their expectations differently across the levels of context)? One way to account for this is by a 'level-tracking' variable (just adding up level on each trial, which will be a very similar variable to cumulative earnings). This variable is scaled between 0 and 1 for each participant (normalized within participant).
@@ -46,7 +46,7 @@ Global timescale:
     - The best model includes linear expectations and cumulative earnings (not level tracking). It looks like people are not significantly adjusting their expectations (as in Khaw (2017) where people adjust after hundreds of trials). If it is the case that people are not adjusting their expectations, are they not adjusting their reference point?
 
 - Relative earnings??
-    - There is a sign that there is something happening at the third level but the effect is happening across several regressors (earnings, trial, earnings x outcome, and possibly trial x outcome). It is not a nicely itemized effect like shift and past outcome effects and this effect could be happening as a result of the first level (past outcome). While it seems like one thing is happening, previous outcome effect changes based on how you're doing relative to expectations but it is so spread out across the variables that it makes the model with everything in it (the model including trial * poc) challenging. We could create a variable that captures the difference between earnings and expected earnings but the issue here is that we have to estimate the weighting. 
+    - There is a sign that there is something happening at the third level but the effect is happening across several regressors (earnings, expectations, earnings x outcome, and possibly expectations x outcome). It is not a nicely itemized effect like shift amount and past outcome effects and this effect could be happening as a result of the first level (past outcome). While it seems like one thing is happening, previous outcome effect changes based on how you're doing relative to expectations but it is so spread out across the variables that it makes the model with everything in it (the model including trial * poc) challenging. We could create a variable that captures the difference between earnings and expected earnings but the issue here is that we have to estimate the weighting. 
     -   We created a relative earnings variable (earnings - expectation) and put that variable in a model with past outcome, shift and expectations (we need to include expectations again because we don't really know the best way to account for the weighting of earnings and expectations in the relative earnings variable). There is no significant effect of relative earnings or interaction between earnings and outcomes in this model.
 
 All three timescales (simultaneously):
@@ -73,7 +73,7 @@ In each of the base models, we model choice display with no modulation, decision
 
 **Base model 3:** choice display modulated by relative choice (chosen vs unchosen: choice * (risky gain $ * .5) - safe (where choice is -1/1).
 
-Across these base models, we saw similar areas of activation across choice display (no modulation), decision and outcome display (with and without modulatio of outcome amount).
+Across these base models, we saw similar areas of activation across choice display (no modulation), decision and outcome display (with and without modulation of outcome amount).
   - choice display (no modulation): people were processing information and value; activity in areas including insula, occipital cortex, caudate, putamen, thalamus)
   - outcome display (no modulation): areas like thalamus, insula and frontal areas. These results are very similar across the 3 models.
   - decision period: results were less clear/promising with only some intracalcerine cortex and this is probably due to the task where choice display and decision are tightly coupled (decision ends choice display). Because of this, we have decided to not model decision in addition to choice display in subsequent models.
@@ -97,20 +97,32 @@ This model is base model 4 with additional recent event variables including:
 5. earnings (outcome display): this earnings variable includes the outcome displayed on the current trial. a whole bunch of decrease in activity across the brain - like a lot! with earning variables, there is so much activity it may mean that we are capturing something that tracking time and/or stuff we aren't interested it. It might make sense to put in linear term that is related to time to help us deal with this isssue. So we give the linear term a chance to account for this activity that might be confounded with earnings.
 
 
-To do: 
-1) relative earnings at choice display could be related to something like RT, so we’d expect an positive relationship between RT and relative earnings (so it would suggest slower responses as earnings increase and could suggest that there is more being processed at choice display when earnings>expectations). Need to follow up with this behaviorally.
-2) put in model 4 results above
-
-
 
 
 ## Follow up analyses (both behavior and BOLD)
-In the results for relative earnings modeled at choice display in model 5, we see a bunch of activity all over the brain, but esp. occipital activity. This makes us wonder if relative earnings variable as in model in 4 and 5 (relative earnings = earnings beta * earnings(t) + expectations beta * expectations (t); its + because beta estimate for expectations is negative) is also capturing something else that is tracking time, task engagement or other epiphenomenal things that we aren't interested in for this analysis. 
+In the results for relative earnings modeled at choice display in model 5, we see a bunch of activity all over the brain, but esp. occipital activity. This makes us wonder if relative earnings variable as in model in 4 and 5 (relative earnings = earnings beta * earnings(t) + expectations beta * expectations (t); these are added (vs subtracted) because beta estimate for expectations is negative) is also capturing something else that is tracking time, task engagement or other epi-phenomenal things that we aren't interested in for this analysis. 
 
 We checked looked for things potentially correlated with time in the behavior data in 3 ways:
-1. _Is there a relationship between relative earnings and reaction time?_ Note that our reaction times are somewhat restrictive because participants had a 2s forced viewing period. In a linear mixed effects model regression with relative earnings (weighted by betas as created in timing files for BOLD analysis) there is a positive relationship between relative earnings and reaction time. As earnings are more than expected, reaction time increases.
+1. _Is there a relationship between relative earnings and reaction time?_ 
+  - Note that our reaction times are somewhat restrictive because participants had a 2s forced viewing period. In a linear mixed effects model regression with relative earnings (weighted by betas as created in timing files for BOLD analysis) there is a positive relationship between relative earnings and reaction time. As earnings are more than expected, reaction time increases. 
+  - There is a long tail on the distribution of RTs (that could be leading to this relationship), but taking the sqaure root of the RTs (making the distribution more normal) also showed a positive relationship between earnings and reaction time. 
+  - It does look like the the variability in reaction time is greater when earnings are less than expected relative to the variability in RTs when earnings are more than expected. 
+  - Wondering whether we should account for this relationship between RT and relative earnings hemodynamically, we looked at deviations from the median RT given best and worst situations (earnings much higher than expected and much lower than expected) and the difference in deviation from median across the worst to best situation is 160ms (or 1/6th of a second). This is very small and we have temporal deriviatives in our BOLD models that should account for some of this. This suggests that we do not need to change our BOLD model to account for this. 
+  *Take away*: we are not well-equipped to look at reaction time and figure out what exactly is going on given our study design (forced viewing period). 
+  
 2. _Does a context-dependent model with trial (linear term) do better than a model with earnings?_ In these two models, we regress choice on past outcome, positive shift and trial or earnings. The model with earnings outperforms the model with trial, but neither have main effects (of earnings or trial). That a linear term does not outperform earnings is a potential sign that the effect of earnings>expectations is not strictly a time thing.
-3. _Does our task have any inherent features that change with time?_ In two separate models, we regressed risky gain and safe amounts on trial. There is a positive relationship between risky gain and trial (where risky gain values are, on average, increasing as the task progresses) and a trending, positive relationship between safe and trial. This suggests that there is some relationship between trial/time with the stimuli in the task (potentially unfortunate but also somewhat random that it happened this way?)
+
+3. _Does our task have any inherent features that change with time?_ 
+  - In two separate models, we regressed risky gain and safe amounts on trial. There is a positive relationship between risky gain and trial (where risky gain values are, on average, increasing as the task progresses) and a trending, positive relationship between safe and trial. 
+  - This could be a result of randomization and the run lengths (e.g. long and short runs are more likely to be in certain places of the task). This could be a thing to put in the supplement.
+  - Calculated the effect size for risky gain ~ trial and there is 2.4% shift in value (risky gain) over the course of the entire study. Max gain is $61. So $61 * 2.4% = $1.46 change over the entire task (219 trials). Behaviorally, this doesn't really present an issue but for imaging, we do have to consider how this could impact us as we looking for signals of value (and here signals of value are correlated with time on a small level). For the safe ~ trial effect size, there is less than 1% change in value (safe) over the course of the study or a chance of $0.49 in safe value.
+  - Part of this is taken care of by accounting for risky gain and safe values on the current trial in our BOLD analysis.
 
 
-In our BOLD analysis (model 4) it seems like past outcome as we model it now is missing something. Maybe we should be taking into consideration other things like choice difficulty. We looked at this by plotting predicted p(gamble) for trial-level model which includes gain, safe and magnitude (or ev level) regressed on choice (0/1) and then we plotted predicted p(gamble) for past outcome model (which is just past outcome regressed on to choice (0/1) with the offset command). The predicted values are _very_ similar and the differences between the two models (trial-level - past outcome) range from -.00171 to .00483 and the mean difference is 0.00011. It seems like on a participant-basis, the differences go in one or the other directions where trial-level model either consistency under or over predicted gambling for a given participant. Figures for the group and participants are [here](./1_mriBehaviorAnalysis/figures/triLevModel_pocModel_predPgam_all.pdf). 
+4. _Is past outcome as model in our BOLD analysis missing something?_ 
+  - Maybe we should be taking into consideration other things like choice difficulty? We looked at this by plotting predicted p(gamble) for trial-level model which includes gain, safe and magnitude (or ev level) regressed on choice (0/1) and then we plotted predicted p(gamble) for past outcome model (which is just past outcome regressed on to choice (0/1) with the offset command). 
+  - The predicted values are _very_ similar and the differences between the two models (trial-level - past outcome) range from -.00171 to .00483 and the mean difference is 0.00011. It seems like on a participant-basis, the differences go in one or the other directions where trial-level model either consistency under or over predicted gambling for a given participant. Figures for the group and participants are [here](./1_mriBehaviorAnalysis/figures/triLevModel_pocModel_predPgam_all.pdf).
+  - PSH: The graphs of the change in p(gamble) from trial-level vs. potc are a little confusing to me (that they’re all almost uniquely pos. or neg. on an individual basis is initially unexpected, but the more I reflect on it, this may make sense. The regressor is strictly positive, soooo… of course it pushes things only one direction on a per-person basis. Enh this approach may not be as fruitful as I thought it might be.
+
+
+Based on these results above, we are going to move forward with our BOLD model 5, but including a linear term (0 to 1) modeled at choice display to try to account for other linear things that could be happening at the same time that we are trying to understand relative earnings.
