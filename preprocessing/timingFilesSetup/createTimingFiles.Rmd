@@ -75,16 +75,16 @@ When done, add these timing files to RDAC.
 
 #### Create onset files for CHOICE DISPLAY
 
-- choiceDispMeanEV_run#.txt: choice display modulated by mean expected value (mean center)
-- choiceDispEVGAmt_run#.txt: choice display modulated by ev gain amount (mean center)
-- choiceDispSafeAmt_run#.txt: choice display modulated by ev safe amount (mean center)
-- choiceDispChosenUnchosen_run#.txt: choice display modulated by chosen-unchosen
-- choiceDispNoModulation_run#.txt: choice display with no modulation
+- choiceDispMeanEV_run#.txt: choice display modulated by mean expected value (mean centered within runs)
+- choiceDispEVGAmt_run#.txt: choice display modulated by ev gain amount (mean center within runs)
+- choiceDispSafeAmt_run#.txt: choice display modulated by ev safe amount (mean center within runs)
+- choiceDispChosenUnchosen_run#.txt: choice display modulated by chosen-unchosen (mean centered within runs)
+- choiceDispNoModulation_run#.txt: choice display with no modulation 
 - choiceDispShift_run#.txt: includes trials where shift occurred accounted for at choice display
 - choiceDispShiftAmt_run#.txt: includes trials where shift occurred modulated by shift amount (NOT mean centered because they are mean-centered naturally and mean centering within runs creates issue with timing files that FSL doesn't like, scaled)
-- choiceDispPastOCAmt_run#.txt: choice display modulated by past outcome amount
-- choiceDispEarnExpAmt_run#.txt: choice display modulated by earnings - expectations (using beta weights from behavior)
-- choiceDispLinear_run#.txt: choice display modulated by a linear term (0 to 1 over the task)
+- choiceDispPastOCAmt_run#.txt: choice display modulated by past outcome amount (mean centered within runs)
+- choiceDispEarnExpAmt_run#.txt: choice display modulated by earnings - expectations (using beta weights from behavior; mean-centered across runs)
+- choiceDispLinear_run#.txt: choice display modulated by a linear term (0 to 1 over the task; mean-centered across runs)
 
 ```{r choice-display} 
 
@@ -169,7 +169,7 @@ RDMraw$earningsSC = RDMraw$earnings/max(RDMraw$earnings); #create scaled earning
 RDMraw$earningsNormalized = earningsScaledBySub # store normalized earnings 
 RDMraw$earningsTrialT = earningsTrialT/max(earningsTrialT) # store earnings that include current trial outcome
 
-RDMraw$relativeEarnings = (earningsBeta*RDMraw$earningsSC) + (expectationsBeta*RDMraw$expectations)
+RDMraw$relativeEarnings = (earningsBeta*RDMraw$earningsSC) + (expectationsBeta*RDMraw$expectations); # using addition because expectations are negative
 # using earnings up until trial t for relative earnings
 
 for (s in 1:nSubRaw) {
@@ -193,7 +193,7 @@ for (s in 1:nSubRaw) {
     choiceDispOnset = eventrun$onset[stimStartInd]
     choiceDispDuration = eventrun$duration[stimStartInd] + eventrun$duration[decWindowInd]; # duration is stimStart duration + decisionWindow duration (which is basically RT)
     
-    # add onset and duration to RDM data
+    # add onset and duration to RDM data for a given run
     RDMsubRun$choiceDispOnset = choiceDispOnset
     RDMsubRun$choiceDispDuration = choiceDispDuration
     
@@ -201,16 +201,15 @@ for (s in 1:nSubRaw) {
     missedTrials = RDMsubRun$triBlock[is.na(RDMsubRun$choice)]; # index the missed trials for this run
     if(length(missedTrials>0)){
       RDMsubRun =RDMsubRun[-c(missedTrials),] # remove missed trials
-      #stimStartInd = stimStartInd[-c(missedTrials)]; # remove missed trials
-      #decWindowInd = decWindowInd[-c(missedTrials)]; # remove missed trials
     }
 
 
     # store events by onset, duration and modulation (mean ev, gain, safe) and mean center them (by functional run)
-    modulationEV = RDMsubRun$meanEV- mean(RDMsubRun$meanEV); # mean EV
-    modulationEVG = (RDMsubRun$riskyGain*.5)-mean(RDMsubRun$riskyGain*.5); # ev gamble
-    modulationSafe = RDMsubRun$alternative-mean(RDMsubRun$alternative); # safe amount
-    modulationRelEarnings = RDMsubRun$relativeEarnings - mean(RDMsubRun$relativeEarnings) # relative earnings
+    modulationEV = RDMsubRun$meanEV- mean(RDMsubRun$meanEV); # mean EV mean centered within run
+    modulationEVG = (RDMsubRun$riskyGain*.5)-mean(RDMsubRun$riskyGain*.5); # ev gamble mean centered within run
+    modulationSafe = RDMsubRun$alternative-mean(RDMsubRun$alternative); # safe amount mean centered within run
+    modulationRelEarnings = RDMsubRun$relativeEarnings - mean(RDMsub$relativeEarnings) # relative earnings mean centered ACROSS runs
+    modulationLinear = RDMsubRun$expectations - mean(RDMsub$expectations) # linear term (0ish to 1 across the task) mean centered ACROSS runs
     
     # create modulation for chosen vs unchosen
     # chosen = 1 * EVG-EVS (so this is trials where choice = 1 and the EV diff on those trials)
@@ -219,9 +218,6 @@ for (s in 1:nSubRaw) {
     modulationChoseUnchosen = RDMsubRun$choiceRecode*((RDMsubRun$riskyGain*.5) - RDMsubRun$alternative)
     modulationChoseUnchosen = modulationChoseUnchosen - meanEVDiff
 
-    # if(length(missedTrials>0)){
-    #   modulationChoseUnchosen = modulationChoseUnchosen[-c(missedTrials)] # remove missed trials
-    # }
 
    # round and scale modulators
     modulationEV = round(modulationEV/scaleby, digits =2);
@@ -259,10 +255,11 @@ for (s in 1:nSubRaw) {
     choiceSafe = cbind(onset, RDMsubRun$choiceDispDuration, modulationSafe);
     choiceNoModulation = cbind(onset, RDMsubRun$choiceDispDuration, 1); # gets a 1 for "weight" column since not using modulation here
     choiceChosenUnchosen = cbind(onset, RDMsubRun$choiceDispDuration, modulationChoseUnchosen)
-    choiceShiftNoModulation = cbind(onsetShift, durationShift, 1)
+    choiceShiftNoModulation = cbind(onsetShift, durationShift, 1); # gets a 1 for "weight" column since not using modulation here
     choiceShiftAmt = cbind(onsetShift, durationShift, modulationShift)
     choicePOCAmt = cbind(onsetPOC, durationPOC, modulationPOC)
     choiceRelEarnings = cbind(onset, RDMsubRun$choiceDispDuration, modulationRelEarnings)
+    choiceLinear = cbind(onset,RDMsubRun$choiceDispDuration, modulationLinear)
 
 
     # create file names
@@ -276,6 +273,7 @@ for (s in 1:nSubRaw) {
     choiceShiftAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceDispShiftAmt_run",r,sep=""))
     
     choiceRelEarningsfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceRelEarnings_run",r,sep=""))
+    choiceLinearfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choiceLinearTerm_run",r,sep=""))
     choicePastOutcomefileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("choicePastOutcome_run",r,sep=""))
     
     
@@ -289,6 +287,7 @@ for (s in 1:nSubRaw) {
     write.table(choiceShiftNoModulation, file=choiceShiftNoModfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceShiftAmt, file=choiceShiftAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(choiceRelEarnings, file=choiceRelEarningsfileName, row.names = F, col.names = F, sep="\t");
+    write.table(choiceLinear, file=choiceLinearfileName, row.names = F, col.names = F, sep="\t");
     write.table(choicePOCAmt, file=choicePastOutcomefileName, row.names = F, col.names = F, sep="\t");
     
     
@@ -301,10 +300,13 @@ for (s in 1:nSubRaw) {
   
   
 #### Create onset files for OUTCOME
-- outcomeDisp_otcAmt_run#.txt: all outcomes, outcome amount
-- outcomeDisp_otcWinAmt_run#.txt: win, received - not received 
-- outcomeDisp_otcLossAmt_run#.txt: loss, received - not received
-- outcomeDisp_otcSafeAmt_run#.txt: safe, amount received 
+- outcomeDispNoMod_run#.txt : all outcomes, no modulation 
+- outcomeDisp_otcAmt_run#.txt: all outcomes, outcome amount (mean centered within runs)
+- outcomeDisp_otcWinAmt_run#.txt: win, received-not received (mean centered within runs; this is just the gain amount because loss is 0)
+- outcomeDisp_otcLossAmt_run#.txt: loss, received-not received (mean centered within runs; because losses are 0, this may be more meaningful)
+- outcomeDisp_otcSafeAmt_run#.txt: safe, amount received (mean centered within runs)
+- outcomeDispEarnings_run#.txt: outcome display modulated by earnings (inc. outcome on current trial; mean centered ACROSS runs)
+
 
 ```{r outcome}
 
@@ -372,33 +374,34 @@ for (s in 1:nSubRaw) {
  
     # modulations are mean-centered for each functional run for each participant
     # all outcomes
-        modulationAllotc = RDMsubRun$outcome - mean(RDMsubRun$outcome); # outcome amount, mean centered
+        modulationAllotc = RDMsubRun$outcome - mean(RDMsubRun$outcome); # outcome amount, mean centered within run
   
     
       # gain outcomes
         onsetGainotc = RDMsubRun$outcomeDispOnset[gainOutcomeTrial]; 
         durationGainotc = RDMsubRun$outcomeDispDuration[gainOutcomeTrial]; 
-        modulationGainotc = modulationAllotc[gainOutcomeTrial]; # modulationAllotc is already mean-centered
+        modulationGainotc = RDMsubRun$outcome[gainOutcomeTrial] - mean(RDMsubRun$outcome[gainOutcomeTrial]); # mean center within run 
         
         
-      # loss outcomes
+      # loss outcomes (received - not received)
         onsetLossotc = RDMsubRun$outcomeDispOnset[lossOutcomeTrial]; 
         durationLossotc = RDMsubRun$outcomeDispDuration[lossOutcomeTrial]; 
-        modulationLossotc = 1; # because this is always 0 in this task, we want to make this 1 for FSL timing files
-        
+        # losses should be received - not received so 0 - gain amount on a loss trial
+        modulationLossotc = (0 - RDMsubRun$riskyGain[lossOutcomeTrial]) - mean(0 - RDMsubRun$riskyGain[lossOutcomeTrial]); # mean centered within run
         
       # safe outcomes
         onsetSafeotc = RDMsubRun$outcomeDispOnset[safeOutcomeTrial]; 
         durationSafeotc = RDMsubRun$outcomeDispDuration[safeOutcomeTrial]; 
-        modulationSafeotc = modulationAllotc[safeOutcomeTrial]; # modulationAllotc is already mean-centered
+        modulationSafeotc = RDMsubRun$outcome[safeOutcomeTrial] - mean(RDMsubRun$outcome[safeOutcomeTrial]); # mean centered within run 
         
     
       # earnings 
-        modulationEarningsTrialT = RDMsubRun$earningsTrialT - mean(RDMsubRun$earningsTrialT) # earnings including outcome on current trial
+        modulationEarningsTrialT = RDMsubRun$earningsTrialT - mean(RDMsub$earningsTrialT) # earnings including outcome on current trial mean centered ACROSS runs
 
         # round and scale the modulators
         modulationGainotc = round(modulationGainotc/scaleby, digits=2);
         modulationSafeotc = round(modulationSafeotc/scaleby, digits=2);
+        modulationLossotc = round(modulationLossotc/scaleby, digits = 2);
         modulationAllotc = round(modulationAllotc/scaleby, digits =2)
         modulationEarningsTrialT = round(modulationEarningsTrialT, digits =2) # value already scaled 
           
