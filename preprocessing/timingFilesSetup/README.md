@@ -28,17 +28,25 @@ For each participant, there are 3 onset files (corresponding to each run) for al
 Modulation amounts in onset files are mean-centered and scaled by max(riskyGain) which is $60.99. This is consistent with our behavioral analysis.
 
 ### Choice display (onset = stimulus window onset, duration = stimulus window + decision window):
-1) Choice display modulated by mean expected value
-2) Choice display modulated by risky gain amount
-3) Choice display modulated by safe amount
+1) Choice display modulated by mean expected value (mean centered within runs)
+2) Choice display modulated by ev gamble amount (mean centered within runs)
+3) Choice display modulated by ev safe amount (mean centered within runs)
 4) Choice display with no modulation
+5) Choice display modulated by relative choice (chosen-unchosen; mean centered within runs)
+6) Choice display for trials where shift occurred but with no modulation of shift amount
+7) Choice display for trials where shift occurred modulated by shift amount (NOT mean centered because they are mean-centered naturally and mean centering within runs creates issue with timing files that FSL doesn't like, scaled)
+8) Choice display modulated by past outcome amount (mean centered within runs)
+9) Choice display modulated by relative earnings (using beta weights from behavior; mean centered across runs)
+10) Choice display modulated by linear term. This trial 1 to trial 219 normalized to be 1/219 to 1 over the task; mean centered across runs)
+
 
 ### Outcome display 
-1) Outcome display modulated by outcome amount
-2) Outcome display for risky win outcome, modulated by amount
-3) Outcome display for risky loss outcome, modulated by amount (?? this is zero, change to received-not received)
-4) Outcome display for safe outcome, modulated by amount
+1) Outcome display modulated by outcome amount (mean centered within runs)
+2) Outcome display for risky gain outcome, modulated by amount (mean centered within runs)
+3) Outcome display for risky loss outcome, modulated by amount (received-not received; mean centered within runs)
+4) Outcome display for safe outcome, modulated by amount (mean centered within runs)
 5) Outcome display for all otucomes, no modulation
+6) Outcome display modulated by earnings (including earning on trial t; mean centered across runs)
 
 ### Decision
 1) Decision modulated by mean EV

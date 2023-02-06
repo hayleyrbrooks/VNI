@@ -125,4 +125,6 @@ We checked looked for things potentially correlated with time in the behavior da
   - PSH: The graphs of the change in p(gamble) from trial-level vs. potc are a little confusing to me (that they’re all almost uniquely pos. or neg. on an individual basis is initially unexpected, but the more I reflect on it, this may make sense. The regressor is strictly positive, soooo… of course it pushes things only one direction on a per-person basis. Enh this approach may not be as fruitful as I thought it might be.
 
 
-Based on these results above, we are going to move forward with our BOLD model 5, but including a linear term (0 to 1) modeled at choice display to try to account for other linear things that could be happening at the same time that we are trying to understand relative earnings.
+Based on these results above, we are going to move forward with our BOLD model 5, but including a linear term (0 to 1; mean-centered ACROSS runs) modeled at choice display to try to account for other linear things that could be happening at the same time that we are trying to understand relative earnings. We also modified the timing files for relative earnings (at choice display) and earnings (at outcome display) so that these variables were mean-centered ACROSS runs (whereas most variables are mean-centered within run).
+
+**model 6: 3 timescales plus linear term (choice display)**
