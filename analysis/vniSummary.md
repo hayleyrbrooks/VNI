@@ -83,18 +83,26 @@ Across these base models, we saw similar areas of activation across choice displ
 We decided to stick with base model 3 because it appears most consistent with previous research that uses relative choice but will drop decision (base model 4).
 
 
-**Base model 4:** similar to model 3 with choice display modulated by relative choice but we no longer model decision. This is our main model that we are moving forward with to complicate by adding recent event variables!
+**Base model 4:** similar to model 3 with choice display modulated by relative choice but we no longer model decision. This is our main model that we are moving forward with to complicate by adding recent event variables.
+- choice display (no modulation): similar as base models above (with a little more left insula).
+- outcome display (no modulation): similar as base models above.
+- choice display (relative choice modulator): very similar as above with some incrased activity in angular gyrus, anterior dmPFC, cingulate gyrus and anterior cingulate gyrus, some left and right amygdala, some insula activity (with this model showing stronger activity in the left insula than model above) and more supplementary motor cortex than model above.
+- outcome display (outcome amount modulation): basically identical to models above.
 
 
 ### Temporal context (adding recent event variables)
 
 **model 5: 3 timescales**
 This model is base model 4 with additional recent event variables including:
-1. positive shift (choice display) with no modulation: really nothing showing up here, very small clusters here and there
-2. positive shift (choice display) modulated by shift amount: only seeing activation for negative (decrease activity as shift increases) in the left putamen, some left insula, some superior frontal gyrus, cingulate gyrus, lateral pfc. Shift amount is important here which is consistent with our behavior.
-3. relative earnings (choice display): this variable uses the betas for earnings and expectations in the behavior analysis to calculate the difference between earnings and expectations. We see a lot of occipital activity (all red/increased activity with earnings), left thalamus and hippocampus, tiny bit of right thalamus, this could be that earnings are doing something (modulating the extent to which people are engaged on the trial, e.g. looking more intently, slowing down. Or it could be epiphenomenal where it might be reflecting something else like time, people slowing down with time or getting tired.) One other note - it seems like RTs are slower when earnings are more than expected which makes the window of choice display bigger when earnings are more than expected but this should be accounted for by the timing files in the model already.
-4. past outcome amount (choice display): decrease in cingulate gyrus, not seeing meaningful increases in activity
-5. earnings (outcome display): this earnings variable includes the outcome displayed on the current trial. a whole bunch of decrease in activity across the brain - like a lot! with earning variables, there is so much activity it may mean that we are capturing something that tracking time and/or stuff we aren't interested it. It might make sense to put in linear term that is related to time to help us deal with this isssue. So we give the linear term a chance to account for this activity that might be confounded with earnings.
+1. choice display (no modulation): consistent with base models above
+2. outcome display (no modulation): same as above.
+3. choice display (relative choice modulator): consistent with model 4 above, with slightly more paracingulate gyrus.
+4. outcome display (outcome amount modulation): very similar as above, clusters in some areas look a little bigger but the difference is small.
+5. positive shift (choice display) with no modulation: really nothing showing up here, very small clusters here and there
+6. positive shift (choice display) modulated by shift amount: only seeing activation for negative (decrease activity as shift increases) in the left putamen, some left insula, some superior frontal gyrus, cingulate gyrus, lateral pfc. Shift amount is important here which is consistent with our behavior.
+7. relative earnings (choice display): this variable uses the betas for earnings and expectations in the behavior analysis to calculate the difference between earnings and expectations. We see a lot of occipital activity (all red/increased activity with earnings), left thalamus and hippocampus, tiny bit of right thalamus, this could be that earnings are doing something (modulating the extent to which people are engaged on the trial, e.g. looking more intently, slowing down. Or it could be epiphenomenal where it might be reflecting something else like time, people slowing down with time or getting tired.) One other note - it seems like RTs are slower when earnings are more than expected which makes the window of choice display bigger when earnings are more than expected but this should be accounted for by the timing files in the model already.
+8. past outcome amount (choice display): decrease in cingulate gyrus, not seeing meaningful increases in activity
+9. earnings (outcome display): this earnings variable includes the outcome displayed on the current trial. a whole bunch of decrease in activity across the brain - like a lot! with earning variables, there is so much activity it may mean that we are capturing something that tracking time and/or stuff we aren't interested it. It might make sense to put in linear term that is related to time to help us deal with this isssue. So we give the linear term a chance to account for this activity that might be confounded with earnings.
 
 
 
