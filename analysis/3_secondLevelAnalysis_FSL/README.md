@@ -127,7 +127,7 @@ In the scripts/secondLevel directory, make a copy of the runLev2.sh script and a
 	-  cp runLev2.sh runLev2_choiceDispNoMod.sh   # makes a copy with a new name
 	-  vim runLev2_choiceDispNoMod.sh # open in vim and follow instructions in step 1 where we changed the MODELTYPE variable to be the directory where the correct fsf files live for the analysis we are interested in (for this example, its choiceDispNoMod)
 
-### STEP 5: Run the second-level analysis (this takes ~1 min per participant)
+### STEP 5: Run the second-level analysis (this takes ~5-10 min per participant)
 
          -  cd /data/psychology/sokol-hessnerlab/VNI/scripts/secondLevel
          -  sbatch runLev2_nameOfModel.sh <three digit ID number, e.g. 001> 
