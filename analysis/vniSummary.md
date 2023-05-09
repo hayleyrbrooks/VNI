@@ -135,4 +135,36 @@ We checked looked for things potentially correlated with time in the behavior da
 
 Based on these results above, we are going to move forward with our BOLD model 5, but including a linear term (0 to 1; mean-centered ACROSS runs) modeled at choice display to try to account for other linear things that could be happening at the same time that we are trying to understand relative earnings. We also modified the timing files for relative earnings (at choice display) and earnings (at outcome display) so that these variables were mean-centered ACROSS runs (whereas most variables are mean-centered within run).
 
-**model 6: 3 timescales plus linear term (choice display)**
+**model 6: 3 timescales plus linear term (at choice display)**
+1. choice display (no modulation): 
+   - increased activation: lots of occipital/visual cortex, left/right thalamus, l/r putamen, l/r caudate, l/r insula, paracingulate gyrus, some OFC (medial)
+   - decreased activation: vmpfc, right postcentral gyrus, l/r super and middle temporal gyrus, left/right angular gyrus, cingulate gyrus, also negative with ofc (but more lateral) 
+2. choice display w/ relative choice:
+    - increased activation: left/right thalamus, l/r amygdala, some l/r insula, decent amount of l/r ofc, lots of l/r angular gyrus, r/l dmpfc and vmpfc
+    - decreased activation: none
+3. choice display when shift occurred (no modulation):
+    - increased activation: no meaningful activation
+    - decreased activation: no meaningful activation
+4. choice display when shift occurred w/ shift amount:
+    - increased activation: no meaningful activation
+    - decreased activation: left putamen, left insula, left superior frontal gyrus; clusters are pretty small (relative to other results)
+5. choice display w/ relative earnings:
+    - increased activation: tiniest bit in the left "frontal pole", otherwise nothing meaningful
+    - decreased activation: no meaningful activation
+6. choice display w/ past outcome amount:
+    - increased activation: no activation - very small clusters, not looking significant
+    - decreased activation: cingulate gyrus (very anterior and then very posterior but nothing in between), right and left angular gyrus (more on the right side though); left and right temporal occipital fusiform cortex; l/r lingual gyrus
+7. choice display w/ linear term:
+     - increased activation: no meaningful activation
+    - decreased activation: quite a bit of overlap with earnings at outcome display (different time points though??). The main area where there is not overlap is the frontal lobe (left and right dorsal media PFC and media PFC (looks more ventral than anything). Adding this linear term at choice display and the disappearance of any activity for earnings implies that our previous model showing a bunch of activity at choice display w/relative earnings was capturing something epiphenomnenal.
+8. outcome display (no modulation):
+    - increased activation: bunch of occipital stuff - people processing information
+    - decreased activation: Heschl's gyrus (left and right); generally more left side negative activation
+9. outcome display w/ outcome amount:
+    - increased activation: lots of stuff: left and right hippocampus (e.g. left: 31, 47, 32); right and left thalamus (e.g. left: 42, 58, 40); left and right caudate (e.g. left: 41, 68, 37); left and right accumbens (e.g. left: 40, 68, 31); left and right putamen (e.g. left: 32, 61, 33); right and left amygdala (e.g. left: 34, 63, 27); right and left pallidum (e.g. left: 38, 64, 35) these coordinates are VOXEL locations! left and right vmPFC (like jeuchems using -6, 64, 2 coordinates MNI) and OFC; some insula (more on the right, e.g. mni coord: 40, 4.3, -3.5)
+    - decreased activation: none
+10. outcome display w/ earnings amount:
+    - increased activation: none
+    - decreased activation: a whole bunch of decrease activation in occipital lobe; a BUNCH of overlap (opposite direction of activity though) with outcome display modulated by outcome amount (including vmPFC and thalamus). CHECK THIS OVERLAP WITH LINEAR TERM AT CHOICE DISPLAY.
+
+
