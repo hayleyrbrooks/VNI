@@ -161,10 +161,34 @@ Based on these results above, we are going to move forward with our BOLD model 5
     - increased activation: bunch of occipital stuff - people processing information
     - decreased activation: Heschl's gyrus (left and right); generally more left side negative activation
 9. outcome display w/ outcome amount:
-    - increased activation: lots of stuff: left and right hippocampus (e.g. left: 31, 47, 32); right and left thalamus (e.g. left: 42, 58, 40); left and right caudate (e.g. left: 41, 68, 37); left and right accumbens (e.g. left: 40, 68, 31); left and right putamen (e.g. left: 32, 61, 33); right and left amygdala (e.g. left: 34, 63, 27); right and left pallidum (e.g. left: 38, 64, 35) these coordinates are VOXEL locations! left and right vmPFC (like jeuchems using -6, 64, 2 coordinates MNI) and OFC; some insula (more on the right, e.g. mni coord: 40, 4.3, -3.5)
+    - increased activation: lots of stuff! 
+      - putamen (left: -17.5, 6.9, -6.9; right: 19.7, 6.9, -9.8) 
+      - nucleus accumbens (left: -8, 6.9, -6.5; right: 9.7, 6.9, -8.5)
+      - also pallidum (don't have specific coordinates)
+      - From Juechems the striatal coordinates included -14, 12, -2 and we show this too
+      - Insula (left:-37.7, -3.96, 9.3; right: 34.9, 1.5, 8.5 or 37.9, -1, .59)
+      - Amygdala (left: 22. 7, -2.1, -19.3; right: 22.6, -2.1, -19.7)
+      - Hippocampus (left: -20.1, -13.9, -20.5; right: 21.4, -14.3, -18.5)
+      - Thalamus (left: -4.8, -14.3, 9.3; right: 9.3, -14.3, 8.9)
+      - VMPFC overlapping with Jeuchems (eg. left: -2, 52, -2 and right: 2, 52, -2)
+      - Lots of paracingulate gyrus, some occiptial stuff
     - decreased activation: none
 10. outcome display w/ earnings amount:
     - increased activation: none
-    - decreased activation: a whole bunch of decrease activation in occipital lobe; a BUNCH of overlap (opposite direction of activity though) with outcome display modulated by outcome amount (including vmPFC and thalamus). CHECK THIS OVERLAP WITH LINEAR TERM AT CHOICE DISPLAY.
-
+    - decreased activation: lots of stuff!
+      - a whole bunch of decrease activation in occipital lobe; 
+      - Thalamus (left: -7.7, -13.7, 1.8; right: 8, -5, 1)
+      - Hippocampus (left: -24, -25, -10; right: 26.5, -25, 12.7)
+      - Parahippocampal gyrus (left: -22, -25, -24; right: 25.9, -25, -24)
+      - Amygdala (left: -29.2, -6.3, -20.6; right: 27.9, -2.25, -21.8)
+      - Insula (posterior; left: -35, -20, 2.24; right: 35.6, -20, 4.7)
+      - Insula (anterior; left: -32.5, 11, -15.6; right: 35, 11, -12.3)
+      - OFC - more activity on the right side across lateral and medial areas; some decrease but less so on the left side (e.g. -46, 37.6, -12,5)
+      - Left/right middle and superior frontal gyrus
+      - paracingulate gyrus
+      - VMPFC super close to Jeuchems earnings location (-6, 64, 2)
+      
+  There is a BUNCH of overlap between earnings and outcome amount at outcome display (opposite directions of activity though) with decreases in BOLD as earnings increase and increases in BOLD as outcomes increase. 
+  - The biggest difference for earnings is that there is larger decrease in occipital, much more paracingluate gyrus (decrease in BOLD) and while both events show changes in hippocampus, only the right hippocampus activity decreases with earnings. Also thalamus decrease in actviity more inferior with earnings than the increase for outcome amount. Posterior and anterior insula.
+  - There are several unique features of outcome display incuding overall striatal activity (accumbens, caudate, putamen), superior thalamus, more insula activity with outcome amount but its the more middle part of the insula (compared to earnings which show decreases in activity in the more posterior and anterior parts of the insula). For the hippocampus, both sides more active with outcome amount. Bilateral precentral gyrus and anterior cingulate gyrus increase with outcome amount and more OFC at outcome (medial portions).
 
