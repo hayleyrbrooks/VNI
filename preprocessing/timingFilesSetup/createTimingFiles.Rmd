@@ -306,6 +306,8 @@ for (s in 1:nSubRaw) {
 - outcomeDisp_otcLossAmt_run#.txt: loss, received-not received (mean centered within runs; because losses are 0, this may be more meaningful)
 - outcomeDisp_otcSafeAmt_run#.txt: safe, amount received (mean centered within runs)
 - outcomeDispEarnings_run#.txt: outcome display modulated by earnings (inc. outcome on current trial; mean centered ACROSS runs)
+- outcomeDispEarnExpAmt_run#.txt: outcome display modulated by earnings - expectations (using beta weights from behavior; mean-centered across runs)
+- outcomeDispLinear_run#.txt: outcome display modulated by a linear term (0 to 1 over the task; mean-centered across runs)
 
 
 ```{r outcome}
@@ -320,6 +322,14 @@ nRun = 3;
 offset = .6087;
 scaleby = max(RDMraw$riskyGain, na.rm=T);
 
+# create earnings and expectation variables
+# earnings are 0 to 1 across the entire task (not within runs or starting over at the beginning of each run) but are scaled across individuals (not everyone ends at 1)
+# expectations are scaled across individuals (i.e. by the single largest cumulative earnings)
+# EARNINGS BETA = 2.3959
+earningsBeta = 2.3959
+# EXPECTATIONS BETA = -2.1927
+expectationsBeta = -2.1927
+# from model: model5_potc_posshift_earn_trial 
 
 
 for (s in 1:nSubRaw) {
