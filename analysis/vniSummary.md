@@ -188,7 +188,12 @@ Based on these results above, we are going to move forward with our BOLD model 5
       - paracingulate gyrus
       - VMPFC super close to Jeuchems earnings location (-6, 64, 2)
       
-  There is a BUNCH of overlap between earnings and outcome amount at outcome display (opposite directions of activity though) with decreases in BOLD as earnings increase and increases in BOLD as outcomes increase. 
+  There is a BUNCH of overlap between earnings and outcome amount at outcome display (opposite directions of activity though) with decreases in BOLD as earnings increase and increases in BOLD as outcomes increase.
   - The biggest difference for earnings is that there is larger decrease in occipital, much more paracingluate gyrus (decrease in BOLD) and while both events show changes in hippocampus, only the right hippocampus activity decreases with earnings. Also thalamus decrease in actviity more inferior with earnings than the increase for outcome amount. Posterior and anterior insula.
   - There are several unique features of outcome display incuding overall striatal activity (accumbens, caudate, putamen), superior thalamus, more insula activity with outcome amount but its the more middle part of the insula (compared to earnings which show decreases in activity in the more posterior and anterior parts of the insula). For the hippocampus, both sides more active with outcome amount. Bilateral precentral gyrus and anterior cingulate gyrus increase with outcome amount and more OFC at outcome (medial portions).
+- There is quite a lot of overlap between decreases in activation for the linear term regressor (at choice display) and earnings at outcome display. Although these are occurring at different timepoints, this (along with the lack of activation of relative earnings at choice display when accounting for linear term) warrants checking whether our earnings regressor at outcome display is accounting for epiphenomenal stuff.
 
+Based on these results from model 6, we are going to re-run this model with 2 changes. First, make the earnings regressor in the outcome display relative earnings (right now it is just earnings including the outcome on the current trial). This regressor will be relative earnings including outcome on the current trial. We will also add a linear term at outcome display.
+
+
+**model 7: 3 timescales plus linear term at both choice and outcome display; relative earnings at both choice and outcome display**
