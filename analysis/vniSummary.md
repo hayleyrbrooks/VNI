@@ -195,5 +195,6 @@ Based on these results above, we are going to move forward with our BOLD model 5
 
 Based on these results from model 6, we are going to re-run this model with 2 changes. First, make the earnings regressor in the outcome display relative earnings (right now it is just earnings including the outcome on the current trial). This regressor will be relative earnings including outcome on the current trial. We will also add a linear term at outcome display.
 
+NOTE: models above did not include missed trials at outcome (they were just modeled at choice display). sad :( 
 
 **model 7: 3 timescales plus linear term at both choice and outcome display; relative earnings at both choice and outcome display**
