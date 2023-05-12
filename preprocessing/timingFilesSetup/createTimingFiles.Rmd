@@ -121,7 +121,7 @@ newMat[newMat[,2]==1,]=NaN; #in newmtx, when diff = 1, replace with NaN, this re
 RDMraw$poc1 = newMat[,1];# add new vector to RDMraw
 
 
-# create earnings and expectation variables
+# create earnings and expectation variables (these are used in both the choice display and outcome display timing files)
 # earnings are 0 to 1 across the entire task (not within runs or starting over at the beginning of each run) but are scaled across individuals (not everyone ends at 1)
 # expectations are scaled across individuals (i.e. by the single largest cumulative earnings)
 # EARNINGS BETA = 2.3959
@@ -167,11 +167,16 @@ RDMraw$expectations = expectations # store linear expectation (scaled)
 RDMraw$earnings = earnings; #store earnings 
 RDMraw$earningsSC = RDMraw$earnings/max(RDMraw$earnings); #create scaled earnings variable and store it
 RDMraw$earningsNormalized = earningsScaledBySub # store normalized earnings 
-RDMraw$earningsTrialT = earningsTrialT/max(earningsTrialT) # store earnings that include current trial outcome
+RDMraw$earningsTrialT = earningsTrialT; # store earnings that include current trial outcome
+RDMraw$earningsTrialTsc = RDMraw$earningsTrialT/max(RDMraw$earningsTrialT) # scale earnings (inc oc on trial t) and store it
 
+# CHOICE DISPLAY: using earnings up until trial t for relative earnings at outcome display
 RDMraw$relativeEarnings = (earningsBeta*RDMraw$earningsSC) + (expectationsBeta*RDMraw$expectations); # using addition because expectations are negative
-# using earnings up until trial t for relative earnings
+# OUTCOME DISPLAY: using earnings including trial t for relative earnings at outcome display
+RDMraw$relativeEarningsOCdisp = (earningsBeta*RDMraw$earningsTrialTsc) + (expectationsBeta*RDMraw$expectations); # using addition because expectations are negative
 
+
+# now create the timing files for choice display
 for (s in 1:nSubRaw) {
 #for (s in 1) {  
   ind = grep(sprintf("sub-%s_run",subID_bids[s]), eventFiles); # get indices of event files for participant 
@@ -306,14 +311,11 @@ for (s in 1:nSubRaw) {
 - outcomeDisp_otcLossAmt_run#.txt: loss, received-not received (mean centered within runs; because losses are 0, this may be more meaningful)
 - outcomeDisp_otcSafeAmt_run#.txt: safe, amount received (mean centered within runs)
 - outcomeDispEarnings_run#.txt: outcome display modulated by earnings (inc. outcome on current trial; mean centered ACROSS runs)
-- outcomeDispEarnExpAmt_run#.txt: outcome display modulated by earnings - expectations (using beta weights from behavior; mean-centered across runs)
-- outcomeDispLinear_run#.txt: outcome display modulated by a linear term (0 to 1 over the task; mean-centered across runs)
+- outcomeDispRelativeEarnings_run#.txt: outcome display modulated by earnings - expectations (using beta weights from behavior; mean-centered across runs)
+- outcomeDispLinearTerm_run#.txt: outcome display modulated by a linear term (0 to 1 over the task; mean-centered across runs)
 
 
 ```{r outcome}
-
-
-
 # each participant has three event files, one for each run
 # each event file has 438 rows (73 trials x 6 events)
 nTblock = 73;
@@ -321,15 +323,6 @@ nEvents = 6;
 nRun = 3;
 offset = .6087;
 scaleby = max(RDMraw$riskyGain, na.rm=T);
-
-# create earnings and expectation variables
-# earnings are 0 to 1 across the entire task (not within runs or starting over at the beginning of each run) but are scaled across individuals (not everyone ends at 1)
-# expectations are scaled across individuals (i.e. by the single largest cumulative earnings)
-# EARNINGS BETA = 2.3959
-earningsBeta = 2.3959
-# EXPECTATIONS BETA = -2.1927
-expectationsBeta = -2.1927
-# from model: model5_potc_posshift_earn_trial 
 
 
 for (s in 1:nSubRaw) {
@@ -384,37 +377,39 @@ for (s in 1:nSubRaw) {
  
     # modulations are mean-centered for each functional run for each participant
     # all outcomes
-        modulationAllotc = RDMsubRun$outcome - mean(RDMsubRun$outcome); # outcome amount, mean centered within run
-  
+    modulationAllotc = RDMsubRun$outcome - mean(RDMsubRun$outcome); # outcome amount, mean centered within run
     
-      # gain outcomes
-        onsetGainotc = RDMsubRun$outcomeDispOnset[gainOutcomeTrial]; 
-        durationGainotc = RDMsubRun$outcomeDispDuration[gainOutcomeTrial]; 
-        modulationGainotc = RDMsubRun$outcome[gainOutcomeTrial] - mean(RDMsubRun$outcome[gainOutcomeTrial]); # mean center within run 
-        
-        
-      # loss outcomes (received - not received)
-        onsetLossotc = RDMsubRun$outcomeDispOnset[lossOutcomeTrial]; 
-        durationLossotc = RDMsubRun$outcomeDispDuration[lossOutcomeTrial]; 
-        # losses should be received - not received so 0 - gain amount on a loss trial
-        modulationLossotc = (0 - RDMsubRun$riskyGain[lossOutcomeTrial]) - mean(0 - RDMsubRun$riskyGain[lossOutcomeTrial]); # mean centered within run
-        
-      # safe outcomes
-        onsetSafeotc = RDMsubRun$outcomeDispOnset[safeOutcomeTrial]; 
-        durationSafeotc = RDMsubRun$outcomeDispDuration[safeOutcomeTrial]; 
-        modulationSafeotc = RDMsubRun$outcome[safeOutcomeTrial] - mean(RDMsubRun$outcome[safeOutcomeTrial]); # mean centered within run 
-        
     
-      # earnings 
-        modulationEarningsTrialT = RDMsubRun$earningsTrialT - mean(RDMsub$earningsTrialT) # earnings including outcome on current trial mean centered ACROSS runs
-
-        # round and scale the modulators
-        modulationGainotc = round(modulationGainotc/scaleby, digits=2);
-        modulationSafeotc = round(modulationSafeotc/scaleby, digits=2);
-        modulationLossotc = round(modulationLossotc/scaleby, digits = 2);
-        modulationAllotc = round(modulationAllotc/scaleby, digits =2)
-        modulationEarningsTrialT = round(modulationEarningsTrialT, digits =2) # value already scaled 
-          
+    # gain outcomes
+    onsetGainotc = RDMsubRun$outcomeDispOnset[gainOutcomeTrial]; 
+    durationGainotc = RDMsubRun$outcomeDispDuration[gainOutcomeTrial]; 
+    modulationGainotc = RDMsubRun$outcome[gainOutcomeTrial] - mean(RDMsubRun$outcome[gainOutcomeTrial]); # mean center within run 
+    
+    
+    # loss outcomes (received - not received)
+    onsetLossotc = RDMsubRun$outcomeDispOnset[lossOutcomeTrial]; 
+    durationLossotc = RDMsubRun$outcomeDispDuration[lossOutcomeTrial]; 
+    # losses should be received - not received so 0 - gain amount on a loss trial
+    modulationLossotc = (0 - RDMsubRun$riskyGain[lossOutcomeTrial]) - mean(0 - RDMsubRun$riskyGain[lossOutcomeTrial]); # mean centered within run
+    
+    # safe outcomes
+    onsetSafeotc = RDMsubRun$outcomeDispOnset[safeOutcomeTrial]; 
+    durationSafeotc = RDMsubRun$outcomeDispDuration[safeOutcomeTrial]; 
+    modulationSafeotc = RDMsubRun$outcome[safeOutcomeTrial] - mean(RDMsubRun$outcome[safeOutcomeTrial]); # mean centered within run 
+    
+    
+    # earnings 
+    modulationEarningsTrialT = RDMsubRun$earningsTrialTsc - mean(RDMsub$earningsTrialTsc) # earnings including outcome on current trial mean centered ACROSS runs
+    modulationRelEarnTrialT = RDMsubRun$relativeEarningsOCdisp - mean(RDMsub$relativeEarningsOCdisp) # relative earnings including outcome on current trial mean centered ACROSS runs
+    modulationLinear = RDMsubRun$expectations - mean(RDMsub$expectations) # linear term (0ish to 1 across the task) mean centered ACROSS runs
+    
+    
+    # round and scale the modulators
+    modulationGainotc = round(modulationGainotc/scaleby, digits=2);
+    modulationSafeotc = round(modulationSafeotc/scaleby, digits=2);
+    modulationLossotc = round(modulationLossotc/scaleby, digits = 2);
+    modulationAllotc = round(modulationAllotc/scaleby, digits =2)
+    
     # Offset the onset times by .6087s (see notes above)
     onsetAllotc = RDMsubRun$outcomeDispOnset + offset;
     onsetGainotc = onsetGainotc + offset;
@@ -422,15 +417,16 @@ for (s in 1:nSubRaw) {
     onsetSafeotc = onsetSafeotc + offset;
     
     
-
-    
     # store onset, duration and modulation into a single data frame
     outcomeAmt = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, modulationAllotc);
     GAINoutcomeAmt = cbind(onsetGainotc, durationGainotc, modulationGainotc);
     LOSSoutcomeAmt = cbind(onsetLossotc, durationLossotc, modulationLossotc);
     SAFEoutcomeAmt = cbind(onsetSafeotc, durationSafeotc, modulationSafeotc);
     NOMODoutcomeAmt = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, 1);
-    outcomeDispEarnings = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, modulationEarningsTrialT)
+    outcomeDispEarnings = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, modulationEarningsTrialT);
+    outcomeDispRelativeEarnings = cbind(onsetAllotc, RDMsubRun$outcomeDispDuration, modulationRelEarnTrialT);
+    outcomeDispLinearTerm = cbind(onsetAllotc,RDMsubRun$outcomeDispDuration, modulationLinear)
+
     
     # create file names
     outcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispOCAmt_run",r,sep=""));
@@ -439,13 +435,19 @@ for (s in 1:nSubRaw) {
     SAFEoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispOCSafeAmt_run",r,sep=""));
     NOMODoutcomeAmtfileName = sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispNoMod_run",r,sep=""));
     outcomeDispEarningsfileName =sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispEarnings_run",r,sep=""));
+    outcomeDispRelativeEarningsfileName =sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispRelativeEarnings_run",r,sep=""));
+    outcomeDispLinearTermfileName =sprintf("%s/sub-%s/%s.txt", config$path$data$onset_files,subID_bids[s],paste("outcomeDispLinearTerm_run",r,sep=""));
+    
     # save files
     write.table(outcomeAmt, file=outcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(GAINoutcomeAmt, file=GAINoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(LOSSoutcomeAmt, file=LOSSoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(SAFEoutcomeAmt, file=SAFEoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
     write.table(NOMODoutcomeAmt, file=NOMODoutcomeAmtfileName, row.names = F, col.names = F, sep="\t");
-    write.table(outcomeDispEarnings, file = outcomeDispEarningsfileName, row.names = F, col.names = F, sep="\t")
+    write.table(outcomeDispEarnings, file = outcomeDispEarningsfileName, row.names = F, col.names = F, sep="\t");
+    write.table(outcomeDispRelativeEarnings, file = outcomeDispRelativeEarningsfileName, row.names = F, col.names = F, sep="\t");
+    write.table(outcomeDispLinearTerm, file = outcomeDispLinearTermfileName, row.names = F, col.names = F, sep="\t");
+
     
   } # end for (r in 1:nRun)
 } # end for (s in 1:nSubRaw)
